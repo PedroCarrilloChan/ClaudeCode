@@ -1,50 +1,69 @@
 /**
- * Smart Passes Platform - Cloudflare Worker
- * Sistema completo de Google Wallet
- * VERSIÓN CONSOLIDADA PARA QUICK EDIT
+ * Smart Passes Platform - Cloudflare Worker V2
+ * Sistema completo de Google Wallet con funcionalidades avanzadas
+ * VERSIÓN CONSOLIDADA MEJORADA PARA QUICK EDIT
  */
 
 // ==========================================
-// GOOGLE WALLET INTEGRATION
+// GOOGLE WALLET INTEGRATION - TIPOS DE PASES
 // ==========================================
 
-// Tipos de pases soportados
 const TIPOS_PASE = {
   'generic': {
     nombre: 'Genérico',
+    descripcion: 'Pase general para cualquier propósito',
     endpoint_clase: 'genericClass',
     endpoint_objeto: 'genericObject',
     icono: '🎫'
   },
   'loyalty': {
     nombre: 'Lealtad',
+    descripcion: 'Programas de puntos y recompensas',
     endpoint_clase: 'loyaltyClass',
     endpoint_objeto: 'loyaltyObject',
     icono: '⭐'
   },
   'offer': {
     nombre: 'Oferta/Cupón',
+    descripcion: 'Cupones de descuento y promociones',
     endpoint_clase: 'offerClass',
     endpoint_objeto: 'offerObject',
     icono: '🎁'
   },
   'giftcard': {
     nombre: 'Tarjeta de Regalo',
+    descripcion: 'Tarjetas con saldo prepagado',
     endpoint_clase: 'giftCardClass',
     endpoint_objeto: 'giftCardObject',
     icono: '💳'
   },
   'eventticket': {
     nombre: 'Boleto de Evento',
+    descripcion: 'Entradas para eventos y conciertos',
     endpoint_clase: 'eventTicketClass',
     endpoint_objeto: 'eventTicketObject',
     icono: '🎟️'
+  },
+  'transit': {
+    nombre: 'Transporte',
+    descripcion: 'Pases de transporte público',
+    endpoint_clase: 'transitClass',
+    endpoint_objeto: 'transitObject',
+    icono: '🚇'
+  },
+  'flight': {
+    nombre: 'Pase de Abordar',
+    descripcion: 'Pases de abordaje para vuelos',
+    endpoint_clase: 'flightClass',
+    endpoint_objeto: 'flightObject',
+    icono: '✈️'
   }
 };
 
-/**
- * Base64 URL encode
- */
+// ==========================================
+// UTILIDADES BASE64 Y JWT
+// ==========================================
+
 function base64urlEncode(input) {
   let str;
   if (typeof input === 'string') {
@@ -55,11 +74,7 @@ function base64urlEncode(input) {
   return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
-/**
- * Firma JWT usando RS256
- */
 async function signJWT(data, privateKeyPem) {
-  // Importar clave privada
   const pemHeader = "-----BEGIN PRIVATE KEY-----";
   const pemFooter = "-----END PRIVATE KEY-----";
   const pemContents = privateKeyPem
@@ -72,15 +87,11 @@ async function signJWT(data, privateKeyPem) {
   const key = await crypto.subtle.importKey(
     'pkcs8',
     binaryDer,
-    {
-      name: 'RSASSA-PKCS1-v1_5',
-      hash: 'SHA-256'
-    },
+    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
     false,
     ['sign']
   );
 
-  // Firmar
   const encoder = new TextEncoder();
   const dataBuffer = encoder.encode(data);
   const signature = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, dataBuffer);
@@ -88,17 +99,10 @@ async function signJWT(data, privateKeyPem) {
   return base64urlEncode(signature);
 }
 
-/**
- * Obtiene token de acceso de Google usando JWT
- */
 async function obtenerTokenGoogle(credentials) {
   const now = Math.floor(Date.now() / 1000);
 
-  const header = {
-    alg: 'RS256',
-    typ: 'JWT'
-  };
-
+  const header = { alg: 'RS256', typ: 'JWT' };
   const claim = {
     iss: credentials.client_email,
     scope: 'https://www.googleapis.com/auth/wallet_object.issuer',
@@ -107,16 +111,13 @@ async function obtenerTokenGoogle(credentials) {
     exp: now + 3600
   };
 
-  // Crear JWT
   const encodedHeader = base64urlEncode(JSON.stringify(header));
   const encodedClaim = base64urlEncode(JSON.stringify(claim));
   const signatureInput = `${encodedHeader}.${encodedClaim}`;
 
-  // Firmar con clave privada
   const signature = await signJWT(signatureInput, credentials.private_key);
   const jwt = `${signatureInput}.${signature}`;
 
-  // Intercambiar JWT por access token
   const response = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -127,46 +128,288 @@ async function obtenerTokenGoogle(credentials) {
   return data.access_token;
 }
 
-/**
- * Crea una clase de Google Wallet
- */
+// ==========================================
+// CONSTRUCCIÓN DE TEMPLATES
+// ==========================================
+
+function construirTemplateLealtad(memberFields) {
+  /**
+   * Construye template para estructurar datos del miembro en filas
+   * Args: memberFields: ['nombre', 'nivel', 'descuento', 'telefono']
+   */
+  const filas = memberFields.map(fieldId => ({
+    oneItem: {
+      item: {
+        firstValue: {
+          fields: [{ fieldPath: `object.textModulesData['${fieldId}']` }]
+        }
+      }
+    }
+  }));
+
+  return {
+    cardTemplateOverride: {
+      cardRowTemplateInfos: filas
+    }
+  };
+}
+
+function construirTemplate(campos) {
+  /**
+   * Construye template genérico para campos personalizados
+   */
+  if (!campos || campos.length === 0) return null;
+
+  return {
+    cardTemplateOverride: {
+      cardRowTemplateInfos: campos.map(campo => ({
+        oneItem: {
+          item: {
+            firstValue: {
+              fields: [{ fieldPath: campo.fieldPath }]
+            }
+          }
+        }
+      }))
+    }
+  };
+}
+
+// ==========================================
+// CREAR CLASES - ESTRUCTURA BASE
+// ==========================================
+
+function crearClaseGenerica(classId, config) {
+  /**
+   * Crea la estructura base de una clase (común a todos los tipos)
+   */
+  const payload = {
+    id: classId,
+    issuerName: config.issuer_name || 'Smart Passes',
+    hexBackgroundColor: config.color_fondo || '#4285F4',
+    reviewStatus: 'UNDER_REVIEW'
+  };
+
+  // Logo
+  if (config.logo_url) {
+    payload.logo = {
+      sourceUri: { uri: config.logo_url }
+    };
+  }
+
+  // Imagen Hero
+  if (config.hero_url) {
+    payload.heroImage = {
+      sourceUri: { uri: config.hero_url }
+    };
+  }
+
+  // Template de campos
+  if (config.campos) {
+    const template = construirTemplate(config.campos);
+    if (template) payload.classTemplateInfo = template;
+  }
+
+  // Enlaces/botones
+  if (config.enlaces) {
+    payload.linksModuleData = {
+      uris: config.enlaces
+    };
+  }
+
+  // Webhooks
+  if (config.webhook_url || config.update_request_url) {
+    payload.callbackOptions = {};
+    if (config.webhook_url) payload.callbackOptions.url = config.webhook_url;
+    if (config.update_request_url) payload.callbackOptions.updateRequestUrl = config.update_request_url;
+  }
+
+  return payload;
+}
+
+// ==========================================
+// CREAR CLASES - TIPOS ESPECÍFICOS
+// ==========================================
+
+function crearClaseLealtad(classId, config) {
+  /**
+   * Crea clase de programa de lealtad con estructura visual mejorada
+   *
+   * ESTRUCTURA VISUAL:
+   * 1. Strip superior: programLogo + programName + contador PUNTOS
+   * 2. Imagen central VIP: Banner rectangular 3:1 con beneficios
+   * 3. Datos del miembro: Filas estructuradas (nombre, nivel, etc.)
+   * 4. QR code + número de membresía
+   */
+  const payload = crearClaseGenerica(classId, config);
+
+  // 1. STRIP SUPERIOR - Nombre del programa
+  payload.programName = config.program_name || config.issuer_name || 'Programa de Lealtad';
+
+  // 2. STRIP SUPERIOR - Logo del programa
+  if (payload.logo) {
+    payload.programLogo = payload.logo;
+    delete payload.logo;
+  } else if (config.strip_logo_url) {
+    payload.programLogo = {
+      sourceUri: { uri: config.strip_logo_url }
+    };
+  }
+
+  // 3. IMAGEN CENTRAL VIP - Banner rectangular (3:1)
+  if (config.central_image_url) {
+    payload.imageModulesData = [{
+      id: 'vip_banner',
+      mainImage: {
+        sourceUri: { uri: config.central_image_url },
+        contentDescription: {
+          defaultValue: {
+            language: 'es-MX',
+            value: config.central_image_description || 'Miembro VIP'
+          }
+        }
+      }
+    }];
+  }
+
+  // 4. TEMPLATE - Estructura de filas para datos del miembro
+  if (config.member_fields) {
+    payload.classTemplateInfo = construirTemplateLealtad(config.member_fields);
+  }
+
+  // Niveles de recompensa
+  if (config.reward_tiers) {
+    payload.rewardsTier = config.reward_tiers;
+  }
+
+  // NO usar heroImage para evitar conflictos
+  if (payload.heroImage) delete payload.heroImage;
+
+  return payload;
+}
+
+function crearClaseOferta(classId, config) {
+  const payload = crearClaseGenerica(classId, config);
+
+  payload.provider = config.provider || 'Smart Passes';
+  payload.title = config.offer_title || 'Oferta Especial';
+  payload.redemptionChannel = config.redemption_channel || 'online';
+
+  return payload;
+}
+
+function crearClaseGiftcard(classId, config) {
+  const payload = crearClaseGenerica(classId, config);
+
+  payload.merchantName = config.merchant_name || config.issuer_name || 'Smart Passes';
+
+  if (payload.logo) {
+    payload.programLogo = payload.logo;
+    delete payload.logo;
+  }
+
+  payload.allowMultipleUsersPerObject = false;
+
+  return payload;
+}
+
+function crearClaseEvento(classId, config) {
+  const payload = crearClaseGenerica(classId, config);
+
+  payload.eventName = {
+    defaultValue: {
+      language: 'es-MX',
+      value: config.event_name || 'Evento'
+    }
+  };
+
+  if (config.venue) {
+    payload.venue = {
+      name: {
+        defaultValue: {
+          language: 'es-MX',
+          value: config.venue
+        }
+      }
+    };
+  }
+
+  return payload;
+}
+
+function crearClaseTransito(classId, config) {
+  const payload = crearClaseGenerica(classId, config);
+
+  payload.transitType = config.transit_type || 'BUS';
+  payload.transitOperatorName = {
+    defaultValue: {
+      language: 'es-MX',
+      value: config.operator_name || 'Operador de Transporte'
+    }
+  };
+
+  return payload;
+}
+
+function crearClaseVuelo(classId, config) {
+  const payload = crearClaseGenerica(classId, config);
+
+  payload.flightHeader = {
+    carrier: {
+      carrierIataCode: config.airline_code || 'XX'
+    },
+    flightNumber: {
+      defaultValue: {
+        language: 'es-MX',
+        value: config.flight_number || '000'
+      }
+    }
+  };
+
+  payload.origin = {
+    terminal: config.origin_terminal || '1',
+    gate: config.origin_gate || 'A1',
+    airportIataCode: config.origin_code || 'MEX'
+  };
+
+  payload.destination = {
+    terminal: config.dest_terminal || '1',
+    gate: config.dest_gate || 'B1',
+    airportIataCode: config.dest_code || 'LAX'
+  };
+
+  return payload;
+}
+
+// ==========================================
+// CREAR CLASE EN GOOGLE WALLET API
+// ==========================================
+
 async function crearClase(credentials, tipo, classId, config) {
   try {
-    const token = await obtenerTokenGoogle(credentials);
-    const endpoint = TIPOS_PASE[tipo]?.endpoint_clase || 'genericClass';
-
-    const payload = {
-      id: classId,
-      issuerName: config.issuer_name || 'Smart Passes',
-      hexBackgroundColor: config.color_fondo || '#4285F4'
+    const funciones = {
+      'generic': crearClaseGenerica,
+      'loyalty': crearClaseLealtad,
+      'offer': crearClaseOferta,
+      'giftcard': crearClaseGiftcard,
+      'eventticket': crearClaseEvento,
+      'transit': crearClaseTransito,
+      'flight': crearClaseVuelo
     };
 
-    // Logo
-    if (config.logo_url) {
-      payload.logo = {
-        sourceUri: { uri: config.logo_url }
-      };
+    if (!funciones[tipo]) {
+      return { success: false, error: `Tipo de pase no válido: ${tipo}` };
     }
 
-    // Hero Image
-    if (config.hero_url) {
-      payload.heroImage = {
-        sourceUri: { uri: config.hero_url }
-      };
-    }
+    const payload = funciones[tipo](classId, config);
+    const token = await obtenerTokenGoogle(credentials);
+    const endpoint = TIPOS_PASE[tipo].endpoint_clase;
 
-    // Webhooks
-    if (config.webhook_url) {
-      payload.callbackOptions = {
-        url: config.webhook_url
-      };
-    }
-
-    // Crear clase (intentar POST primero)
-    const response = await fetch(
-      `https://walletobjects.googleapis.com/walletobjects/v1/${endpoint}`,
+    // Intentar PATCH primero (actualizar)
+    let response = await fetch(
+      `https://walletobjects.googleapis.com/walletobjects/v1/${endpoint}/${classId}`,
       {
-        method: 'POST',
+        method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -175,8 +418,22 @@ async function crearClase(credentials, tipo, classId, config) {
       }
     );
 
+    // Si no existe (404), crear nuevo (POST)
+    if (response.status === 404) {
+      response = await fetch(
+        `https://walletobjects.googleapis.com/walletobjects/v1/${endpoint}`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        }
+      );
+    }
+
     if (response.ok || response.status === 409) {
-      // 409 significa que ya existe, que está bien
       return { success: true };
     } else {
       const error = await response.text();
@@ -187,38 +444,66 @@ async function crearClase(credentials, tipo, classId, config) {
   }
 }
 
-/**
- * Genera link "Add to Google Wallet"
- */
-function generarLinkWallet(credentials, tipo, objetoId) {
-  const endpoint = TIPOS_PASE[tipo]?.endpoint_objeto || 'genericObject';
+// ==========================================
+// EDITAR CLASE EXISTENTE
+// ==========================================
 
-  const payload = {
-    iss: credentials.client_email,
-    aud: 'google',
-    typ: 'savetowallet',
-    iat: Math.floor(Date.now() / 1000),
-    origins: [],
-    payload: {
-      [`${endpoint}s`]: [{ id: objetoId }]
+async function editarClase(credentials, tipo, classId, nuevaConfig) {
+  /**
+   * Actualiza clase existente usando PATCH con updateMask=*
+   * Los cambios se reflejan en todos los pases existentes
+   */
+  try {
+    const funciones = {
+      'generic': crearClaseGenerica,
+      'loyalty': crearClaseLealtad,
+      'offer': crearClaseOferta,
+      'giftcard': crearClaseGiftcard,
+      'eventticket': crearClaseEvento,
+      'transit': crearClaseTransito,
+      'flight': crearClaseVuelo
+    };
+
+    if (!funciones[tipo]) {
+      return { success: false, error: `Tipo de pase no válido: ${tipo}` };
     }
-  };
 
-  // Generar JWT simple (para el link no necesita firma completa)
-  const token = base64urlEncode(JSON.stringify(payload));
+    const payload = funciones[tipo](classId, nuevaConfig);
+    const token = await obtenerTokenGoogle(credentials);
+    const endpoint = TIPOS_PASE[tipo].endpoint_clase;
 
-  return `https://pay.google.com/gp/v/save/${token}`;
+    const response = await fetch(
+      `https://walletobjects.googleapis.com/walletobjects/v1/${endpoint}/${classId}?updateMask=*`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    if (response.ok) {
+      return { success: true, mensaje: 'Clase actualizada exitosamente' };
+    } else {
+      const error = await response.text();
+      return { success: false, error };
+    }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
 }
 
-/**
- * Crea un objeto (pase) de Google Wallet
- */
+// ==========================================
+// CREAR OBJETO (PASE INDIVIDUAL)
+// ==========================================
+
 async function crearObjeto(credentials, tipo, classId, datos) {
   try {
     const token = await obtenerTokenGoogle(credentials);
     const endpoint = TIPOS_PASE[tipo]?.endpoint_objeto || 'genericObject';
 
-    // Generar ID único
     const objetoId = `${classId}-${crypto.randomUUID().replace(/-/g, '')}`;
 
     const payload = {
@@ -227,7 +512,7 @@ async function crearObjeto(credentials, tipo, classId, datos) {
       state: 'ACTIVE'
     };
 
-    // Título
+    // Título de la tarjeta
     if (datos.nombre) {
       payload.cardTitle = {
         defaultValue: {
@@ -237,7 +522,7 @@ async function crearObjeto(credentials, tipo, classId, datos) {
       };
     }
 
-    // Header
+    // Encabezado
     if (datos.titulo) {
       payload.header = {
         defaultValue: {
@@ -247,14 +532,44 @@ async function crearObjeto(credentials, tipo, classId, datos) {
       };
     }
 
-    // Módulos de texto
+    // Campos de texto personalizados
     if (datos.campos_texto) {
       payload.textModulesData = datos.campos_texto;
     }
 
-    // Código de barras
+    // Código de barras/QR
     if (datos.barcode) {
       payload.barcode = datos.barcode;
+    }
+
+    // ESPECÍFICO PARA LOYALTY
+    if (tipo === 'loyalty') {
+      // Contador de puntos
+      if (datos.puntos !== null && datos.puntos !== undefined && datos.puntos !== '') {
+        try {
+          const puntosInt = parseInt(datos.puntos);
+          payload.loyaltyPoints = {
+            label: 'PUNTOS',
+            balance: { int: puntosInt }
+          };
+        } catch (e) {
+          // Ignorar si no es válido
+        }
+      }
+
+      // Número de cuenta/membresía
+      const accountId = datos.account_id || datos.numero_membresia;
+      if (accountId && String(accountId).trim()) {
+        payload.accountId = String(accountId).trim();
+      }
+    }
+
+    // ESPECÍFICO PARA GIFTCARD
+    if (tipo === 'giftcard' && datos.saldo) {
+      payload.balance = {
+        micros: parseInt(datos.saldo * 1000000),
+        currencyCode: datos.moneda || 'MXN'
+      };
     }
 
     // Crear objeto
@@ -271,9 +586,7 @@ async function crearObjeto(credentials, tipo, classId, datos) {
     );
 
     if (response.ok) {
-      // Generar link
       const link = generarLinkWallet(credentials, tipo, objetoId);
-
       return {
         success: true,
         objetoId,
@@ -289,6 +602,187 @@ async function crearObjeto(credentials, tipo, classId, datos) {
 }
 
 // ==========================================
+// ACTUALIZAR PASE EXISTENTE
+// ==========================================
+
+async function actualizarPase(credentials, tipo, objetoId, datosActualizados) {
+  /**
+   * Actualiza campos de un pase existente usando PATCH
+   * Google Wallet envía notificación automática si detecta cambios importantes
+   */
+  try {
+    if (!TIPOS_PASE[tipo]) {
+      return { success: false, error: `Tipo de pase no válido: ${tipo}` };
+    }
+
+    const endpoint = TIPOS_PASE[tipo].endpoint_objeto;
+    const token = await obtenerTokenGoogle(credentials);
+
+    const payload = {};
+
+    // Actualizar campos de texto
+    if (datosActualizados.campos_texto) {
+      payload.textModulesData = datosActualizados.campos_texto;
+    }
+
+    // Actualizar puntos (solo loyalty)
+    if (tipo === 'loyalty' && datosActualizados.puntos !== null && datosActualizados.puntos !== undefined) {
+      try {
+        const puntosInt = parseInt(datosActualizados.puntos);
+        payload.loyaltyPoints = {
+          label: 'PUNTOS',
+          balance: { int: puntosInt }
+        };
+      } catch (e) {
+        // Ignorar
+      }
+    }
+
+    // Actualizar saldo (solo giftcard)
+    if (tipo === 'giftcard' && datosActualizados.saldo !== null && datosActualizados.saldo !== undefined) {
+      payload.balance = {
+        micros: parseInt(datosActualizados.saldo * 1000000),
+        currencyCode: datosActualizados.moneda || 'MXN'
+      };
+    }
+
+    const response = await fetch(
+      `https://walletobjects.googleapis.com/walletobjects/v1/${endpoint}/${objetoId}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    if (response.ok) {
+      return {
+        success: true,
+        mensaje: 'Pase actualizado. Google Wallet enviará notificación automática si hubo cambios importantes.'
+      };
+    } else {
+      const error = await response.text();
+      return { success: false, error };
+    }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// ==========================================
+// NOTIFICACIONES PUSH
+// ==========================================
+
+async function enviarNotificacionPase(credentials, tipo, objetoId, mensaje) {
+  /**
+   * Envía notificación push a UN pase específico
+   */
+  try {
+    if (!TIPOS_PASE[tipo]) {
+      return { success: false, error: `Tipo de pase no válido: ${tipo}` };
+    }
+
+    const endpoint = TIPOS_PASE[tipo].endpoint_objeto;
+    const token = await obtenerTokenGoogle(credentials);
+
+    const mensajeObj = {
+      header: mensaje.header || 'Actualización',
+      body: mensaje.body || mensaje,
+      id: `msg_${Date.now()}`,
+      messageType: 'TEXT'
+    };
+
+    const response = await fetch(
+      `https://walletobjects.googleapis.com/walletobjects/v1/${endpoint}/${objetoId}/addMessage`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: mensajeObj })
+      }
+    );
+
+    if (response.ok) {
+      return { success: true, mensaje: 'Notificación enviada' };
+    } else {
+      const error = await response.text();
+      return { success: false, error };
+    }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async function enviarNotificacionClase(credentials, tipo, classId, mensaje) {
+  /**
+   * Envía notificación push a TODOS los pases de una clase
+   */
+  try {
+    if (!TIPOS_PASE[tipo]) {
+      return { success: false, error: `Tipo de pase no válido: ${tipo}` };
+    }
+
+    const endpoint = TIPOS_PASE[tipo].endpoint_clase;
+    const token = await obtenerTokenGoogle(credentials);
+
+    const mensajeObj = {
+      header: mensaje.header || 'Actualización',
+      body: mensaje.body || mensaje,
+      id: `msg_${Date.now()}`,
+      messageType: 'TEXT'
+    };
+
+    const response = await fetch(
+      `https://walletobjects.googleapis.com/walletobjects/v1/${endpoint}/${classId}/addMessage`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: mensajeObj })
+      }
+    );
+
+    if (response.ok) {
+      return { success: true, mensaje: 'Notificación masiva enviada' };
+    } else {
+      const error = await response.text();
+      return { success: false, error };
+    }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// ==========================================
+// GENERAR LINK "ADD TO WALLET"
+// ==========================================
+
+function generarLinkWallet(credentials, tipo, objetoId) {
+  const endpoint = TIPOS_PASE[tipo]?.endpoint_objeto || 'genericObject';
+
+  const payload = {
+    iss: credentials.client_email,
+    aud: 'google',
+    typ: 'savetowallet',
+    iat: Math.floor(Date.now() / 1000),
+    origins: [],
+    payload: {
+      [`${endpoint}s`]: [{ id: objetoId }]
+    }
+  };
+
+  const token = base64urlEncode(JSON.stringify(payload));
+  return `https://pay.google.com/gp/v/save/${token}`;
+}
+
+// ==========================================
 // WORKER PRINCIPAL
 // ==========================================
 
@@ -298,7 +792,7 @@ export default {
 
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     };
 
@@ -307,16 +801,14 @@ export default {
     }
 
     try {
-      // ==========================================
       // RUTAS PÚBLICAS
-      // ==========================================
-
       if (url.pathname === '/' && request.method === 'GET') {
         return jsonResponse({
-          service: '🎫 Smart Passes Platform',
-          version: '1.0.0',
+          service: '🎫 Smart Passes Platform V2',
+          version: '2.0.0',
           status: 'running',
           powered_by: 'Cloudflare Workers + D1 + KV',
+          tipos_pases: Object.keys(TIPOS_PASE),
           endpoints: {
             health: '/health',
             admin_login: '/admin/login',
@@ -325,7 +817,11 @@ export default {
             cliente_login: '/cliente/login',
             cliente_dashboard: '/cliente/dashboard',
             cliente_crear_clase: '/cliente/crear-clase',
+            cliente_editar_clase: '/cliente/editar-clase',
             api_crear_pase: '/api/crear-pase',
+            api_actualizar_pase: '/api/actualizar-pase',
+            api_notificar_pase: '/api/notificar-pase',
+            api_notificar_clase: '/api/notificar-clase',
             webhook_events: '/webhook/wallet-events'
           }
         }, corsHeaders);
@@ -337,14 +833,12 @@ export default {
           timestamp: new Date().toISOString(),
           db: env.DB ? 'connected' : 'not configured',
           kv: env.SESSIONS ? 'connected' : 'not configured',
-          google_wallet: env.GOOGLE_CREDENTIALS ? 'configured' : 'not configured'
+          google_wallet: env.GOOGLE_CREDENTIALS ? 'configured' : 'not configured',
+          version: '2.0.0'
         }, corsHeaders);
       }
 
-      // ==========================================
       // ADMIN - LOGIN
-      // ==========================================
-
       if (url.pathname === '/admin/login' && request.method === 'POST') {
         const { username, password } = await request.json();
         const hashedPassword = await hashPassword(password);
@@ -380,22 +874,17 @@ export default {
         }, corsHeaders, 401);
       }
 
-      // ==========================================
       // ADMIN - DASHBOARD
-      // ==========================================
-
       if (url.pathname === '/admin/dashboard' && request.method === 'GET') {
         const session = await validateSession(request, env, 'admin');
         if (!session.valid) {
           return jsonResponse({ error: 'No autorizado' }, corsHeaders, 401);
         }
 
-        // Obtener clientes
         const { results: clientes } = await env.DB.prepare(
           'SELECT id, username, nombre_negocio, email, api_key, activo, fecha_creacion FROM clientes ORDER BY fecha_creacion DESC'
         ).all();
 
-        // Estadísticas
         const totalClientes = clientes.length;
         const pasesResult = await env.DB.prepare('SELECT COUNT(*) as count FROM pases').first();
         const clasesResult = await env.DB.prepare('SELECT COUNT(*) as count FROM clases').first();
@@ -411,10 +900,7 @@ export default {
         }, corsHeaders);
       }
 
-      // ==========================================
       // ADMIN - CREAR CLIENTE
-      // ==========================================
-
       if (url.pathname === '/admin/crear-cliente' && request.method === 'POST') {
         const session = await validateSession(request, env, 'admin');
         if (!session.valid) {
@@ -446,10 +932,7 @@ export default {
         }, corsHeaders);
       }
 
-      // ==========================================
       // CLIENTE - LOGIN
-      // ==========================================
-
       if (url.pathname === '/cliente/login' && request.method === 'POST') {
         const { username, password } = await request.json();
         const hashedPassword = await hashPassword(password);
@@ -491,10 +974,7 @@ export default {
         }, corsHeaders, 401);
       }
 
-      // ==========================================
       // CLIENTE - DASHBOARD
-      // ==========================================
-
       if (url.pathname === '/cliente/dashboard' && request.method === 'GET') {
         const session = await validateSession(request, env, 'cliente');
         if (!session.valid) {
@@ -528,10 +1008,7 @@ export default {
         }, corsHeaders);
       }
 
-      // ==========================================
       // CLIENTE - CREAR CLASE
-      // ==========================================
-
       if (url.pathname === '/cliente/crear-clase' && request.method === 'POST') {
         const session = await validateSession(request, env, 'cliente');
         if (!session.valid) {
@@ -540,7 +1017,6 @@ export default {
 
         const { tipo, nombre_clase, config } = await request.json();
 
-        // Validar que tenemos credenciales de Google
         if (!env.GOOGLE_CREDENTIALS) {
           return jsonResponse({
             success: false,
@@ -554,7 +1030,6 @@ export default {
 
         const classId = `${issuerId}.${session.data.clienteId}-${nombre_clase}`;
 
-        // Crear clase en Google Wallet
         const resultado = await crearClase(credentials, tipo, classId, config);
 
         if (!resultado.success) {
@@ -564,7 +1039,6 @@ export default {
           }, corsHeaders, 500);
         }
 
-        // Guardar en DB
         await env.DB.prepare(
           `INSERT INTO clases (id, cliente_id, tipo, nombre, config, creada_en)
            VALUES (?, ?, ?, ?, ?, ?)`
@@ -584,10 +1058,49 @@ export default {
         }, corsHeaders);
       }
 
-      // ==========================================
-      // API - CREAR PASE
-      // ==========================================
+      // CLIENTE - EDITAR CLASE
+      if (url.pathname === '/cliente/editar-clase' && request.method === 'POST') {
+        const session = await validateSession(request, env, 'cliente');
+        if (!session.valid) {
+          return jsonResponse({ error: 'No autorizado' }, corsHeaders, 401);
+        }
 
+        const { class_id, nueva_config } = await request.json();
+
+        // Verificar que la clase pertenece al cliente
+        const clase = await env.DB.prepare(
+          'SELECT * FROM clases WHERE id = ? AND cliente_id = ?'
+        ).bind(class_id, session.data.clienteId).first();
+
+        if (!clase) {
+          return jsonResponse({
+            success: false,
+            error: 'Clase no encontrada'
+          }, corsHeaders, 404);
+        }
+
+        const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
+        const resultado = await editarClase(credentials, clase.tipo, class_id, nueva_config);
+
+        if (!resultado.success) {
+          return jsonResponse({
+            success: false,
+            error: resultado.error
+          }, corsHeaders, 500);
+        }
+
+        // Actualizar en DB
+        await env.DB.prepare(
+          'UPDATE clases SET config = ? WHERE id = ?'
+        ).bind(JSON.stringify(nueva_config), class_id).run();
+
+        return jsonResponse({
+          success: true,
+          mensaje: 'Clase actualizada exitosamente'
+        }, corsHeaders);
+      }
+
+      // API - CREAR PASE
       if (url.pathname === '/api/crear-pase' && request.method === 'POST') {
         const apiKey = request.headers.get('Authorization')?.replace('Bearer ', '');
 
@@ -611,7 +1124,6 @@ export default {
 
         const { class_id, datos } = await request.json();
 
-        // Verificar que la clase pertenece al cliente
         const clase = await env.DB.prepare(
           'SELECT * FROM clases WHERE id = ? AND cliente_id = ?'
         ).bind(class_id, cliente.id).first();
@@ -623,7 +1135,6 @@ export default {
           }, corsHeaders, 404);
         }
 
-        // Crear objeto en Google Wallet
         const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
         const resultado = await crearObjeto(credentials, clase.tipo, class_id, datos);
 
@@ -634,7 +1145,6 @@ export default {
           }, corsHeaders, 500);
         }
 
-        // Guardar en DB
         await env.DB.prepare(
           `INSERT INTO pases (id, objeto_id, class_id, cliente_id, tipo, datos, creado_en)
            VALUES (?, ?, ?, ?, ?, ?, ?)`
@@ -655,16 +1165,148 @@ export default {
         }, corsHeaders);
       }
 
-      // ==========================================
-      // WEBHOOKS
-      // ==========================================
+      // API - ACTUALIZAR PASE
+      if (url.pathname === '/api/actualizar-pase' && request.method === 'POST') {
+        const apiKey = request.headers.get('Authorization')?.replace('Bearer ', '');
 
+        if (!apiKey) {
+          return jsonResponse({
+            success: false,
+            error: 'API key no proporcionada'
+          }, corsHeaders, 401);
+        }
+
+        const cliente = await env.DB.prepare(
+          'SELECT * FROM clientes WHERE api_key = ? AND activo = 1'
+        ).bind(apiKey).first();
+
+        if (!cliente) {
+          return jsonResponse({
+            success: false,
+            error: 'API key inválida'
+          }, corsHeaders, 401);
+        }
+
+        const { objeto_id, datos_actualizados } = await request.json();
+
+        // Verificar que el pase pertenece al cliente
+        const pase = await env.DB.prepare(
+          'SELECT * FROM pases WHERE objeto_id = ? AND cliente_id = ?'
+        ).bind(objeto_id, cliente.id).first();
+
+        if (!pase) {
+          return jsonResponse({
+            success: false,
+            error: 'Pase no encontrado'
+          }, corsHeaders, 404);
+        }
+
+        const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
+        const resultado = await actualizarPase(credentials, pase.tipo, objeto_id, datos_actualizados);
+
+        if (!resultado.success) {
+          return jsonResponse({
+            success: false,
+            error: resultado.error
+          }, corsHeaders, 500);
+        }
+
+        // Actualizar en DB
+        await env.DB.prepare(
+          'UPDATE pases SET datos = ?, actualizado_en = ? WHERE objeto_id = ?'
+        ).bind(JSON.stringify(datos_actualizados), Date.now(), objeto_id).run();
+
+        return jsonResponse(resultado, corsHeaders);
+      }
+
+      // API - NOTIFICAR PASE
+      if (url.pathname === '/api/notificar-pase' && request.method === 'POST') {
+        const apiKey = request.headers.get('Authorization')?.replace('Bearer ', '');
+
+        if (!apiKey) {
+          return jsonResponse({
+            success: false,
+            error: 'API key no proporcionada'
+          }, corsHeaders, 401);
+        }
+
+        const cliente = await env.DB.prepare(
+          'SELECT * FROM clientes WHERE api_key = ? AND activo = 1'
+        ).bind(apiKey).first();
+
+        if (!cliente) {
+          return jsonResponse({
+            success: false,
+            error: 'API key inválida'
+          }, corsHeaders, 401);
+        }
+
+        const { objeto_id, mensaje } = await request.json();
+
+        const pase = await env.DB.prepare(
+          'SELECT * FROM pases WHERE objeto_id = ? AND cliente_id = ?'
+        ).bind(objeto_id, cliente.id).first();
+
+        if (!pase) {
+          return jsonResponse({
+            success: false,
+            error: 'Pase no encontrado'
+          }, corsHeaders, 404);
+        }
+
+        const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
+        const resultado = await enviarNotificacionPase(credentials, pase.tipo, objeto_id, mensaje);
+
+        return jsonResponse(resultado, corsHeaders);
+      }
+
+      // API - NOTIFICAR CLASE (MASIVO)
+      if (url.pathname === '/api/notificar-clase' && request.method === 'POST') {
+        const apiKey = request.headers.get('Authorization')?.replace('Bearer ', '');
+
+        if (!apiKey) {
+          return jsonResponse({
+            success: false,
+            error: 'API key no proporcionada'
+          }, corsHeaders, 401);
+        }
+
+        const cliente = await env.DB.prepare(
+          'SELECT * FROM clientes WHERE api_key = ? AND activo = 1'
+        ).bind(apiKey).first();
+
+        if (!cliente) {
+          return jsonResponse({
+            success: false,
+            error: 'API key inválida'
+          }, corsHeaders, 401);
+        }
+
+        const { class_id, mensaje } = await request.json();
+
+        const clase = await env.DB.prepare(
+          'SELECT * FROM clases WHERE id = ? AND cliente_id = ?'
+        ).bind(class_id, cliente.id).first();
+
+        if (!clase) {
+          return jsonResponse({
+            success: false,
+            error: 'Clase no encontrada'
+          }, corsHeaders, 404);
+        }
+
+        const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
+        const resultado = await enviarNotificacionClase(credentials, clase.tipo, class_id, mensaje);
+
+        return jsonResponse(resultado, corsHeaders);
+      }
+
+      // WEBHOOKS
       if (url.pathname === '/webhook/wallet-events' && request.method === 'POST') {
         const data = await request.json();
 
         console.log('🔔 Webhook recibido:', data);
 
-        // Guardar evento
         await env.DB.prepare(
           `INSERT INTO eventos (tipo, objeto_id, class_id, datos, timestamp)
            VALUES (?, ?, ?, ?, ?)`
@@ -676,7 +1318,6 @@ export default {
           Date.now()
         ).run();
 
-        // Actualizar estado si es delete
         if (data.eventType === 'delete') {
           await env.DB.prepare(
             'UPDATE pases SET estado = ? WHERE objeto_id = ?'
