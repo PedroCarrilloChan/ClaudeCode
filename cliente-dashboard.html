@@ -186,10 +186,124 @@
             background: white;
             padding: 40px;
             border-radius: 20px;
-            max-width: 600px;
+            max-width: 1100px;
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
+        }
+        .modal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+        @media (max-width: 900px) {
+            .modal-grid {
+                grid-template-columns: 1fr;
+            }
+            .preview-container {
+                order: -1;
+            }
+        }
+        .preview-container {
+            position: sticky;
+            top: 0;
+        }
+        .preview-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .wallet-pass-preview {
+            width: 100%;
+            max-width: 340px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .pass-header {
+            padding: 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 100px;
+            background: #4285F4;
+            transition: background 0.3s;
+        }
+        .pass-logo {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .pass-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        .pass-issuer {
+            flex: 1;
+            margin-left: 15px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .pass-hero {
+            width: 100%;
+            height: 150px;
+            background: rgba(0,0,0,0.05);
+            display: none;
+            object-fit: cover;
+        }
+        .pass-hero.visible {
+            display: block;
+        }
+        .pass-body {
+            padding: 20px;
+            background: white;
+        }
+        .pass-field {
+            margin-bottom: 15px;
+        }
+        .pass-field-label {
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+        .pass-field-value {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+        .pass-barcode {
+            padding: 15px;
+            background: #f5f5f5;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+        }
+        .pass-barcode-placeholder {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 12px;
         }
         .modal h2 {
             margin-bottom: 30px;
@@ -310,52 +424,82 @@
             <div class="success-msg" id="successMsg"></div>
             <div class="error-msg" id="errorMsg"></div>
 
-            <form id="createClaseForm">
-                <div class="form-group">
-                    <label>Tipo de Pase *</label>
-                    <select id="tipoPase" required>
-                        <option value="">Selecciona un tipo</option>
-                        <option value="generic">🎫 Genérico</option>
-                        <option value="loyalty">⭐ Lealtad</option>
-                        <option value="offer">🎁 Oferta/Cupón</option>
-                        <option value="giftcard">💳 Tarjeta de Regalo</option>
-                        <option value="eventticket">🎟️ Boleto de Evento</option>
-                    </select>
+            <div class="modal-grid">
+                <!-- Formulario -->
+                <div class="form-container">
+                    <form id="createClaseForm">
+                        <div class="form-group">
+                            <label>Tipo de Pase *</label>
+                            <select id="tipoPase" required>
+                                <option value="">Selecciona un tipo</option>
+                                <option value="generic">🎫 Genérico</option>
+                                <option value="loyalty">⭐ Lealtad</option>
+                                <option value="offer">🎁 Oferta/Cupón</option>
+                                <option value="giftcard">💳 Tarjeta de Regalo</option>
+                                <option value="eventticket">🎟️ Boleto de Evento</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nombre de la Clase *</label>
+                            <input type="text" id="nombreClase" placeholder="ej: membresia-gym" required>
+                            <small style="color: #999;">Solo letras, números y guiones</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nombre del Emisor *</label>
+                            <input type="text" id="issuerName" placeholder="Mi Negocio" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Color de Fondo</label>
+                            <input type="color" id="colorFondo" value="#4285F4">
+                        </div>
+
+                        <div class="form-group">
+                            <label>URL del Logo</label>
+                            <input type="url" id="logoUrl" placeholder="https://example.com/logo.png">
+                        </div>
+
+                        <div class="form-group">
+                            <label>URL Hero Image</label>
+                            <input type="url" id="heroUrl" placeholder="https://example.com/hero.jpg">
+                        </div>
+
+                        <div class="loading" id="loading">Creando clase en Google Wallet...</div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" onclick="closeCreateClaseModal()">Cancelar</button>
+                            <button type="submit" class="btn-primary" style="flex: 1;">Crear Clase</button>
+                        </div>
+                    </form>
                 </div>
 
-                <div class="form-group">
-                    <label>Nombre de la Clase *</label>
-                    <input type="text" id="nombreClase" placeholder="ej: membresia-gym" required>
-                    <small style="color: #999;">Solo letras, números y guiones</small>
+                <!-- Preview en Tiempo Real -->
+                <div class="preview-container">
+                    <div class="preview-title">Vista Previa</div>
+                    <div class="wallet-pass-preview">
+                        <div class="pass-header" id="previewHeader">
+                            <div class="pass-logo" id="previewLogo">🎫</div>
+                            <div class="pass-issuer" id="previewIssuer">Mi Negocio</div>
+                        </div>
+                        <img class="pass-hero" id="previewHero" src="" alt="Hero Image">
+                        <div class="pass-body">
+                            <div class="pass-field">
+                                <div class="pass-field-label">TIPO DE PASE</div>
+                                <div class="pass-field-value" id="previewTipo">Genérico</div>
+                            </div>
+                            <div class="pass-field">
+                                <div class="pass-field-label">CLASE</div>
+                                <div class="pass-field-value" id="previewClase">nombre-clase</div>
+                            </div>
+                        </div>
+                        <div class="pass-barcode">
+                            <div class="pass-barcode-placeholder">Código QR</div>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <label>Nombre del Emisor *</label>
-                    <input type="text" id="issuerName" placeholder="Mi Negocio" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Color de Fondo</label>
-                    <input type="color" id="colorFondo" value="#4285F4">
-                </div>
-
-                <div class="form-group">
-                    <label>URL del Logo</label>
-                    <input type="url" id="logoUrl" placeholder="https://example.com/logo.png">
-                </div>
-
-                <div class="form-group">
-                    <label>URL Hero Image</label>
-                    <input type="url" id="heroUrl" placeholder="https://example.com/hero.jpg">
-                </div>
-
-                <div class="loading" id="loading">Creando clase en Google Wallet...</div>
-
-                <div class="form-actions">
-                    <button type="button" class="btn-secondary" onclick="closeCreateClaseModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary" style="flex: 1;">Crear Clase</button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 
@@ -466,6 +610,81 @@
         function closeCreateClaseModal() {
             document.getElementById('createClaseModal').classList.remove('active');
         }
+
+        // ==========================================
+        // PREVIEW EN TIEMPO REAL
+        // ==========================================
+
+        const tiposInfo = {
+            'generic': { icono: '🎫', nombre: 'Genérico' },
+            'loyalty': { icono: '⭐', nombre: 'Programa de Lealtad' },
+            'offer': { icono: '🎁', nombre: 'Oferta/Cupón' },
+            'giftcard': { icono: '💳', nombre: 'Tarjeta de Regalo' },
+            'eventticket': { icono: '🎟️', nombre: 'Boleto de Evento' }
+        };
+
+        function updatePreview() {
+            const tipo = document.getElementById('tipoPase').value;
+            const nombreClase = document.getElementById('nombreClase').value;
+            const issuerName = document.getElementById('issuerName').value;
+            const colorFondo = document.getElementById('colorFondo').value;
+            const logoUrl = document.getElementById('logoUrl').value;
+            const heroUrl = document.getElementById('heroUrl').value;
+
+            // Actualizar color de fondo
+            const header = document.getElementById('previewHeader');
+            header.style.background = colorFondo || '#4285F4';
+
+            // Actualizar logo
+            const logo = document.getElementById('previewLogo');
+            if (logoUrl && logoUrl.startsWith('http')) {
+                logo.innerHTML = `<img src="${logoUrl}" alt="Logo" onerror="this.parentElement.innerHTML='${tiposInfo[tipo]?.icono || '🎫'}'">`;
+            } else {
+                logo.innerHTML = tiposInfo[tipo]?.icono || '🎫';
+            }
+
+            // Actualizar nombre del emisor
+            const issuer = document.getElementById('previewIssuer');
+            issuer.textContent = issuerName || 'Mi Negocio';
+
+            // Actualizar hero image
+            const hero = document.getElementById('previewHero');
+            if (heroUrl && heroUrl.startsWith('http')) {
+                hero.src = heroUrl;
+                hero.classList.add('visible');
+            } else {
+                hero.classList.remove('visible');
+            }
+
+            // Actualizar tipo de pase
+            const previewTipo = document.getElementById('previewTipo');
+            previewTipo.textContent = tiposInfo[tipo]?.nombre || 'Selecciona un tipo';
+
+            // Actualizar nombre de clase (sanitizado en preview)
+            const previewClase = document.getElementById('previewClase');
+            const sanitizedName = nombreClase
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9-]/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '') || 'nombre-clase';
+            previewClase.textContent = sanitizedName;
+        }
+
+        // Event listeners para actualizar preview en tiempo real
+        document.getElementById('tipoPase').addEventListener('change', updatePreview);
+        document.getElementById('nombreClase').addEventListener('input', updatePreview);
+        document.getElementById('issuerName').addEventListener('input', updatePreview);
+        document.getElementById('colorFondo').addEventListener('input', updatePreview);
+        document.getElementById('logoUrl').addEventListener('input', updatePreview);
+        document.getElementById('heroUrl').addEventListener('input', updatePreview);
+
+        // Actualizar preview al abrir modal
+        const originalOpenModal = openCreateClaseModal;
+        openCreateClaseModal = function() {
+            originalOpenModal();
+            setTimeout(updatePreview, 100);
+        };
 
         document.getElementById('createClaseForm').addEventListener('submit', async (e) => {
             e.preventDefault();

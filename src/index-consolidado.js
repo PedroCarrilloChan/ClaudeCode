@@ -1028,7 +1028,15 @@ export default {
         const issuerIdMatch = credentials.client_email.match(/(\d+)-/);
         const issuerId = issuerIdMatch ? issuerIdMatch[1] : '3388000000022737801';
 
-        const classId = `${issuerId}.${session.data.clienteId}-${nombre_clase}`;
+        // Sanitizar nombre_clase: eliminar espacios y caracteres especiales
+        const sanitizedName = nombre_clase
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9-]/g, '-')  // Reemplazar caracteres no permitidos con guiones
+          .replace(/-+/g, '-')           // Evitar guiones múltiples consecutivos
+          .replace(/^-|-$/g, '');        // Eliminar guiones al inicio o final
+
+        const classId = `${issuerId}.${session.data.clienteId}-${sanitizedName}`;
 
         const resultado = await crearClase(credentials, tipo, classId, config);
 
