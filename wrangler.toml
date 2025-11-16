@@ -2,13 +2,13 @@ name = "smart-passes-api"
 main = "src/index.js"
 compatibility_date = "2024-01-01"
 
-# D1 Database (configurarás el ID después de crear la DB)
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "smart-passes-db"
-# database_id = "PENDIENTE"
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "smart-passes-db"
+database_id = "7217ec92-9a49-44ce-bac3-6d1ae94954d5"
 
-# KV Namespace (configurarás el ID después)
+# KV Namespace (configurarás el ID después de crearlo)
 # [[kv_namespaces]]
 # binding = "SESSIONS"
 # id = "PENDIENTE"
