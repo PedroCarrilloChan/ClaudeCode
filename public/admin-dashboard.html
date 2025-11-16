@@ -175,6 +175,8 @@
     </div>
 
     <script>
+        const API_URL = 'https://smart-passes-api.smartpasses.workers.dev';
+
         // Verificar sesión
         const sessionId = localStorage.getItem('sessionId');
         const userType = localStorage.getItem('userType');
@@ -183,13 +185,200 @@
             window.location.href = 'admin-login.html';
         }
 
+        // Cargar dashboard al iniciar
+        window.addEventListener('DOMContentLoaded', loadDashboard);
+
+        async function loadDashboard() {
+            try {
+                const response = await fetch(`${API_URL}/admin/dashboard`, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Actualizar estadísticas
+                    document.getElementById('totalClientes').textContent = data.stats.total_clientes;
+                    document.getElementById('totalPases').textContent = data.stats.total_pases;
+                    document.getElementById('totalClases').textContent = data.stats.total_clases;
+
+                    // Mostrar clientes
+                    renderClientes(data.clientes);
+                } else {
+                    console.error('Error al cargar dashboard:', data);
+                    if (response.status === 401) {
+                        alert('Sesión expirada');
+                        window.location.href = 'admin-login.html';
+                    }
+                }
+            } catch (error) {
+                console.error('Error de conexión:', error);
+                alert('Error al conectar con la API. Verifica que esté desplegada.');
+            }
+        }
+
+        function renderClientes(clientes) {
+            const container = document.querySelector('.card');
+
+            if (clientes.length === 0) {
+                container.innerHTML = `
+                    <h2>Clientes Registrados</h2>
+                    <button class="btn" onclick="mostrarFormCrearCliente()">➕ Crear Primer Cliente</button>
+                    <div class="empty-state">
+                        <div class="icon">👥</div>
+                        <h3>No hay clientes registrados</h3>
+                        <p>Crea tu primer cliente para empezar a generar pases de Google Wallet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <h2>Clientes Registrados (${clientes.length})</h2>
+                <button class="btn" onclick="mostrarFormCrearCliente()" style="margin-bottom: 20px;">➕ Nuevo Cliente</button>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e0e0e0; text-align: left;">
+                            <th style="padding: 12px;">ID</th>
+                            <th style="padding: 12px;">Negocio</th>
+                            <th style="padding: 12px;">Email</th>
+                            <th style="padding: 12px;">API Key</th>
+                            <th style="padding: 12px;">Estado</th>
+                            <th style="padding: 12px;">Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            clientes.forEach(cliente => {
+                const fecha = new Date(cliente.fecha_creacion).toLocaleDateString('es-MX');
+                const estado = cliente.activo ? '✅ Activo' : '❌ Inactivo';
+                const apiKeyShort = cliente.api_key.substring(0, 20) + '...';
+
+                html += `
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 12px; font-family: monospace;">${cliente.id}</td>
+                        <td style="padding: 12px; font-weight: 600;">${cliente.nombre_negocio}</td>
+                        <td style="padding: 12px;">${cliente.email}</td>
+                        <td style="padding: 12px; font-family: monospace; font-size: 12px;">${apiKeyShort}</td>
+                        <td style="padding: 12px;">${estado}</td>
+                        <td style="padding: 12px; color: #999;">${fecha}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function mostrarFormCrearCliente() {
+            const container = document.querySelector('.card');
+            container.innerHTML = `
+                <h2>Crear Nuevo Cliente</h2>
+                <div id="mensaje" style="display: none; padding: 15px; border-radius: 8px; margin-bottom: 20px;"></div>
+                <form id="formCliente" style="max-width: 600px;">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">ID del Cliente *</label>
+                        <input type="text" id="clienteId" required
+                               placeholder="ej: mi-negocio"
+                               style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                        <small style="color: #999;">Solo letras minúsculas, números y guiones</small>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Nombre del Negocio *</label>
+                        <input type="text" id="nombreNegocio" required
+                               placeholder="Mi Negocio S.A."
+                               style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Email *</label>
+                        <input type="email" id="email" required
+                               placeholder="contacto@minegocio.com"
+                               style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Contraseña *</label>
+                        <input type="password" id="password" required
+                               placeholder="Contraseña segura"
+                               style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn">Crear Cliente</button>
+                        <button type="button" class="btn" onclick="loadDashboard()"
+                                style="background: #ccc;">Cancelar</button>
+                    </div>
+                </form>
+            `;
+
+            document.getElementById('formCliente').addEventListener('submit', crearCliente);
+        }
+
+        async function crearCliente(e) {
+            e.preventDefault();
+
+            const mensaje = document.getElementById('mensaje');
+            mensaje.style.display = 'none';
+
+            const datos = {
+                id: document.getElementById('clienteId').value.toLowerCase().trim(),
+                nombre_negocio: document.getElementById('nombreNegocio').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/admin/crear-cliente`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(datos)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mensaje.style.display = 'block';
+                    mensaje.style.background = '#e8f5e9';
+                    mensaje.style.color = '#2e7d32';
+                    mensaje.innerHTML = `
+                        <strong>✅ Cliente creado exitosamente</strong><br>
+                        <strong>ID:</strong> ${data.cliente_id}<br>
+                        <strong>API Key:</strong> <code style="background: #fff; padding: 4px 8px; border-radius: 4px;">${data.api_key}</code><br>
+                        <small>Guarda esta API Key, se le debe entregar al cliente</small>
+                    `;
+
+                    document.getElementById('formCliente').reset();
+
+                    setTimeout(() => {
+                        loadDashboard();
+                    }, 3000);
+                } else {
+                    mensaje.style.display = 'block';
+                    mensaje.style.background = '#ffebee';
+                    mensaje.style.color = '#c62828';
+                    mensaje.textContent = '❌ Error: ' + (data.error || 'No se pudo crear el cliente');
+                }
+            } catch (error) {
+                mensaje.style.display = 'block';
+                mensaje.style.background = '#ffebee';
+                mensaje.style.color = '#c62828';
+                mensaje.textContent = '❌ Error de conexión con la API';
+            }
+        }
+
         function logout() {
             localStorage.removeItem('sessionId');
             localStorage.removeItem('userType');
             window.location.href = 'index.html';
         }
-
-        // TODO: Cargar datos reales cuando DB esté configurada
     </script>
 </body>
 </html>
