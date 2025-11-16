@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Passes Platform</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .container {
+            text-align: center;
+            max-width: 900px;
+            padding: 40px;
+        }
+        h1 {
+            font-size: 56px;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+            animation: fadeIn 0.8s ease-in;
+        }
+        .subtitle {
+            font-size: 22px;
+            margin-bottom: 50px;
+            opacity: 0.95;
+            line-height: 1.6;
+            animation: fadeIn 1s ease-in;
+        }
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+            animation: fadeIn 1.2s ease-in;
+        }
+        .btn {
+            background: white;
+            color: #667eea;
+            padding: 16px 45px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 17px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 60px;
+            animation: fadeIn 1.4s ease-in;
+        }
+        .feature {
+            background: rgba(255,255,255,0.15);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s;
+        }
+        .feature:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.2);
+        }
+        .feature-icon {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+        .feature h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .feature p {
+            opacity: 0.9;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.25);
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin: 5px;
+            font-weight: 600;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .footer {
+            margin-top: 60px;
+            opacity: 0.8;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎫 Smart Passes Platform</h1>
+        <p class="subtitle">
+            Plataforma completa para crear y gestionar<br>
+            pases digitales de Google Wallet<br>
+            <span class="badge">⚡ Cloudflare Workers</span>
+            <span class="badge">🌍 Edge Computing</span>
+            <span class="badge">🔒 Serverless</span>
+        </p>
+
+        <div class="buttons">
+            <a href="admin-login.html" class="btn">🔐 Panel Admin</a>
+            <a href="cliente-login.html" class="btn">👤 Portal Cliente</a>
+            <a href="#" class="btn" onclick="verDocumentacion()">📚 Documentación</a>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🎨</div>
+                <h3>Personalización Total</h3>
+                <p>Diseña tus pases con tu logo, colores y campos personalizados</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">👁️</div>
+                <h3>Preview en Tiempo Real</h3>
+                <p>Visualiza los cambios instantáneamente antes de publicar</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔌</div>
+                <h3>API REST Completa</h3>
+                <p>Integra con tu sistema existente en minutos</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎫</div>
+                <h3>7 Tipos de Pases</h3>
+                <p>Lealtad, Cupones, Gift Cards, Eventos y más</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔔</div>
+                <h3>Notificaciones Push</h3>
+                <p>Envía actualizaciones y promociones a tus usuarios</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📡</div>
+                <h3>Webhooks Integrados</h3>
+                <p>Recibe eventos en tiempo real de Google Wallet</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Powered by Cloudflare • Google Wallet API</p>
+        </div>
+    </div>
+
+    <script>
+        function verDocumentacion() {
+            alert('Documentación próximamente disponible');
+        }
+    </script>
+</body>
+</html>
