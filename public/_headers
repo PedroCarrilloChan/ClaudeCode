@@ -1,0 +1,4 @@
+# Headers para archivos públicos
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
