@@ -8,7 +8,7 @@ binding = "DB"
 database_name = "smart-passes-db"
 database_id = "7217ec92-9a49-44ce-bac3-6d1ae94954d5"
 
-# KV Namespace (configurarás el ID después de crearlo)
-# [[kv_namespaces]]
-# binding = "SESSIONS"
-# id = "PENDIENTE"
+# KV Namespace para sesiones
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "3ae0339f593548fd81941838eb087749"
