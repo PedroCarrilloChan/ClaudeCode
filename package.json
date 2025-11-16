@@ -1,0 +1,13 @@
+{
+  "name": "smart-passes-cloudflare",
+  "version": "1.0.0",
+  "description": "Smart Passes Platform - Google Wallet en Cloudflare",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "keywords": ["google-wallet", "cloudflare", "workers"],
+  "author": "",
+  "license": "MIT"
+}
