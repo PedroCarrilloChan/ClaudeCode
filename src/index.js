@@ -1,258 +1,417 @@
 /**
- * Smart Passes Platform - Cloudflare Worker Principal
- * API para gestión de pases digitales de Google Wallet
+ * Smart Passes Platform - Cloudflare Worker
+ * Sistema completo de Google Wallet
  */
+
+import * as wallet from './google-wallet.js';
 
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
-    // CORS Headers
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     };
 
-    // Handle CORS preflight
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: corsHeaders });
     }
 
-    // ==========================================
-    // RUTAS PÚBLICAS
-    // ==========================================
+    try {
+      // ==========================================
+      // RUTAS PÚBLICAS
+      // ==========================================
 
-    if (url.pathname === '/' && request.method === 'GET') {
-      return new Response(JSON.stringify({
-        service: '🎫 Smart Passes Platform',
-        version: '1.0.0',
-        status: 'running',
-        powered_by: 'Cloudflare Workers',
-        endpoints: {
-          health: '/health',
-          admin_login: '/admin/login',
-          cliente_login: '/cliente/login',
-          api_crear_pase: '/api/crear-pase',
-          webhook_events: '/webhook/wallet-events'
-        }
-      }, null, 2), {
-        headers: {
-          'Content-Type': 'application/json',
-          ...corsHeaders
-        }
-      });
-    }
-
-    if (url.pathname === '/health' && request.method === 'GET') {
-      return new Response(JSON.stringify({
-        status: 'ok',
-        timestamp: new Date().toISOString()
-      }), {
-        headers: {
-          'Content-Type': 'application/json',
-          ...corsHeaders
-        }
-      });
-    }
-
-    // ==========================================
-    // ADMIN - LOGIN
-    // ==========================================
-
-    if (url.pathname === '/admin/login' && request.method === 'POST') {
-      try {
-        const { username, password } = await request.json();
-
-        // Validar contra D1 (cuando esté configurado)
-        if (env.DB) {
-          const hashedPassword = await hashPassword(password);
-          const admin = await env.DB.prepare(
-            'SELECT * FROM admin WHERE username = ? AND password = ?'
-          ).bind(username, hashedPassword).first();
-
-          if (admin) {
-            // Crear sesión en KV
-            const sessionId = crypto.randomUUID();
-            const sessionData = {
-              type: 'admin',
-              username,
-              createdAt: Date.now()
-            };
-
-            if (env.SESSIONS) {
-              await env.SESSIONS.put(
-                `session:${sessionId}`,
-                JSON.stringify(sessionData),
-                { expirationTtl: 7 * 24 * 60 * 60 } // 7 días
-              );
-            }
-
-            return new Response(JSON.stringify({
-              success: true,
-              sessionId,
-              type: 'admin'
-            }), {
-              headers: {
-                'Content-Type': 'application/json',
-                ...corsHeaders
-              }
-            });
+      if (url.pathname === '/' && request.method === 'GET') {
+        return jsonResponse({
+          service: '🎫 Smart Passes Platform',
+          version: '1.0.0',
+          status: 'running',
+          powered_by: 'Cloudflare Workers + D1 + KV',
+          endpoints: {
+            health: '/health',
+            admin_login: '/admin/login',
+            admin_dashboard: '/admin/dashboard',
+            admin_crear_cliente: '/admin/crear-cliente',
+            cliente_login: '/cliente/login',
+            cliente_dashboard: '/cliente/dashboard',
+            cliente_crear_clase: '/cliente/crear-clase',
+            api_crear_pase: '/api/crear-pase',
+            webhook_events: '/webhook/wallet-events'
           }
-        }
+        }, corsHeaders);
+      }
 
-        // Credenciales por defecto para testing (sin DB)
-        if (username === 'admin' && password === 'admin123') {
-          return new Response(JSON.stringify({
-            success: true,
-            sessionId: 'test-session-' + Date.now(),
+      if (url.pathname === '/health' && request.method === 'GET') {
+        return jsonResponse({
+          status: 'ok',
+          timestamp: new Date().toISOString(),
+          db: env.DB ? 'connected' : 'not configured',
+          kv: env.SESSIONS ? 'connected' : 'not configured',
+          google_wallet: env.GOOGLE_CREDENTIALS ? 'configured' : 'not configured'
+        }, corsHeaders);
+      }
+
+      // ==========================================
+      // ADMIN - LOGIN
+      // ==========================================
+
+      if (url.pathname === '/admin/login' && request.method === 'POST') {
+        const { username, password } = await request.json();
+        const hashedPassword = await hashPassword(password);
+
+        const admin = await env.DB.prepare(
+          'SELECT * FROM admin WHERE username = ? AND password = ?'
+        ).bind(username, hashedPassword).first();
+
+        if (admin) {
+          const sessionId = crypto.randomUUID();
+          const sessionData = {
             type: 'admin',
-            message: 'Login de prueba (DB no configurada)'
-          }), {
-            headers: {
-              'Content-Type': 'application/json',
-              ...corsHeaders
-            }
-          });
+            username,
+            createdAt: Date.now()
+          };
+
+          await env.SESSIONS.put(
+            `session:${sessionId}`,
+            JSON.stringify(sessionData),
+            { expirationTtl: 7 * 24 * 60 * 60 }
+          );
+
+          return jsonResponse({
+            success: true,
+            sessionId,
+            type: 'admin'
+          }, corsHeaders);
         }
 
-        return new Response(JSON.stringify({
+        return jsonResponse({
           success: false,
           error: 'Credenciales inválidas'
-        }), {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders
-          }
-        });
-
-      } catch (error) {
-        return new Response(JSON.stringify({
-          success: false,
-          error: error.message
-        }), {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders
-          }
-        });
+        }, corsHeaders, 401);
       }
-    }
 
-    // ==========================================
-    // API - CREAR PASE
-    // ==========================================
+      // ==========================================
+      // ADMIN - DASHBOARD
+      // ==========================================
 
-    if (url.pathname === '/api/crear-pase' && request.method === 'POST') {
-      try {
-        // Validar API Key
+      if (url.pathname === '/admin/dashboard' && request.method === 'GET') {
+        const session = await validateSession(request, env, 'admin');
+        if (!session.valid) {
+          return jsonResponse({ error: 'No autorizado' }, corsHeaders, 401);
+        }
+
+        // Obtener clientes
+        const { results: clientes } = await env.DB.prepare(
+          'SELECT id, username, nombre_negocio, email, api_key, activo, fecha_creacion FROM clientes ORDER BY fecha_creacion DESC'
+        ).all();
+
+        // Estadísticas
+        const totalClientes = clientes.length;
+        const pasesResult = await env.DB.prepare('SELECT COUNT(*) as count FROM pases').first();
+        const clasesResult = await env.DB.prepare('SELECT COUNT(*) as count FROM clases').first();
+
+        return jsonResponse({
+          success: true,
+          clientes,
+          stats: {
+            total_clientes: totalClientes,
+            total_pases: pasesResult?.count || 0,
+            total_clases: clasesResult?.count || 0
+          }
+        }, corsHeaders);
+      }
+
+      // ==========================================
+      // ADMIN - CREAR CLIENTE
+      // ==========================================
+
+      if (url.pathname === '/admin/crear-cliente' && request.method === 'POST') {
+        const session = await validateSession(request, env, 'admin');
+        if (!session.valid) {
+          return jsonResponse({ error: 'No autorizado' }, corsHeaders, 401);
+        }
+
+        const datos = await request.json();
+        const clienteId = datos.id.toLowerCase().trim();
+        const hashedPassword = await hashPassword(datos.password);
+        const apiKey = `sk_${clienteId}_${crypto.randomUUID().replace(/-/g, '').substring(0, 16)}`;
+
+        await env.DB.prepare(
+          `INSERT INTO clientes (id, username, password, nombre_negocio, email, api_key, fecha_creacion)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`
+        ).bind(
+          clienteId,
+          clienteId,
+          hashedPassword,
+          datos.nombre_negocio,
+          datos.email,
+          apiKey,
+          Date.now()
+        ).run();
+
+        return jsonResponse({
+          success: true,
+          cliente_id: clienteId,
+          api_key: apiKey
+        }, corsHeaders);
+      }
+
+      // ==========================================
+      // CLIENTE - LOGIN
+      // ==========================================
+
+      if (url.pathname === '/cliente/login' && request.method === 'POST') {
+        const { username, password } = await request.json();
+        const hashedPassword = await hashPassword(password);
+
+        const cliente = await env.DB.prepare(
+          'SELECT * FROM clientes WHERE username = ? AND password = ? AND activo = 1'
+        ).bind(username, hashedPassword).first();
+
+        if (cliente) {
+          const sessionId = crypto.randomUUID();
+          const sessionData = {
+            type: 'cliente',
+            clienteId: cliente.id,
+            username: cliente.username,
+            createdAt: Date.now()
+          };
+
+          await env.SESSIONS.put(
+            `session:${sessionId}`,
+            JSON.stringify(sessionData),
+            { expirationTtl: 7 * 24 * 60 * 60 }
+          );
+
+          return jsonResponse({
+            success: true,
+            sessionId,
+            type: 'cliente',
+            cliente: {
+              id: cliente.id,
+              nombre_negocio: cliente.nombre_negocio,
+              email: cliente.email
+            }
+          }, corsHeaders);
+        }
+
+        return jsonResponse({
+          success: false,
+          error: 'Credenciales inválidas'
+        }, corsHeaders, 401);
+      }
+
+      // ==========================================
+      // CLIENTE - DASHBOARD
+      // ==========================================
+
+      if (url.pathname === '/cliente/dashboard' && request.method === 'GET') {
+        const session = await validateSession(request, env, 'cliente');
+        if (!session.valid) {
+          return jsonResponse({ error: 'No autorizado' }, corsHeaders, 401);
+        }
+
+        const cliente = await env.DB.prepare(
+          'SELECT id, nombre_negocio, email, api_key FROM clientes WHERE id = ?'
+        ).bind(session.data.clienteId).first();
+
+        const { results: clases } = await env.DB.prepare(
+          'SELECT * FROM clases WHERE cliente_id = ? ORDER BY creada_en DESC'
+        ).bind(session.data.clienteId).all();
+
+        const pasesCount = await env.DB.prepare(
+          'SELECT COUNT(*) as count FROM pases WHERE cliente_id = ?'
+        ).bind(session.data.clienteId).first();
+
+        return jsonResponse({
+          success: true,
+          cliente: {
+            ...cliente,
+            estadisticas: {
+              pases_creados: pasesCount?.count || 0,
+              clases_creadas: clases.length,
+              pases_activos: pasesCount?.count || 0
+            }
+          },
+          clases,
+          tipos_pases: wallet.TIPOS_PASE
+        }, corsHeaders);
+      }
+
+      // ==========================================
+      // CLIENTE - CREAR CLASE
+      // ==========================================
+
+      if (url.pathname === '/cliente/crear-clase' && request.method === 'POST') {
+        const session = await validateSession(request, env, 'cliente');
+        if (!session.valid) {
+          return jsonResponse({ error: 'No autorizado' }, corsHeaders, 401);
+        }
+
+        const { tipo, nombre_clase, config } = await request.json();
+
+        // Validar que tenemos credenciales de Google
+        if (!env.GOOGLE_CREDENTIALS) {
+          return jsonResponse({
+            success: false,
+            error: 'Credenciales de Google Wallet no configuradas'
+          }, corsHeaders, 500);
+        }
+
+        const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
+        const issuerIdMatch = credentials.client_email.match(/(\d+)-/);
+        const issuerId = issuerIdMatch ? issuerIdMatch[1] : '3388000000022737801';
+
+        const classId = `${issuerId}.${session.data.clienteId}-${nombre_clase}`;
+
+        // Crear clase en Google Wallet
+        const resultado = await wallet.crearClase(credentials, tipo, classId, config);
+
+        if (!resultado.success) {
+          return jsonResponse({
+            success: false,
+            error: resultado.error
+          }, corsHeaders, 500);
+        }
+
+        // Guardar en DB
+        await env.DB.prepare(
+          `INSERT INTO clases (id, cliente_id, tipo, nombre, config, creada_en)
+           VALUES (?, ?, ?, ?, ?, ?)`
+        ).bind(
+          classId,
+          session.data.clienteId,
+          tipo,
+          nombre_clase,
+          JSON.stringify(config),
+          Date.now()
+        ).run();
+
+        return jsonResponse({
+          success: true,
+          class_id: classId,
+          mensaje: 'Clase creada exitosamente'
+        }, corsHeaders);
+      }
+
+      // ==========================================
+      // API - CREAR PASE
+      // ==========================================
+
+      if (url.pathname === '/api/crear-pase' && request.method === 'POST') {
         const apiKey = request.headers.get('Authorization')?.replace('Bearer ', '');
 
         if (!apiKey) {
-          return new Response(JSON.stringify({
+          return jsonResponse({
             success: false,
             error: 'API key no proporcionada'
-          }), {
-            status: 401,
-            headers: {
-              'Content-Type': 'application/json',
-              ...corsHeaders
-            }
-          });
+          }, corsHeaders, 401);
+        }
+
+        const cliente = await env.DB.prepare(
+          'SELECT * FROM clientes WHERE api_key = ? AND activo = 1'
+        ).bind(apiKey).first();
+
+        if (!cliente) {
+          return jsonResponse({
+            success: false,
+            error: 'API key inválida'
+          }, corsHeaders, 401);
         }
 
         const { class_id, datos } = await request.json();
 
-        // TODO: Validar API key contra DB
-        // TODO: Crear objeto en Google Wallet
-        // TODO: Generar link
+        // Verificar que la clase pertenece al cliente
+        const clase = await env.DB.prepare(
+          'SELECT * FROM clases WHERE id = ? AND cliente_id = ?'
+        ).bind(class_id, cliente.id).first();
 
-        return new Response(JSON.stringify({
+        if (!clase) {
+          return jsonResponse({
+            success: false,
+            error: 'Clase no encontrada'
+          }, corsHeaders, 404);
+        }
+
+        // Crear objeto en Google Wallet
+        const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
+        const resultado = await wallet.crearObjeto(credentials, clase.tipo, class_id, datos);
+
+        if (!resultado.success) {
+          return jsonResponse({
+            success: false,
+            error: resultado.error
+          }, corsHeaders, 500);
+        }
+
+        // Guardar en DB
+        await env.DB.prepare(
+          `INSERT INTO pases (id, objeto_id, class_id, cliente_id, tipo, datos, creado_en)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`
+        ).bind(
+          crypto.randomUUID(),
+          resultado.objetoId,
+          class_id,
+          cliente.id,
+          clase.tipo,
+          JSON.stringify(datos),
+          Date.now()
+        ).run();
+
+        return jsonResponse({
           success: true,
-          message: 'Funcionalidad en desarrollo',
-          objeto_id: 'test-' + crypto.randomUUID(),
-          link: 'https://pay.google.com/gp/v/save/TEST'
-        }), {
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders
-          }
-        });
-
-      } catch (error) {
-        return new Response(JSON.stringify({
-          success: false,
-          error: error.message
-        }), {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders
-          }
-        });
+          objeto_id: resultado.objetoId,
+          link: resultado.link
+        }, corsHeaders);
       }
-    }
 
-    // ==========================================
-    // WEBHOOKS
-    // ==========================================
+      // ==========================================
+      // WEBHOOKS
+      // ==========================================
 
-    if (url.pathname === '/webhook/wallet-events' && request.method === 'POST') {
-      try {
+      if (url.pathname === '/webhook/wallet-events' && request.method === 'POST') {
         const data = await request.json();
 
         console.log('🔔 Webhook recibido:', data);
 
-        // Guardar evento en DB
-        if (env.DB) {
+        // Guardar evento
+        await env.DB.prepare(
+          `INSERT INTO eventos (tipo, objeto_id, class_id, datos, timestamp)
+           VALUES (?, ?, ?, ?, ?)`
+        ).bind(
+          data.eventType,
+          data.objectId,
+          data.classId,
+          JSON.stringify(data),
+          Date.now()
+        ).run();
+
+        // Actualizar estado si es delete
+        if (data.eventType === 'delete') {
           await env.DB.prepare(
-            'INSERT INTO eventos (tipo, objeto_id, class_id, datos, timestamp) VALUES (?, ?, ?, ?, ?)'
-          ).bind(
-            data.eventType,
-            data.objectId,
-            data.classId,
-            JSON.stringify(data),
-            Date.now()
-          ).run();
+            'UPDATE pases SET estado = ? WHERE objeto_id = ?'
+          ).bind('DELETED', data.objectId).run();
         }
 
-        return new Response(JSON.stringify({ success: true }), {
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders
-          }
-        });
-
-      } catch (error) {
-        return new Response(JSON.stringify({
-          success: false,
-          error: error.message
-        }), {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders
-          }
-        });
+        return jsonResponse({ success: true }, corsHeaders);
       }
+
+      // 404
+      return jsonResponse({
+        error: 'Not Found',
+        path: url.pathname
+      }, corsHeaders, 404);
+
+    } catch (error) {
+      console.error('Error:', error);
+      return jsonResponse({
+        success: false,
+        error: error.message
+      }, corsHeaders, 500);
     }
-
-    // ==========================================
-    // 404 - NOT FOUND
-    // ==========================================
-
-    return new Response(JSON.stringify({
-      error: 'Not Found',
-      path: url.pathname
-    }), {
-      status: 404,
-      headers: {
-        'Content-Type': 'application/json',
-        ...corsHeaders
-      }
-    });
   }
 };
 
@@ -260,12 +419,43 @@ export default {
 // UTILIDADES
 // ==========================================
 
+function jsonResponse(data, corsHeaders, status = 200) {
+  return new Response(JSON.stringify(data, null, 2), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+      ...corsHeaders
+    }
+  });
+}
+
 async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
   const hash = await crypto.subtle.digest('SHA-256', data);
-
   return Array.from(new Uint8Array(hash))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
+}
+
+async function validateSession(request, env, requiredType = null) {
+  const sessionId = request.headers.get('Authorization')?.replace('Bearer ', '');
+
+  if (!sessionId) {
+    return { valid: false };
+  }
+
+  const sessionData = await env.SESSIONS.get(`session:${sessionId}`);
+
+  if (!sessionData) {
+    return { valid: false };
+  }
+
+  const session = JSON.parse(sessionData);
+
+  if (requiredType && session.type !== requiredType) {
+    return { valid: false };
+  }
+
+  return { valid: true, data: session };
 }
