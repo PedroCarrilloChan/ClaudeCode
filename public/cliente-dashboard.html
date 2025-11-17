@@ -73,6 +73,58 @@
             font-weight: 700;
             color: #11998e;
         }
+
+        /* TABS SYSTEM */
+        .tabs-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .tabs-header {
+            display: flex;
+            border-bottom: 2px solid #f0f0f0;
+            background: #fafafa;
+            overflow-x: auto;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 18px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tab-btn:hover {
+            background: #f5f5f5;
+            color: #11998e;
+        }
+        .tab-btn.active {
+            color: #11998e;
+            border-bottom-color: #11998e;
+            background: white;
+        }
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.3s;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* EXISTING STYLES */
         .section {
             background: white;
             padding: 30px;
@@ -398,6 +450,84 @@
             z-index: 2000;
             max-width: 400px;
         }
+
+        /* API DOCS STYLES */
+        .api-section {
+            margin-bottom: 40px;
+        }
+        .api-section h3 {
+            color: #11998e;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        .api-section h4 {
+            color: #333;
+            margin: 20px 0 10px;
+            font-size: 16px;
+        }
+        .endpoint-card {
+            background: #f8f9fa;
+            border-left: 4px solid #11998e;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .method-badge {
+            background: #11998e;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+        }
+        .method-badge.patch {
+            background: #ff9800;
+        }
+        .endpoint-url {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #333;
+            font-weight: 600;
+        }
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+        .code-block .comment {
+            color: #75715e;
+        }
+        .code-block .string {
+            color: #a6e22e;
+        }
+        .code-block .number {
+            color: #ae81ff;
+        }
+        .code-block .keyword {
+            color: #f92672;
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        .info-box strong {
+            color: #1976d2;
+        }
     </style>
 </head>
 <body>
@@ -406,12 +536,13 @@
 
     <div class="header">
         <div class="header-content">
-            <h1><span>🎫</span> <span id="nombreNegocio">Mi Negocio</span></h1>
+            <h1><span>🎫</span> <span id="nombreNegocio">Smart Passes</span></h1>
             <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
         </div>
     </div>
 
     <div class="container">
+        <!-- Stats Cards -->
         <div class="stats-grid">
             <div class="stat-card">
                 <h3>Pases Creados</h3>
@@ -427,24 +558,277 @@
             </div>
         </div>
 
-        <div class="section">
-            <h2>API Key</h2>
-            <p style="color: #666; margin-bottom: 10px;">Usa esta clave para crear pases mediante la API</p>
-            <div class="api-key-box">
-                <code id="apiKeyDisplay">••••••••••••••••••••</code>
-                <button class="btn-copy" onclick="copyApiKey()">Copiar</button>
+        <!-- Tabs Container -->
+        <div class="tabs-container">
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="switchTab('crear-clase')">
+                    🎨 Crear Nueva Clase
+                </button>
+                <button class="tab-btn" onclick="switchTab('mis-clases')">
+                    📋 Mis Clases
+                </button>
+                <button class="tab-btn" onclick="switchTab('api')">
+                    🔌 Integración API
+                </button>
+                <button class="tab-btn" onclick="switchTab('mis-pases')">
+                    👥 Mis Pases
+                </button>
+                <button class="tab-btn" onclick="switchTab('notificaciones')">
+                    🔔 Notificaciones
+                </button>
             </div>
-        </div>
 
-        <div class="section">
-            <h2>Mis Clases de Google Wallet</h2>
-            <button class="btn-primary" onclick="openCreateClaseModal()">➕ Crear Nueva Clase</button>
+            <!-- TAB: Crear Nueva Clase -->
+            <div id="tab-crear-clase" class="tab-content active">
+                <h2>Crear Nueva Clase de Google Wallet</h2>
+                <p style="color: #666; margin-bottom: 30px;">Las clases son plantillas reutilizables. Una vez creada, puedes generar múltiples pases usando tu API Key.</p>
 
-            <div id="clasesContainer" class="clases-grid"></div>
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <div class="icon">📦</div>
-                <h3>No tienes clases creadas</h3>
-                <p>Crea tu primera clase de Google Wallet para empezar a generar pases</p>
+                <button class="btn-primary" onclick="openCreateClaseModal()">➕ Crear Nueva Clase</button>
+
+                <div class="info-box">
+                    <strong>💡 Tip:</strong> Crea diferentes clases para diferentes tipos de pases (lealtad, cupones, eventos, etc.). Cada clase puede tener su propio diseño y configuración.
+                </div>
+            </div>
+
+            <!-- TAB: Mis Clases -->
+            <div id="tab-mis-clases" class="tab-content">
+                <h2>Mis Clases de Google Wallet</h2>
+
+                <div id="clasesContainer" class="clases-grid"></div>
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div class="icon">📦</div>
+                    <h3>No tienes clases creadas</h3>
+                    <p>Crea tu primera clase de Google Wallet para empezar a generar pases</p>
+                </div>
+            </div>
+
+            <!-- TAB: Integración API -->
+            <div id="tab-api" class="tab-content">
+                <h2>🔌 Integración API</h2>
+                <p style="color: #666; margin-bottom: 30px;">Usa estos endpoints para integrar Smart Passes en tu aplicación.</p>
+
+                <!-- API Key Section -->
+                <div class="api-section">
+                    <h3>🔑 Tu API Key</h3>
+                    <p style="color: #666; margin-bottom: 15px;">Incluye esta clave en el header <code>Authorization</code> de todas tus peticiones.</p>
+                    <div class="api-key-box">
+                        <code id="apiKeyDisplay2">••••••••••••••••••••</code>
+                        <button class="btn-copy" onclick="copyApiKey()">Copiar</button>
+                    </div>
+                </div>
+
+                <!-- Endpoint 1: Crear Pase -->
+                <div class="api-section">
+                    <h3>1️⃣ Crear Pase Individual</h3>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge">POST</span>
+                            <span class="endpoint-url">/api/crear-pase</span>
+                        </div>
+
+                        <p><strong>Descripción:</strong> Crea un pase individual en Google Wallet y retorna el link para agregarlo.</p>
+
+                        <h4>📥 Request</h4>
+                        <div class="code-block">curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/crear-pase \
+  -H "Authorization: Bearer TU_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "class_id": "3388000000022737801.smartpasses-123-tarjeta-lealtad",
+    "datos": {
+      "nombre": "Juan Pérez",
+      "puntos": 1500,
+      "account_id": "MEMBER-00123",
+      "barcode": {
+        "type": "QR_CODE",
+        "value": "MEMBER-00123"
+      }
+    }
+  }'</div>
+
+                        <h4>📤 Response</h4>
+                        <div class="code-block">{
+  "success": true,
+  "objeto_id": "3388000000022737801.smartpasses-123-tarjeta-lealtad-a1b2c3d4",
+  "link": "https://pay.google.com/gp/v/save/eyJh..."
+}</div>
+
+                        <h4>🔧 Ejemplo JavaScript</h4>
+                        <div class="code-block">const response = await fetch('https://smart-passes-api.smartpasses.workers.dev/api/crear-pase', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer TU_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    class_id: '3388000000022737801.smartpasses-123-tarjeta-lealtad',
+    datos: {
+      nombre: 'Juan Pérez',
+      puntos: 1500,
+      account_id: 'MEMBER-00123',
+      barcode: {
+        type: 'QR_CODE',
+        value: 'MEMBER-00123'
+      }
+    }
+  })
+});
+
+const data = await response.json();
+console.log(data.link); // Link para agregar a Google Wallet</div>
+                    </div>
+                </div>
+
+                <!-- Endpoint 2: Actualizar Pase -->
+                <div class="api-section">
+                    <h3>2️⃣ Actualizar Pase Existente</h3>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge patch">POST</span>
+                            <span class="endpoint-url">/api/actualizar-pase</span>
+                        </div>
+
+                        <p><strong>Descripción:</strong> Actualiza campos de un pase existente. Google Wallet enviará notificación automática si hay cambios importantes.</p>
+
+                        <h4>📥 Request</h4>
+                        <div class="code-block">curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/actualizar-pase \
+  -H "Authorization: Bearer TU_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "objeto_id": "3388000000022737801.smartpasses-123-tarjeta-lealtad-a1b2c3d4",
+    "datos_actualizados": {
+      "puntos": 2000
+    }
+  }'</div>
+
+                        <h4>📤 Response</h4>
+                        <div class="code-block">{
+  "success": true,
+  "mensaje": "Pase actualizado. Google Wallet enviará notificación automática si hubo cambios importantes."
+}</div>
+                    </div>
+                </div>
+
+                <!-- Endpoint 3: Notificación Individual -->
+                <div class="api-section">
+                    <h3>3️⃣ Enviar Notificación a UN Pase</h3>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge">POST</span>
+                            <span class="endpoint-url">/api/notificar-pase</span>
+                        </div>
+
+                        <p><strong>Descripción:</strong> Envía una notificación push a un pase específico. Aparece en la bandeja de notificaciones del teléfono.</p>
+
+                        <h4>📥 Request</h4>
+                        <div class="code-block">curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/notificar-pase \
+  -H "Authorization: Bearer TU_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "objeto_id": "3388000000022737801.smartpasses-123-tarjeta-lealtad-a1b2c3d4",
+    "mensaje": {
+      "header": "¡Promoción Especial!",
+      "body": "Doble puntos en todas tus compras este fin de semana"
+    }
+  }'</div>
+
+                        <h4>📤 Response</h4>
+                        <div class="code-block">{
+  "success": true,
+  "mensaje": "Notificación enviada"
+}</div>
+                    </div>
+                </div>
+
+                <!-- Endpoint 4: Notificación Masiva -->
+                <div class="api-section">
+                    <h3>4️⃣ Enviar Notificación Masiva (Toda una Clase)</h3>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge">POST</span>
+                            <span class="endpoint-url">/api/notificar-clase</span>
+                        </div>
+
+                        <p><strong>Descripción:</strong> Envía una notificación push a TODOS los pases de una clase. Perfecto para campañas masivas.</p>
+
+                        <h4>📥 Request</h4>
+                        <div class="code-block">curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/notificar-clase \
+  -H "Authorization: Bearer TU_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "class_id": "3388000000022737801.smartpasses-123-tarjeta-lealtad",
+    "mensaje": {
+      "header": "Actualización Importante",
+      "body": "Nuevos beneficios disponibles para todos los miembros"
+    }
+  }'</div>
+
+                        <h4>📤 Response</h4>
+                        <div class="code-block">{
+  "success": true,
+  "mensaje": "Notificación enviada a todos los pases de la clase"
+}</div>
+                    </div>
+                </div>
+
+                <!-- Authentication Info -->
+                <div class="api-section">
+                    <h3>🔐 Autenticación</h3>
+                    <div class="info-box">
+                        <strong>Importante:</strong> Todas las peticiones requieren tu API Key en el header <code>Authorization</code>:
+                        <div class="code-block" style="margin-top: 10px;">Authorization: Bearer TU_API_KEY</div>
+                    </div>
+                </div>
+
+                <!-- Error Codes -->
+                <div class="api-section">
+                    <h3>⚠️ Códigos de Error</h3>
+                    <table style="width: 100%; border-collapse: collapse; background: white;">
+                        <tr style="background: #f5f5f5;">
+                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Código</th>
+                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Descripción</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border: 1px solid #ddd;"><code>401</code></td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">API key inválida o no proporcionada</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border: 1px solid #ddd;"><code>404</code></td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">Clase o pase no encontrado</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border: 1px solid #ddd;"><code>500</code></td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">Error del servidor o error de Google Wallet API</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: Mis Pases -->
+            <div id="tab-mis-pases" class="tab-content">
+                <h2>👥 Mis Pases</h2>
+                <p style="color: #666;">Esta sección estará disponible próximamente. Aquí podrás ver todos los pases individuales que has creado.</p>
+
+                <div class="empty-state">
+                    <div class="icon">🚧</div>
+                    <h3>Próximamente</h3>
+                    <p>Estamos trabajando en esta funcionalidad</p>
+                </div>
+            </div>
+
+            <!-- TAB: Notificaciones -->
+            <div id="tab-notificaciones" class="tab-content">
+                <h2>🔔 Notificaciones Push</h2>
+                <p style="color: #666;">Esta sección estará disponible próximamente. Aquí podrás enviar notificaciones masivas a tus usuarios.</p>
+
+                <div class="empty-state">
+                    <div class="icon">🚧</div>
+                    <h3>Próximamente</h3>
+                    <p>Estamos trabajando en esta funcionalidad</p>
+                </div>
             </div>
         </div>
     </div>
@@ -541,6 +925,25 @@
         let clienteData = {};
         let clasesData = [];
 
+        // TAB SWITCHING
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById('tab-' + tabName).classList.add('active');
+
+            // Activate button
+            event.target.classList.add('active');
+        }
+
         // Función para mostrar errores globales
         function showError(mensaje, duracion = 5000) {
             const errorDiv = document.getElementById('globalError');
@@ -583,6 +986,7 @@
                     // Actualizar UI
                     document.getElementById('nombreNegocio').textContent = clienteData.nombre_negocio;
                     document.getElementById('apiKeyDisplay').textContent = clienteData.api_key;
+                    document.getElementById('apiKeyDisplay2').textContent = clienteData.api_key;
                     document.getElementById('totalPases').textContent = clienteData.estadisticas.pases_creados;
                     document.getElementById('totalClases').textContent = clienteData.estadisticas.clases_creadas;
                     document.getElementById('pasesActivos').textContent = clienteData.estadisticas.pases_activos;
