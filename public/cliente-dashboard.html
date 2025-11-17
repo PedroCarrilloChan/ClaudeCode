@@ -928,6 +928,9 @@
                 <button class="tab-btn" onclick="switchTab('notificaciones')">
                     🔔 Notificaciones
                 </button>
+                <button class="tab-btn" onclick="switchTab('updates')">
+                    🔄 Updates
+                </button>
             </div>
 
             <!-- TAB: Crear Nueva Clase -->
@@ -1310,6 +1313,100 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                     </div>
                 </div>
             </div>
+
+            <!-- TAB: Updates -->
+            <div id="tab-updates" class="tab-content">
+                <h2>🔄 Actualizar Pases</h2>
+                <p style="color: #666; margin-bottom: 30px;">Actualiza la información de tus pases de Google Wallet en tiempo real.</p>
+
+                <!-- Formularios de Actualización -->
+                <div class="notification-forms">
+                    <!-- Actualizar Pase Individual -->
+                    <div class="notification-card">
+                        <h3>
+                            <span>📝</span>
+                            <span>Actualizar Pase Individual</span>
+                        </h3>
+                        <p>Actualiza la información de un pase específico</p>
+
+                        <form id="formActualizarPase" onsubmit="actualizarPaseIndividual(event)">
+                            <div class="form-group">
+                                <label for="updateClaseSelect">Clase</label>
+                                <select id="updateClaseSelect" onchange="cargarPasesParaUpdate()" required>
+                                    <option value="">-- Selecciona una clase --</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="updatePaseSelect">Seleccionar Pase</label>
+                                <select id="updatePaseSelect" onchange="mostrarCamposUpdate()" required disabled>
+                                    <option value="">-- Primero selecciona una clase --</option>
+                                </select>
+                            </div>
+
+                            <!-- Campos dinámicos según tipo de pase -->
+                            <div id="camposUpdateDinamicos"></div>
+
+                            <button type="submit" class="btn-send-notification" disabled id="btnActualizarPase">
+                                <span>💾</span>
+                                <span>Actualizar Pase</span>
+                            </button>
+
+                            <div class="success-msg" id="successMsgUpdate"></div>
+                            <div class="error-msg" id="errorMsgUpdate"></div>
+                        </form>
+                    </div>
+
+                    <!-- Actualizar Clase Completa -->
+                    <div class="notification-card">
+                        <h3>
+                            <span>📢</span>
+                            <span>Actualizar Clase Completa</span>
+                        </h3>
+                        <p>Actualiza todos los pases de una clase a la vez</p>
+
+                        <form id="formActualizarClase" onsubmit="actualizarClaseCompleta(event)">
+                            <div class="form-group">
+                                <label for="updateClaseCompletaSelect">Seleccionar Clase</label>
+                                <select id="updateClaseCompletaSelect" onchange="mostrarCamposUpdateClase()" required>
+                                    <option value="">-- Selecciona una clase --</option>
+                                </select>
+                            </div>
+
+                            <div class="info-box" style="margin-bottom: 20px;">
+                                <strong>⚠️ Importante:</strong> Esta acción actualizará TODOS los pases de la clase seleccionada. Los campos que dejes vacíos no se modificarán.
+                            </div>
+
+                            <!-- Campos dinámicos para actualización masiva -->
+                            <div id="camposUpdateClaseDinamicos"></div>
+
+                            <button type="submit" class="btn-send-notification" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" disabled id="btnActualizarClase">
+                                <span>🔄</span>
+                                <span>Actualizar Todos los Pases</span>
+                            </button>
+
+                            <div class="success-msg" id="successMsgUpdateClase"></div>
+                            <div class="error-msg" id="errorMsgUpdateClase"></div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Historial de Actualizaciones -->
+                <div class="historial-section">
+                    <h3>
+                        <span>📋</span>
+                        <span>Historial de Actualizaciones</span>
+                    </h3>
+
+                    <div id="historialUpdates" class="historial-list">
+                        <div class="empty-state">
+                            <div class="icon">📭</div>
+                            <h3>Sin actualizaciones</h3>
+                            <p>Las actualizaciones que realices aparecerán aquí</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1428,6 +1525,8 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                 loadPases();
             } else if (tabName === 'notificaciones') {
                 loadNotificaciones();
+            } else if (tabName === 'updates') {
+                loadUpdates();
             }
         }
 
@@ -1974,6 +2073,495 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
             const textarea = document.getElementById(textareaId);
             const counter = document.getElementById(counterId);
             counter.textContent = textarea.value.length;
+        }
+
+        // ==========================================
+        // FUNCIONES PARA TAB "UPDATES"
+        // ==========================================
+
+        let updatesHistorial = [];
+        let paseSeleccionadoParaUpdate = null;
+
+        function loadUpdates() {
+            // Cargar historial de localStorage
+            const historialGuardado = localStorage.getItem('updates_historial');
+            if (historialGuardado) {
+                updatesHistorial = JSON.parse(historialGuardado);
+                renderHistorialUpdates();
+            }
+
+            // Poblar selectores de clases
+            populateUpdatesClases();
+        }
+
+        function populateUpdatesClases() {
+            const selectClase = document.getElementById('updateClaseSelect');
+            const selectClaseCompleta = document.getElementById('updateClaseCompletaSelect');
+
+            selectClase.innerHTML = '<option value="">-- Selecciona una clase --</option>';
+            selectClaseCompleta.innerHTML = '<option value="">-- Selecciona una clase --</option>';
+
+            clasesData.forEach(clase => {
+                const option = document.createElement('option');
+                option.value = clase.id;
+                option.dataset.tipo = clase.tipo;
+                option.textContent = `${clase.nombre} (${clase.tipo})`;
+                selectClase.appendChild(option);
+
+                const option2 = document.createElement('option');
+                option2.value = clase.id;
+                option2.dataset.tipo = clase.tipo;
+                option2.textContent = `${clase.nombre} (${clase.tipo})`;
+                selectClaseCompleta.appendChild(option2);
+            });
+        }
+
+        async function cargarPasesParaUpdate() {
+            const select = document.getElementById('updateClaseSelect');
+            const classId = select.value;
+            const selectPase = document.getElementById('updatePaseSelect');
+            const camposDiv = document.getElementById('camposUpdateDinamicos');
+
+            if (!classId) {
+                selectPase.innerHTML = '<option value="">-- Primero selecciona una clase --</option>';
+                selectPase.disabled = true;
+                camposDiv.innerHTML = '';
+                document.getElementById('btnActualizarPase').disabled = true;
+                return;
+            }
+
+            selectPase.disabled = true;
+            selectPase.innerHTML = '<option value="">Cargando pases...</option>';
+
+            const sessionId = localStorage.getItem('sessionId');
+
+            try {
+                const response = await fetch(`${API_URL}/cliente/pases?class_id=${classId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.pases.length > 0) {
+                    selectPase.innerHTML = '<option value="">-- Selecciona un pase --</option>';
+                    data.pases.forEach(pase => {
+                        const option = document.createElement('option');
+                        option.value = pase.objeto_id;
+                        option.dataset.pase = JSON.stringify(pase);
+                        const datos = pase.datos || {};
+                        const label = datos.accountName || datos.cardTitle || datos.header || pase.objeto_id.substring(0, 30);
+                        option.textContent = label;
+                        selectPase.appendChild(option);
+                    });
+                    selectPase.disabled = false;
+                } else {
+                    selectPase.innerHTML = '<option value="">-- No hay pases en esta clase --</option>';
+                }
+            } catch (error) {
+                console.error('Error al cargar pases:', error);
+                selectPase.innerHTML = '<option value="">-- Error al cargar pases --</option>';
+            }
+        }
+
+        function mostrarCamposUpdate() {
+            const selectPase = document.getElementById('updatePaseSelect');
+            const camposDiv = document.getElementById('camposUpdateDinamicos');
+            const btn = document.getElementById('btnActualizarPase');
+
+            if (!selectPase.value) {
+                camposDiv.innerHTML = '';
+                btn.disabled = true;
+                return;
+            }
+
+            const option = selectPase.options[selectPase.selectedIndex];
+            paseSeleccionadoParaUpdate = JSON.parse(option.dataset.pase);
+            const tipo = paseSeleccionadoParaUpdate.tipo;
+            const datosActuales = paseSeleccionadoParaUpdate.datos || {};
+
+            camposDiv.innerHTML = generarCamposUpdatePorTipo(tipo, datosActuales);
+            btn.disabled = false;
+        }
+
+        function mostrarCamposUpdateClase() {
+            const select = document.getElementById('updateClaseCompletaSelect');
+            const camposDiv = document.getElementById('camposUpdateClaseDinamicos');
+            const btn = document.getElementById('btnActualizarClase');
+
+            if (!select.value) {
+                camposDiv.innerHTML = '';
+                btn.disabled = true;
+                return;
+            }
+
+            const option = select.options[select.selectedIndex];
+            const tipo = option.dataset.tipo;
+
+            camposDiv.innerHTML = generarCamposUpdatePorTipo(tipo, {}, true);
+            btn.disabled = false;
+        }
+
+        function generarCamposUpdatePorTipo(tipo, datosActuales, esClase = false) {
+            let html = '';
+
+            switch (tipo) {
+                case 'loyalty':
+                    html = `
+                        <div class="form-group">
+                            <label>Puntos ${esClase ? '(incrementar/decrementar)' : ''}</label>
+                            <input type="number" id="update_points" placeholder="${datosActuales.points !== undefined ? 'Actual: ' + datosActuales.points : 'Ej: 100'}">
+                            <small style="color: #666; font-size: 12px;">${esClase ? 'Se sumará o restará este valor a los puntos actuales' : 'Nuevos puntos totales'}</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre del Usuario</label>
+                            <input type="text" id="update_accountName" value="${datosActuales.accountName || ''}" placeholder="Ej: Juan Pérez">
+                        </div>
+                        <div class="form-group">
+                            <label>Mensaje/Estado</label>
+                            <input type="text" id="update_message" value="${datosActuales.message || ''}" placeholder="Ej: Gracias por tu preferencia">
+                        </div>
+                    `;
+                    break;
+
+                case 'offer':
+                    html = `
+                        <div class="form-group">
+                            <label>Título del Cupón</label>
+                            <input type="text" id="update_header" value="${datosActuales.header || ''}" placeholder="Ej: 20% de descuento">
+                        </div>
+                        <div class="form-group">
+                            <label>Usuario</label>
+                            <input type="text" id="update_accountName" value="${datosActuales.accountName || ''}" placeholder="Ej: Juan Pérez">
+                        </div>
+                        <div class="form-group">
+                            <label>Detalles</label>
+                            <textarea id="update_details" placeholder="Ej: Válido en todos los productos">${datosActuales.details || ''}</textarea>
+                        </div>
+                    `;
+                    break;
+
+                case 'giftcard':
+                    html = `
+                        <div class="form-group">
+                            <label>Balance ${esClase ? '(incrementar/decrementar)' : ''}</label>
+                            <input type="number" step="0.01" id="update_balance" placeholder="${datosActuales.balance ? 'Actual: $' + datosActuales.balance : 'Ej: 100.00'}">
+                            <small style="color: #666; font-size: 12px;">${esClase ? 'Se sumará o restará este valor al balance actual' : 'Nuevo balance total'}</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre del Usuario</label>
+                            <input type="text" id="update_cardholderName" value="${datosActuales.cardholderName || ''}" placeholder="Ej: María García">
+                        </div>
+                        <div class="form-group">
+                            <label>Mensaje</label>
+                            <input type="text" id="update_message" value="${datosActuales.message || ''}" placeholder="Ej: Gracias por tu compra">
+                        </div>
+                    `;
+                    break;
+
+                case 'eventticket':
+                    html = `
+                        <div class="form-group">
+                            <label>Nombre del Evento</label>
+                            <input type="text" id="update_eventName" value="${datosActuales.eventName || ''}" placeholder="Ej: Concierto 2024">
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha/Hora</label>
+                            <input type="text" id="update_datetime" value="${datosActuales.datetime || ''}" placeholder="Ej: 15 Dic 2024, 8:00 PM">
+                        </div>
+                        <div class="form-group">
+                            <label>Ubicación</label>
+                            <input type="text" id="update_venue" value="${datosActuales.venue || ''}" placeholder="Ej: Estadio Nacional">
+                        </div>
+                        <div class="form-group">
+                            <label>Asiento/Sección</label>
+                            <input type="text" id="update_seat" value="${datosActuales.seat || ''}" placeholder="Ej: Sección A, Fila 5">
+                        </div>
+                    `;
+                    break;
+
+                case 'generic':
+                default:
+                    html = `
+                        <div class="form-group">
+                            <label>Título</label>
+                            <input type="text" id="update_cardTitle" value="${datosActuales.cardTitle || ''}" placeholder="Título del pase">
+                        </div>
+                        <div class="form-group">
+                            <label>Subtítulo</label>
+                            <input type="text" id="update_subheader" value="${datosActuales.subheader || ''}" placeholder="Subtítulo">
+                        </div>
+                        <div class="form-group">
+                            <label>Texto Principal</label>
+                            <input type="text" id="update_header" value="${datosActuales.header || ''}" placeholder="Texto principal">
+                        </div>
+                    `;
+                    break;
+            }
+
+            return html;
+        }
+
+        async function actualizarPaseIndividual(event) {
+            event.preventDefault();
+
+            const objetoId = document.getElementById('updatePaseSelect').value;
+            const btn = event.target.querySelector('button[type="submit"]');
+            const successMsg = document.getElementById('successMsgUpdate');
+            const errorMsg = document.getElementById('errorMsgUpdate');
+
+            // Recolectar datos actualizados
+            const datosActualizados = {};
+            const inputs = document.querySelectorAll('#camposUpdateDinamicos input, #camposUpdateDinamicos textarea');
+
+            inputs.forEach(input => {
+                const key = input.id.replace('update_', '');
+                if (input.value.trim()) {
+                    if (input.type === 'number') {
+                        datosActualizados[key] = parseFloat(input.value);
+                    } else {
+                        datosActualizados[key] = input.value.trim();
+                    }
+                }
+            });
+
+            if (Object.keys(datosActualizados).length === 0) {
+                errorMsg.textContent = '✗ Debes modificar al menos un campo';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span><span>Actualizando...</span>';
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_URL}/api/actualizar-pase`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${clienteData.api_key}`
+                    },
+                    body: JSON.stringify({
+                        objeto_id: objetoId,
+                        datos_actualizados: datosActualizados
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    successMsg.textContent = `✓ Pase actualizado exitosamente`;
+                    successMsg.style.display = 'block';
+
+                    agregarAlHistorialUpdates('pase', objetoId, datosActualizados, true);
+
+                    // Limpiar formulario
+                    document.getElementById('formActualizarPase').reset();
+                    document.getElementById('camposUpdateDinamicos').innerHTML = '';
+                    document.getElementById('updatePaseSelect').disabled = true;
+                    document.getElementById('btnActualizarPase').disabled = true;
+                } else {
+                    errorMsg.textContent = `✗ Error: ${data.error}`;
+                    errorMsg.style.display = 'block';
+
+                    agregarAlHistorialUpdates('pase', objetoId, datosActualizados, false, data.error);
+                }
+            } catch (error) {
+                errorMsg.textContent = `✗ Error de conexión: ${error.message}`;
+                errorMsg.style.display = 'block';
+
+                agregarAlHistorialUpdates('pase', objetoId, datosActualizados, false, error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>💾</span><span>Actualizar Pase</span>';
+            }
+        }
+
+        async function actualizarClaseCompleta(event) {
+            event.preventDefault();
+
+            const classId = document.getElementById('updateClaseCompletaSelect').value;
+            const btn = event.target.querySelector('button[type="submit"]');
+            const successMsg = document.getElementById('successMsgUpdateClase');
+            const errorMsg = document.getElementById('errorMsgUpdateClase');
+
+            // Recolectar datos actualizados
+            const datosActualizados = {};
+            const inputs = document.querySelectorAll('#camposUpdateClaseDinamicos input, #camposUpdateClaseDinamicos textarea');
+
+            inputs.forEach(input => {
+                const key = input.id.replace('update_', '');
+                if (input.value.trim()) {
+                    if (input.type === 'number') {
+                        datosActualizados[key] = parseFloat(input.value);
+                    } else {
+                        datosActualizados[key] = input.value.trim();
+                    }
+                }
+            });
+
+            if (Object.keys(datosActualizados).length === 0) {
+                errorMsg.textContent = '✗ Debes modificar al menos un campo';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // Confirmar acción
+            if (!confirm(`¿Estás seguro de actualizar TODOS los pases de esta clase?\n\nCampos a actualizar: ${Object.keys(datosActualizados).join(', ')}`)) {
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span><span>Actualizando...</span>';
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+
+            try {
+                // Obtener todos los pases de la clase
+                const sessionId = localStorage.getItem('sessionId');
+                const response = await fetch(`${API_URL}/cliente/pases?class_id=${classId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                const pasesData = await response.json();
+
+                if (!pasesData.success || pasesData.pases.length === 0) {
+                    errorMsg.textContent = '✗ No se encontraron pases para actualizar';
+                    errorMsg.style.display = 'block';
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>🔄</span><span>Actualizar Todos los Pases</span>';
+                    return;
+                }
+
+                // Actualizar cada pase
+                let exitosos = 0;
+                let fallidos = 0;
+
+                for (const pase of pasesData.pases) {
+                    try {
+                        const updateResponse = await fetch(`${API_URL}/api/actualizar-pase`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${clienteData.api_key}`
+                            },
+                            body: JSON.stringify({
+                                objeto_id: pase.objeto_id,
+                                datos_actualizados: datosActualizados
+                            })
+                        });
+
+                        const updateData = await updateResponse.json();
+                        if (updateData.success) {
+                            exitosos++;
+                        } else {
+                            fallidos++;
+                        }
+                    } catch (err) {
+                        fallidos++;
+                    }
+                }
+
+                if (exitosos > 0) {
+                    successMsg.textContent = `✓ Se actualizaron ${exitosos} pase(s) exitosamente${fallidos > 0 ? `. ${fallidos} fallaron.` : ''}`;
+                    successMsg.style.display = 'block';
+
+                    agregarAlHistorialUpdates('clase', classId, datosActualizados, true, null, exitosos);
+
+                    // Limpiar formulario
+                    document.getElementById('formActualizarClase').reset();
+                    document.getElementById('camposUpdateClaseDinamicos').innerHTML = '';
+                    document.getElementById('btnActualizarClase').disabled = true;
+                } else {
+                    errorMsg.textContent = `✗ Error: No se pudo actualizar ningún pase`;
+                    errorMsg.style.display = 'block';
+
+                    agregarAlHistorialUpdates('clase', classId, datosActualizados, false, 'No se pudo actualizar ningún pase');
+                }
+            } catch (error) {
+                errorMsg.textContent = `✗ Error de conexión: ${error.message}`;
+                errorMsg.style.display = 'block';
+
+                agregarAlHistorialUpdates('clase', classId, datosActualizados, false, error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>🔄</span><span>Actualizar Todos los Pases</span>';
+            }
+        }
+
+        function agregarAlHistorialUpdates(tipo, target, datos, exito, error = null, cantidad = 1) {
+            const update = {
+                id: Date.now(),
+                tipo: tipo,
+                target: target,
+                datos: datos,
+                exito: exito,
+                error: error,
+                cantidad: cantidad,
+                timestamp: new Date().toISOString()
+            };
+
+            updatesHistorial.unshift(update);
+
+            // Guardar en localStorage (últimas 50)
+            if (updatesHistorial.length > 50) {
+                updatesHistorial = updatesHistorial.slice(0, 50);
+            }
+
+            localStorage.setItem('updates_historial', JSON.stringify(updatesHistorial));
+
+            renderHistorialUpdates();
+        }
+
+        function renderHistorialUpdates() {
+            const container = document.getElementById('historialUpdates');
+
+            if (updatesHistorial.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <h3>Sin actualizaciones</h3>
+                        <p>Las actualizaciones que realices aparecerán aquí</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = updatesHistorial.map(update => {
+                const fecha = new Date(update.timestamp);
+                const fechaStr = fecha.toLocaleString('es-ES', {
+                    day: '2-digit',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const targetDisplay = update.tipo === 'clase'
+                    ? `Clase: ${clasesData.find(c => c.id === update.target)?.nombre || update.target} (${update.cantidad} pase${update.cantidad > 1 ? 's' : ''})`
+                    : `Pase: ${update.target.substring(0, 40)}...`;
+
+                const camposActualizados = Object.keys(update.datos).map(k =>
+                    `${k}: ${update.datos[k]}`
+                ).join(', ');
+
+                return `
+                    <div class="historial-item ${update.exito ? '' : 'error'}">
+                        <div class="historial-header">
+                            <span class="historial-type ${update.tipo}">${update.tipo}</span>
+                            <span class="historial-time">${fechaStr}</span>
+                        </div>
+                        <div class="historial-content">${camposActualizados}</div>
+                        <div class="historial-target">${targetDisplay}</div>
+                        ${update.error ? `<div style="color: #dc3545; font-size: 12px; margin-top: 8px;">❌ ${update.error}</div>` : ''}
+                        ${update.exito ? '<div style="color: #28a745; font-size: 12px; margin-top: 8px;">✓ Actualizado exitosamente</div>' : ''}
+                    </div>
+                `;
+            }).join('');
         }
 
         function openCreateClaseModal() {
