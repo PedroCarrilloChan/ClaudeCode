@@ -839,6 +839,7 @@ export default {
             cliente_eventos: '/cliente/eventos',
             cliente_crear_clase: '/cliente/crear-clase',
             cliente_editar_clase: '/cliente/editar-clase',
+            cliente_eliminar_clase: '/cliente/eliminar-clase',
             api_crear_pase: '/api/crear-pase',
             api_actualizar_pase: '/api/actualizar-pase',
             api_notificar_pase: '/api/notificar-pase',
@@ -1217,6 +1218,50 @@ export default {
         return jsonResponse({
           success: true,
           mensaje: 'Clase actualizada exitosamente'
+        }, corsHeaders);
+      }
+
+      // CLIENTE - ELIMINAR CLASE
+      if (url.pathname === '/cliente/eliminar-clase' && request.method === 'POST') {
+        const session = await validateSession(request, env, 'cliente');
+        if (!session.valid) {
+          return jsonResponse({ error: 'No autorizado' }, corsHeaders, 401);
+        }
+
+        const { class_id } = await request.json();
+
+        // Verificar que la clase pertenece al cliente
+        const clase = await env.DB.prepare(
+          'SELECT * FROM clases WHERE id = ? AND cliente_id = ?'
+        ).bind(class_id, session.data.clienteId).first();
+
+        if (!clase) {
+          return jsonResponse({
+            success: false,
+            error: 'Clase no encontrada'
+          }, corsHeaders, 404);
+        }
+
+        // Verificar si hay pases asociados a esta clase
+        const pasesCount = await env.DB.prepare(
+          'SELECT COUNT(*) as count FROM pases WHERE class_id = ?'
+        ).bind(class_id).first();
+
+        if (pasesCount.count > 0) {
+          return jsonResponse({
+            success: false,
+            error: `No se puede eliminar la clase porque tiene ${pasesCount.count} pase(s) asociado(s). Primero elimina los pases.`
+          }, corsHeaders, 400);
+        }
+
+        // Eliminar clase de la base de datos
+        await env.DB.prepare(
+          'DELETE FROM clases WHERE id = ?'
+        ).bind(class_id).run();
+
+        return jsonResponse({
+          success: true,
+          mensaje: 'Clase eliminada exitosamente'
         }, corsHeaders);
       }
 

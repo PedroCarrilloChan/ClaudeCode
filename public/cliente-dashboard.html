@@ -1695,9 +1695,14 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                     </h3>
                     <div class="tipo">${clase.tipo.toUpperCase()}</div>
                     <div class="class-id">${clase.id}</div>
-                    <button class="btn-edit-clase" onclick="editarClasePorIndice(${index})">
-                        ✏️ Editar
-                    </button>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn-edit-clase" onclick="editarClasePorIndice(${index})" style="flex: 1;">
+                            ✏️ Editar
+                        </button>
+                        <button class="btn-edit-clase" onclick="eliminarClase(${index})" style="flex: 1; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            🗑️ Eliminar
+                        </button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -3000,6 +3005,64 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
             } catch (error) {
                 console.error('Error al editar clase:', error);
                 showError('Error al cargar datos de la clase');
+            }
+        }
+
+        async function eliminarClase(index) {
+            try {
+                const clase = clasesData[index];
+                if (!clase) {
+                    showError('Clase no encontrada');
+                    return;
+                }
+
+                // Confirmar antes de eliminar
+                const confirmacion = confirm(
+                    `¿Estás seguro de eliminar la clase "${clase.nombre}"?\n\n` +
+                    `Esta acción no se puede deshacer.\n\n` +
+                    `IMPORTANTE: Si la clase tiene pases asociados, no podrá ser eliminada.`
+                );
+
+                if (!confirmacion) {
+                    return;
+                }
+
+                const sessionId = localStorage.getItem('sessionId');
+
+                const response = await fetch(`${API_URL}/cliente/eliminar-clase`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionId}`
+                    },
+                    body: JSON.stringify({
+                        class_id: clase.id
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Eliminar de la lista local
+                    clasesData.splice(index, 1);
+
+                    // Re-renderizar
+                    renderClases();
+
+                    // Mostrar mensaje de éxito
+                    showError('✓ Clase eliminada exitosamente', 3000);
+
+                    // Actualizar estadísticas
+                    const totalClases = document.getElementById('totalClases');
+                    if (totalClases) {
+                        totalClases.textContent = clasesData.length;
+                    }
+                } else {
+                    showError(data.error || 'Error al eliminar la clase');
+                }
+            } catch (error) {
+                console.error('Error al eliminar clase:', error);
+                showError('Error de conexión al servidor');
             }
         }
     </script>
