@@ -3057,7 +3057,15 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
 
                 const config = typeof clase.config === 'string' ? JSON.parse(clase.config) : clase.config;
 
-                // Llenar formulario con datos existentes
+                // Abrir modal PRIMERO (esto resetea el formulario)
+                const modal = document.getElementById('createClaseModal');
+                const form = document.getElementById('createClaseForm');
+
+                modal.classList.add('active');
+                document.getElementById('successMsg').style.display = 'none';
+                document.getElementById('errorMsg').style.display = 'none';
+
+                // LUEGO llenar formulario con datos existentes
                 document.getElementById('tipoPase').value = clase.tipo;
                 document.getElementById('nombreClase').value = clase.nombre || '';
                 document.getElementById('issuerName').value = config.issuer_name || '';
@@ -3066,16 +3074,12 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                 document.getElementById('heroUrl').value = config.hero_url || '';
 
                 // Actualizar preview
-                setTimeout(updatePreview, 50);
-
-                // Abrir modal
-                openCreateClaseModal();
+                setTimeout(updatePreview, 100);
 
                 // Cambiar título del modal
                 document.querySelector('#createClaseModal h2').textContent = 'Editar Clase';
 
                 // Cambiar el comportamiento del submit
-                const form = document.getElementById('createClaseForm');
                 form.dataset.editMode = 'true';
                 form.dataset.classId = clase.id;
 
