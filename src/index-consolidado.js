@@ -1127,7 +1127,9 @@ export default {
           .replace(/-+/g, '-')           // Evitar guiones múltiples consecutivos
           .replace(/^-|-$/g, '');        // Eliminar guiones al inicio o final
 
-        const classId = `${issuerId}.${session.data.clienteId}-${sanitizedName}`;
+        // Generar ID único incluyendo timestamp
+        const uniqueId = Date.now().toString(36); // Base36 para acortar
+        const classId = `${issuerId}.${session.data.clienteId}-${sanitizedName}-${uniqueId}`;
 
         const resultado = await crearClase(credentials, tipo, classId, config);
 
