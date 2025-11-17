@@ -817,6 +817,7 @@ export default {
             cliente_login: '/cliente/login',
             cliente_dashboard: '/cliente/dashboard',
             cliente_pases: '/cliente/pases',
+            cliente_eventos: '/cliente/eventos',
             cliente_crear_clase: '/cliente/crear-clase',
             cliente_editar_clase: '/cliente/editar-clase',
             api_crear_pase: '/api/crear-pase',
@@ -1050,6 +1051,51 @@ export default {
           success: true,
           pases: pasesFormateados,
           total: pases.length
+        }, corsHeaders);
+      }
+
+      // CLIENTE - OBTENER EVENTOS/WEBHOOKS
+      if (url.pathname === '/cliente/eventos' && request.method === 'GET') {
+        const session = await validateSession(request, env, 'cliente');
+        if (!session.valid) {
+          return jsonResponse({ error: 'No autorizado' }, corsHeaders, 401);
+        }
+
+        const limit = parseInt(url.searchParams.get('limit') || '50');
+        const offset = parseInt(url.searchParams.get('offset') || '0');
+
+        // Obtener eventos relacionados con pases del cliente
+        const { results: eventos } = await env.DB.prepare(`
+          SELECT e.*
+          FROM eventos e
+          INNER JOIN pases p ON e.objeto_id = p.objeto_id
+          WHERE p.cliente_id = ?
+          ORDER BY e.timestamp DESC
+          LIMIT ? OFFSET ?
+        `).bind(session.data.clienteId, limit, offset).all();
+
+        // Parsear datos JSON de cada evento
+        const eventosFormateados = eventos.map(evento => ({
+          ...evento,
+          datos: typeof evento.datos === 'string' ? JSON.parse(evento.datos) : evento.datos
+        }));
+
+        // Estadísticas
+        const stats = await env.DB.prepare(`
+          SELECT
+            e.tipo,
+            COUNT(*) as count
+          FROM eventos e
+          INNER JOIN pases p ON e.objeto_id = p.objeto_id
+          WHERE p.cliente_id = ?
+          GROUP BY e.tipo
+        `).bind(session.data.clienteId).all();
+
+        return jsonResponse({
+          success: true,
+          eventos: eventosFormateados,
+          total: eventos.length,
+          estadisticas: stats.results || []
         }, corsHeaders);
       }
 

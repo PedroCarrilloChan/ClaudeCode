@@ -931,6 +931,9 @@
                 <button class="tab-btn" onclick="switchTab('updates')">
                     🔄 Updates
                 </button>
+                <button class="tab-btn" onclick="switchTab('webhooks')">
+                    🔗 Webhooks
+                </button>
             </div>
 
             <!-- TAB: Crear Nueva Clase -->
@@ -1407,6 +1410,69 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                     </div>
                 </div>
             </div>
+
+            <!-- TAB: Webhooks -->
+            <div id="tab-webhooks" class="tab-content">
+                <h2>🔗 Webhooks y Eventos</h2>
+                <p style="color: #666; margin-bottom: 30px;">Monitorea los eventos de Google Wallet en tiempo real.</p>
+
+                <!-- Estadísticas de Eventos -->
+                <div class="pases-stats" id="webhooksStats" style="display: none;">
+                    <div class="pases-stat-item">
+                        <div class="label">Total Eventos</div>
+                        <div class="value" id="totalEventosCount">0</div>
+                    </div>
+                    <div class="pases-stat-item">
+                        <div class="label">Pases Guardados</div>
+                        <div class="value" id="eventosSaveCount">0</div>
+                    </div>
+                    <div class="pases-stat-item">
+                        <div class="label">Pases Eliminados</div>
+                        <div class="value" id="eventosDeleteCount">0</div>
+                    </div>
+                </div>
+
+                <!-- Información del Webhook -->
+                <div class="notification-card" style="margin-bottom: 30px;">
+                    <h3>
+                        <span>⚙️</span>
+                        <span>Configuración del Webhook</span>
+                    </h3>
+                    <p>Para recibir eventos de Google Wallet, configura esta URL en tu Google Cloud Console:</p>
+
+                    <div class="api-key-box" style="margin: 15px 0;">
+                        <code id="webhookUrlDisplay">https://smart-passes-api.smartpasses.workers.dev/webhook/wallet-events</code>
+                        <button class="btn-copy" onclick="copyWebhookUrl()">Copiar</button>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 20px;">
+                        <strong>📝 Tipos de eventos:</strong>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li><strong>save:</strong> Usuario guardó el pase en Google Wallet</li>
+                            <li><strong>del:</strong> Usuario eliminó el pase de Google Wallet</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Lista de Eventos -->
+                <div class="historial-section">
+                    <h3>
+                        <span>📋</span>
+                        <span>Log de Eventos</span>
+                        <button onclick="refreshWebhooks()" style="margin-left: auto; padding: 8px 15px; background: #11998e; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">
+                            🔄 Actualizar
+                        </button>
+                    </h3>
+
+                    <div id="eventosContainer" class="historial-list">
+                        <div class="empty-state">
+                            <div class="icon">📭</div>
+                            <h3>Sin eventos</h3>
+                            <p>Los eventos de Google Wallet aparecerán aquí</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1527,6 +1593,8 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                 loadNotificaciones();
             } else if (tabName === 'updates') {
                 loadUpdates();
+            } else if (tabName === 'webhooks') {
+                loadWebhooks();
             }
         }
 
@@ -2562,6 +2630,133 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                     </div>
                 `;
             }).join('');
+        }
+
+        // ==========================================
+        // FUNCIONES PARA TAB "WEBHOOKS"
+        // ==========================================
+
+        let eventosData = [];
+
+        async function loadWebhooks() {
+            const sessionId = localStorage.getItem('sessionId');
+
+            try {
+                const response = await fetch(`${API_URL}/cliente/eventos`, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    eventosData = data.eventos || [];
+                    const estadisticas = data.estadisticas || [];
+
+                    updateWebhooksStats(estadisticas);
+                    renderWebhooks();
+                } else {
+                    console.error('Error al cargar webhooks:', data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function updateWebhooksStats(estadisticas) {
+            const statsDiv = document.getElementById('webhooksStats');
+
+            if (eventosData.length === 0) {
+                statsDiv.style.display = 'none';
+                return;
+            }
+
+            statsDiv.style.display = 'flex';
+
+            const totalEventos = eventosData.length;
+            const saveCount = estadisticas.find(s => s.tipo === 'save')?.count || 0;
+            const deleteCount = estadisticas.find(s => s.tipo === 'del')?.count || 0;
+
+            document.getElementById('totalEventosCount').textContent = totalEventos;
+            document.getElementById('eventosSaveCount').textContent = saveCount;
+            document.getElementById('eventosDeleteCount').textContent = deleteCount;
+        }
+
+        function renderWebhooks() {
+            const container = document.getElementById('eventosContainer');
+
+            if (eventosData.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <h3>Sin eventos</h3>
+                        <p>Los eventos de Google Wallet aparecerán aquí</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = eventosData.map(evento => {
+                const fecha = new Date(evento.timestamp);
+                const fechaStr = fecha.toLocaleString('es-ES', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const tipoDisplay = {
+                    'save': '💾 Guardado',
+                    'del': '🗑️ Eliminado',
+                    'update': '🔄 Actualizado'
+                };
+
+                const tipoClase = evento.tipo === 'save' ? 'clase' : 'pase';
+                const icono = tipoDisplay[evento.tipo] || evento.tipo;
+
+                return `
+                    <div class="historial-item">
+                        <div class="historial-header">
+                            <span class="historial-type ${tipoClase}">${icono}</span>
+                            <span class="historial-time">${fechaStr}</span>
+                        </div>
+                        <div class="historial-content">
+                            <strong>Evento:</strong> ${evento.tipo.toUpperCase()}
+                        </div>
+                        <div class="historial-target">
+                            <strong>Pase:</strong> ${evento.objeto_id ? evento.objeto_id.substring(0, 50) + '...' : 'N/A'}
+                        </div>
+                        ${evento.class_id ? `<div style="font-size: 12px; color: #666; margin-top: 5px;"><strong>Clase:</strong> ${evento.class_id}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function refreshWebhooks() {
+            const btn = event.target;
+            const originalHTML = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Actualizando...';
+
+            await loadWebhooks();
+
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+        }
+
+        function copyWebhookUrl() {
+            const url = document.getElementById('webhookUrlDisplay').textContent;
+            navigator.clipboard.writeText(url);
+
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✓ Copiado';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 2000);
         }
 
         function openCreateClaseModal() {
