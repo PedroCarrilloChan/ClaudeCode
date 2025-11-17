@@ -436,10 +436,29 @@ async function crearClase(credentials, tipo, classId, config) {
     if (response.ok || response.status === 409) {
       return { success: true };
     } else {
-      const error = await response.text();
-      return { success: false, error };
+      const errorText = await response.text();
+      let errorMsg = errorText;
+
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMsg = errorJson.error?.message || errorJson.message || errorText;
+      } catch (e) {
+        // Si no es JSON, usar el texto tal cual
+      }
+
+      console.error('Error de Google Wallet API:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorMsg
+      });
+
+      return {
+        success: false,
+        error: `Error ${response.status}: ${errorMsg}`
+      };
     }
   } catch (error) {
+    console.error('Error en crearClase:', error);
     return { success: false, error: error.message };
   }
 }
