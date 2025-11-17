@@ -698,6 +698,188 @@
             font-weight: 700;
             margin-top: 5px;
         }
+
+        /* NOTIFICACIONES STYLES */
+        .notification-forms {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .notification-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s;
+        }
+        .notification-card:hover {
+            border-color: #11998e;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .notification-card h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .notification-card p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        .form-group select,
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        .form-group select:focus,
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #11998e;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .btn-send-notification {
+            width: 100%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-send-notification:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
+        }
+        .btn-send-notification:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .historial-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            border: 2px solid #e0e0e0;
+        }
+        .historial-section h3 {
+            margin: 0 0 20px 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .historial-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .historial-item {
+            background: #f8f9fa;
+            border-left: 4px solid #11998e;
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .historial-item:hover {
+            background: #e9ecef;
+        }
+        .historial-item.error {
+            border-left-color: #dc3545;
+        }
+        .historial-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+        .historial-type {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .historial-type.clase {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .historial-type.pase {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .historial-time {
+            font-size: 12px;
+            color: #999;
+        }
+        .historial-content {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .historial-target {
+            font-size: 13px;
+            color: #666;
+            font-family: monospace;
+            background: white;
+            padding: 6px 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        .success-msg {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+        .error-msg {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -1020,12 +1202,112 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
             <!-- TAB: Notificaciones -->
             <div id="tab-notificaciones" class="tab-content">
                 <h2>🔔 Notificaciones Push</h2>
-                <p style="color: #666;">Esta sección estará disponible próximamente. Aquí podrás enviar notificaciones masivas a tus usuarios.</p>
+                <p style="color: #666; margin-bottom: 30px;">Envía notificaciones push a los dispositivos de tus usuarios con Google Wallet.</p>
 
-                <div class="empty-state">
-                    <div class="icon">🚧</div>
-                    <h3>Próximamente</h3>
-                    <p>Estamos trabajando en esta funcionalidad</p>
+                <!-- Formularios de Notificación -->
+                <div class="notification-forms">
+                    <!-- Notificar Clase Completa -->
+                    <div class="notification-card">
+                        <h3>
+                            <span>📢</span>
+                            <span>Notificar Clase Completa</span>
+                        </h3>
+                        <p>Envía una notificación a todos los pases de una clase específica</p>
+
+                        <form id="formNotificarClase" onsubmit="enviarNotificacionClase(event)">
+                            <div class="form-group">
+                                <label for="notifClaseSelect">Seleccionar Clase</label>
+                                <select id="notifClaseSelect" required>
+                                    <option value="">-- Selecciona una clase --</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="notifClaseMensaje">Mensaje</label>
+                                <textarea
+                                    id="notifClaseMensaje"
+                                    placeholder="Escribe el mensaje que se enviará a todos los usuarios..."
+                                    required
+                                    maxlength="200"
+                                    oninput="updateCharCounter('notifClaseMensaje', 'charCounterClase')"
+                                ></textarea>
+                                <div class="char-counter">
+                                    <span id="charCounterClase">0</span>/200 caracteres
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-send-notification">
+                                <span>📤</span>
+                                <span>Enviar a Toda la Clase</span>
+                            </button>
+
+                            <div class="success-msg" id="successMsgClase"></div>
+                            <div class="error-msg" id="errorMsgClase"></div>
+                        </form>
+                    </div>
+
+                    <!-- Notificar Pase Individual -->
+                    <div class="notification-card">
+                        <h3>
+                            <span>👤</span>
+                            <span>Notificar Pase Individual</span>
+                        </h3>
+                        <p>Envía una notificación a un pase específico</p>
+
+                        <form id="formNotificarPase" onsubmit="enviarNotificacionPase(event)">
+                            <div class="form-group">
+                                <label for="notifPaseClaseSelect">Clase</label>
+                                <select id="notifPaseClaseSelect" onchange="cargarPasesDeClase()" required>
+                                    <option value="">-- Selecciona una clase --</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="notifPaseSelect">Seleccionar Pase</label>
+                                <select id="notifPaseSelect" required disabled>
+                                    <option value="">-- Primero selecciona una clase --</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="notifPaseMensaje">Mensaje</label>
+                                <textarea
+                                    id="notifPaseMensaje"
+                                    placeholder="Escribe el mensaje que se enviará al usuario..."
+                                    required
+                                    maxlength="200"
+                                    oninput="updateCharCounter('notifPaseMensaje', 'charCounterPase')"
+                                ></textarea>
+                                <div class="char-counter">
+                                    <span id="charCounterPase">0</span>/200 caracteres
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-send-notification">
+                                <span>📤</span>
+                                <span>Enviar al Pase</span>
+                            </button>
+
+                            <div class="success-msg" id="successMsgPase"></div>
+                            <div class="error-msg" id="errorMsgPase"></div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Historial de Notificaciones -->
+                <div class="historial-section">
+                    <h3>
+                        <span>📋</span>
+                        <span>Historial de Notificaciones</span>
+                    </h3>
+
+                    <div id="historialNotificaciones" class="historial-list">
+                        <div class="empty-state">
+                            <div class="icon">📭</div>
+                            <h3>Sin notificaciones</h3>
+                            <p>Las notificaciones que envíes aparecerán aquí</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1144,6 +1426,8 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
             // Cargar datos específicos del tab
             if (tabName === 'mis-pases') {
                 loadPases();
+            } else if (tabName === 'notificaciones') {
+                loadNotificaciones();
             }
         }
 
@@ -1425,6 +1709,271 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                     </div>
                 `;
             }).join('');
+        }
+
+        // ==========================================
+        // FUNCIONES PARA TAB "NOTIFICACIONES"
+        // ==========================================
+
+        let notificacionesHistorial = [];
+
+        function loadNotificaciones() {
+            // Cargar historial de localStorage
+            const historialGuardado = localStorage.getItem('notificaciones_historial');
+            if (historialGuardado) {
+                notificacionesHistorial = JSON.parse(historialGuardado);
+                renderHistorialNotificaciones();
+            }
+
+            // Poblar selectores de clases
+            populateNotificacionesClases();
+        }
+
+        function populateNotificacionesClases() {
+            const selectClase = document.getElementById('notifClaseSelect');
+            const selectPaseClase = document.getElementById('notifPaseClaseSelect');
+
+            selectClase.innerHTML = '<option value="">-- Selecciona una clase --</option>';
+            selectPaseClase.innerHTML = '<option value="">-- Selecciona una clase --</option>';
+
+            clasesData.forEach(clase => {
+                const optionClase = document.createElement('option');
+                optionClase.value = clase.id;
+                optionClase.textContent = `${clase.nombre} (${clase.tipo})`;
+                selectClase.appendChild(optionClase);
+
+                const optionPaseClase = document.createElement('option');
+                optionPaseClase.value = clase.id;
+                optionPaseClase.textContent = `${clase.nombre} (${clase.tipo})`;
+                selectPaseClase.appendChild(optionPaseClase);
+            });
+        }
+
+        async function cargarPasesDeClase() {
+            const classId = document.getElementById('notifPaseClaseSelect').value;
+            const selectPase = document.getElementById('notifPaseSelect');
+
+            if (!classId) {
+                selectPase.innerHTML = '<option value="">-- Primero selecciona una clase --</option>';
+                selectPase.disabled = true;
+                return;
+            }
+
+            selectPase.disabled = true;
+            selectPase.innerHTML = '<option value="">Cargando pases...</option>';
+
+            const sessionId = localStorage.getItem('sessionId');
+
+            try {
+                const response = await fetch(`${API_URL}/cliente/pases?class_id=${classId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.pases.length > 0) {
+                    selectPase.innerHTML = '<option value="">-- Selecciona un pase --</option>';
+                    data.pases.forEach(pase => {
+                        const option = document.createElement('option');
+                        option.value = pase.objeto_id;
+                        const datos = pase.datos || {};
+                        const label = datos.accountName || datos.cardTitle || datos.header || pase.objeto_id.substring(0, 30);
+                        option.textContent = label;
+                        selectPase.appendChild(option);
+                    });
+                    selectPase.disabled = false;
+                } else {
+                    selectPase.innerHTML = '<option value="">-- No hay pases en esta clase --</option>';
+                }
+            } catch (error) {
+                console.error('Error al cargar pases:', error);
+                selectPase.innerHTML = '<option value="">-- Error al cargar pases --</option>';
+            }
+        }
+
+        async function enviarNotificacionClase(event) {
+            event.preventDefault();
+
+            const classId = document.getElementById('notifClaseSelect').value;
+            const mensaje = document.getElementById('notifClaseMensaje').value;
+            const btn = event.target.querySelector('button[type="submit"]');
+            const successMsg = document.getElementById('successMsgClase');
+            const errorMsg = document.getElementById('errorMsgClase');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span><span>Enviando...</span>';
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_URL}/api/notificar-clase`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${clienteData.api_key}`
+                    },
+                    body: JSON.stringify({
+                        class_id: classId,
+                        mensaje: mensaje
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    successMsg.textContent = `✓ Notificación enviada exitosamente a toda la clase`;
+                    successMsg.style.display = 'block';
+
+                    // Guardar en historial
+                    agregarAlHistorial('clase', classId, mensaje, true);
+
+                    // Limpiar formulario
+                    document.getElementById('formNotificarClase').reset();
+                    document.getElementById('charCounterClase').textContent = '0';
+                } else {
+                    errorMsg.textContent = `✗ Error: ${data.error}`;
+                    errorMsg.style.display = 'block';
+
+                    agregarAlHistorial('clase', classId, mensaje, false, data.error);
+                }
+            } catch (error) {
+                errorMsg.textContent = `✗ Error de conexión: ${error.message}`;
+                errorMsg.style.display = 'block';
+
+                agregarAlHistorial('clase', classId, mensaje, false, error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>📤</span><span>Enviar a Toda la Clase</span>';
+            }
+        }
+
+        async function enviarNotificacionPase(event) {
+            event.preventDefault();
+
+            const objetoId = document.getElementById('notifPaseSelect').value;
+            const mensaje = document.getElementById('notifPaseMensaje').value;
+            const btn = event.target.querySelector('button[type="submit"]');
+            const successMsg = document.getElementById('successMsgPase');
+            const errorMsg = document.getElementById('errorMsgPase');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span><span>Enviando...</span>';
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_URL}/api/notificar-pase`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${clienteData.api_key}`
+                    },
+                    body: JSON.stringify({
+                        objeto_id: objetoId,
+                        mensaje: mensaje
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    successMsg.textContent = `✓ Notificación enviada exitosamente al pase`;
+                    successMsg.style.display = 'block';
+
+                    agregarAlHistorial('pase', objetoId, mensaje, true);
+
+                    // Limpiar formulario
+                    document.getElementById('formNotificarPase').reset();
+                    document.getElementById('charCounterPase').textContent = '0';
+                    document.getElementById('notifPaseSelect').disabled = true;
+                } else {
+                    errorMsg.textContent = `✗ Error: ${data.error}`;
+                    errorMsg.style.display = 'block';
+
+                    agregarAlHistorial('pase', objetoId, mensaje, false, data.error);
+                }
+            } catch (error) {
+                errorMsg.textContent = `✗ Error de conexión: ${error.message}`;
+                errorMsg.style.display = 'block';
+
+                agregarAlHistorial('pase', objetoId, mensaje, false, error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>📤</span><span>Enviar al Pase</span>';
+            }
+        }
+
+        function agregarAlHistorial(tipo, target, mensaje, exito, error = null) {
+            const notificacion = {
+                id: Date.now(),
+                tipo: tipo,
+                target: target,
+                mensaje: mensaje,
+                exito: exito,
+                error: error,
+                timestamp: new Date().toISOString()
+            };
+
+            notificacionesHistorial.unshift(notificacion);
+
+            // Guardar en localStorage (últimas 50)
+            if (notificacionesHistorial.length > 50) {
+                notificacionesHistorial = notificacionesHistorial.slice(0, 50);
+            }
+
+            localStorage.setItem('notificaciones_historial', JSON.stringify(notificacionesHistorial));
+
+            renderHistorialNotificaciones();
+        }
+
+        function renderHistorialNotificaciones() {
+            const container = document.getElementById('historialNotificaciones');
+
+            if (notificacionesHistorial.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <h3>Sin notificaciones</h3>
+                        <p>Las notificaciones que envíes aparecerán aquí</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = notificacionesHistorial.map(notif => {
+                const fecha = new Date(notif.timestamp);
+                const fechaStr = fecha.toLocaleString('es-ES', {
+                    day: '2-digit',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const targetDisplay = notif.tipo === 'clase'
+                    ? `Clase: ${clasesData.find(c => c.id === notif.target)?.nombre || notif.target}`
+                    : `Pase: ${notif.target.substring(0, 40)}...`;
+
+                return `
+                    <div class="historial-item ${notif.exito ? '' : 'error'}">
+                        <div class="historial-header">
+                            <span class="historial-type ${notif.tipo}">${notif.tipo}</span>
+                            <span class="historial-time">${fechaStr}</span>
+                        </div>
+                        <div class="historial-content">"${notif.mensaje}"</div>
+                        <div class="historial-target">${targetDisplay}</div>
+                        ${notif.error ? `<div style="color: #dc3545; font-size: 12px; margin-top: 8px;">❌ ${notif.error}</div>` : ''}
+                        ${notif.exito ? '<div style="color: #28a745; font-size: 12px; margin-top: 8px;">✓ Enviado exitosamente</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateCharCounter(textareaId, counterId) {
+            const textarea = document.getElementById(textareaId);
+            const counter = document.getElementById(counterId);
+            counter.textContent = textarea.value.length;
         }
 
         function openCreateClaseModal() {
