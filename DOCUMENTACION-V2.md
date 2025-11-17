@@ -144,8 +144,8 @@ POST /api/notificar-clase     # Enviar notificación masiva ✨
 ├─────────────────────────────────────────┤
 │    ┌───────────────────────────────┐   │
 │    │   Miembro VIP                 │   │
-│    │   Descuentos por Nivel:       │   │ ← Imagen Central VIP (3:1)
-│    │   🥇 ORO: 25%                │   │
+│    │   Descuentos por Nivel:       │   │ ← wideProgramLogo (Banner 3:1)
+│    │   🥇 ORO: 25%                │   │   POSICIÓN PROMINENTE
 │    │   🥈 PLATA: 18%              │   │
 │    │   🥉 BRONCE: 10%             │   │
 │    └───────────────────────────────┘   │
@@ -161,7 +161,9 @@ POST /api/notificar-clase     # Enviar notificación masiva ✨
 └─────────────────────────────────────────┘
 ```
 
-### **Configuración**
+### **Configuración Correcta**
+
+**IMPORTANTE:** Usa `hero_url` (no `hero_image`). El sistema automáticamente lo convierte a `wideProgramLogo` para posición correcta.
 
 ```json
 {
@@ -173,9 +175,13 @@ POST /api/notificar-clase     # Enviar notificación masiva ✨
     "color_fondo": "#059669",
     "logo_url": "https://ejemplo.com/logo.png",
 
-    // ✨ IMAGEN CENTRAL VIP (3:1 ratio)
-    "central_image_url": "https://ejemplo.com/miembro-vip-banner.jpg",
-    "central_image_description": "Miembro VIP - Descuentos por Nivel",
+    // ✨ BANNER ANCHO VIP (3:1 ratio - 1032x336px recomendado)
+    // Se posiciona JUSTO DESPUÉS del strip superior
+    "hero_url": "https://ejemplo.com/miembro-vip-banner.jpg",
+    "hero_description": "Miembro VIP - Descuentos por Nivel",
+
+    // Alternativa (hace lo mismo):
+    // "central_image_url": "https://ejemplo.com/miembro-vip-banner.jpg",
 
     // ✨ CAMPOS ESTRUCTURADOS
     "member_fields": ["nombre", "nivel", "descuento", "telefono"],
@@ -183,6 +189,13 @@ POST /api/notificar-clase     # Enviar notificación masiva ✨
     "webhook_url": "https://ejemplo.com/webhook"
   }
 }
+```
+
+**Nota sobre la imagen:**
+- La imagen DEBE contener todo el texto pre-diseñado
+- Dimensiones recomendadas: **1032x336 píxeles** (ratio 3:1)
+- Se convierte automáticamente a `wideProgramLogo` para aparecer en posición prominente
+- NO uses `heroImage` directamente (aparece al final de la tarjeta expandida)
 ```
 
 ### **Crear Pase de Lealtad VIP**

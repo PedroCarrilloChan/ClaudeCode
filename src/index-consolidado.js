@@ -237,7 +237,7 @@ function crearClaseLealtad(classId, config) {
    *
    * ESTRUCTURA VISUAL:
    * 1. Strip superior: programLogo + programName + contador PUNTOS
-   * 2. Imagen central VIP: Banner rectangular 3:1 con beneficios
+   * 2. Banner ancho VIP: wideProgramLogo (imagen 3:1) - POSICIÓN PROMINENTE
    * 3. Datos del miembro: Filas estructuradas (nombre, nivel, etc.)
    * 4. QR code + número de membresía
    */
@@ -246,7 +246,7 @@ function crearClaseLealtad(classId, config) {
   // 1. STRIP SUPERIOR - Nombre del programa
   payload.programName = config.program_name || config.issuer_name || 'Programa de Lealtad';
 
-  // 2. STRIP SUPERIOR - Logo del programa
+  // 2. STRIP SUPERIOR - Logo pequeño del programa
   if (payload.logo) {
     payload.programLogo = payload.logo;
     delete payload.logo;
@@ -256,20 +256,22 @@ function crearClaseLealtad(classId, config) {
     };
   }
 
-  // 3. IMAGEN CENTRAL VIP - Banner rectangular (3:1)
-  if (config.central_image_url) {
-    payload.imageModulesData = [{
-      id: 'vip_banner',
-      mainImage: {
-        sourceUri: { uri: config.central_image_url },
-        contentDescription: {
-          defaultValue: {
-            language: 'es-MX',
-            value: config.central_image_description || 'Miembro VIP'
-          }
+  // 3. BANNER ANCHO VIP - wideProgramLogo (aparece justo después del strip)
+  // Esta es la imagen prominente que se ve en la vista principal de la tarjeta
+  if (config.hero_url || config.central_image_url) {
+    const bannerUrl = config.hero_url || config.central_image_url;
+    payload.wideProgramLogo = {
+      sourceUri: { uri: bannerUrl },
+      contentDescription: {
+        defaultValue: {
+          language: 'es-MX',
+          value: config.central_image_description || config.hero_description || 'Miembro VIP'
         }
       }
-    }];
+    };
+
+    // Eliminar heroImage si existe (para evitar duplicación al final)
+    delete payload.heroImage;
   }
 
   // 4. TEMPLATE - Estructura de filas para datos del miembro
