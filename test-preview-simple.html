@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEST - Verificación de Preview</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        h1 {
+            color: #11998e;
+            margin-bottom: 20px;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .test-box {
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-box h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .preview-demo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .success {
+            background: #4caf50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        #output {
+            margin-top: 10px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 5px;
+            min-height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ TEST DE VERIFICACIÓN - Visualizador</h1>
+
+        <div class="success">
+            Si puedes ver este cuadro verde, significa que el archivo se cargó correctamente con los estilos actualizados.
+        </div>
+
+        <div class="test-grid">
+            <div class="test-box">
+                <h2>Formulario de Prueba</h2>
+                <p style="margin-bottom: 15px;">Escribe algo aquí:</p>
+                <input type="text" id="testInput" placeholder="Escribe 'Hola Mundo'" oninput="updateTest()">
+                <div id="output" style="font-size: 18px; font-weight: bold; color: #11998e;">
+                    Esperando texto...
+                </div>
+            </div>
+
+            <div class="test-box">
+                <h2>Preview en Tiempo Real</h2>
+                <div class="preview-demo">
+                    <h3 style="margin-bottom: 10px;">VISTA PREVIA</h3>
+                    <div id="preview" style="font-size: 24px; margin-top: 20px;">
+                        ?
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background: #e3f2fd; border-radius: 8px;">
+            <h3 style="margin-bottom: 10px;">¿Qué deberías ver?</h3>
+            <ul style="line-height: 1.8; padding-left: 20px;">
+                <li>✅ Un cuadro verde arriba</li>
+                <li>✅ Dos columnas lado a lado (formulario y preview)</li>
+                <li>✅ Cuando escribas, el preview se actualiza en tiempo real</li>
+                <li>✅ El texto aparece convertido a MAYÚSCULAS en el preview</li>
+            </ul>
+            <p style="margin-top: 15px; font-weight: bold; color: #d32f2f;">
+                Si NO ves dos columnas lado a lado, entonces tu navegador tiene CACHÉ activo.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function updateTest() {
+            const input = document.getElementById('testInput');
+            const output = document.getElementById('output');
+            const preview = document.getElementById('preview');
+
+            const text = input.value || 'Esperando texto...';
+            output.textContent = text;
+            preview.textContent = text.toUpperCase();
+        }
+
+        // Verificación al cargar
+        console.log('✅ JavaScript cargado correctamente');
+        console.log('✅ Fecha de carga:', new Date().toISOString());
+    </script>
+</body>
+</html>
