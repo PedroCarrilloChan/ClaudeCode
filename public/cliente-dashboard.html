@@ -1526,8 +1526,19 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                         </div>
 
                         <div class="form-group">
-                            <label>URL Hero Image</label>
-                            <input type="url" id="heroUrl" placeholder="https://example.com/hero.jpg">
+                            <label>URL Strip Image (Banner Superior) 💡</label>
+                            <input type="url" id="wideLogoUrl" placeholder="https://example.com/strip.png (660x210px)">
+                            <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">
+                                📐 Recomendado: 660x210 px - Banner ancho arriba del nombre del emisor (estilo PassSlot)
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>URL Hero Image (Banner Inferior) 🎨</label>
+                            <input type="url" id="heroUrl" placeholder="https://example.com/hero.jpg (1032x336px)">
+                            <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">
+                                📐 Recomendado: 1032x336 px - Banner ancho debajo del QR
+                            </small>
                         </div>
 
                         <div class="loading" id="loading">Creando clase en Google Wallet...</div>
@@ -2950,6 +2961,7 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
         document.getElementById('issuerName').addEventListener('input', updatePreview);
         document.getElementById('colorFondo').addEventListener('input', updatePreview);
         document.getElementById('logoUrl').addEventListener('input', updatePreview);
+        document.getElementById('wideLogoUrl').addEventListener('input', updatePreview);
         document.getElementById('heroUrl').addEventListener('input', updatePreview);
 
         // Actualizar preview al abrir modal
@@ -2977,6 +2989,7 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                 issuer_name: document.getElementById('issuerName').value,
                 color_fondo: document.getElementById('colorFondo').value,
                 logo_url: document.getElementById('logoUrl').value || null,
+                wide_logo_url: document.getElementById('wideLogoUrl').value || null,
                 hero_url: document.getElementById('heroUrl').value || null,
                 webhook_url: `${API_URL}/webhook/wallet-events`
             };
@@ -3071,6 +3084,7 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                 document.getElementById('issuerName').value = config.issuer_name || '';
                 document.getElementById('colorFondo').value = config.color_fondo || '#4285F4';
                 document.getElementById('logoUrl').value = config.logo_url || '';
+                document.getElementById('wideLogoUrl').value = config.wide_logo_url || '';
                 document.getElementById('heroUrl').value = config.hero_url || '';
 
                 // Actualizar preview

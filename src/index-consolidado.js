@@ -236,18 +236,29 @@ function crearClaseLealtad(classId, config) {
    * Crea clase de programa de lealtad con estructura visual mejorada
    *
    * ESTRUCTURA VISUAL:
-   * 1. Strip superior: programLogo + programName + contador PUNTOS
-   * 2. Imagen central VIP: Banner rectangular 3:1 con beneficios
+   * 1. Strip superior: wideLogo (banner ancho) O programLogo (logo pequeño)
+   * 2. Nombre del programa
    * 3. Datos del miembro: Filas estructuradas (nombre, nivel, etc.)
    * 4. QR code + número de membresía
+   * 5. Hero image (banner inferior debajo del QR)
    */
   const payload = crearClaseGenerica(classId, config);
 
   // 1. STRIP SUPERIOR - Nombre del programa
   payload.programName = config.program_name || config.issuer_name || 'Programa de Lealtad';
 
-  // 2. STRIP SUPERIOR - Logo del programa
-  if (payload.logo) {
+  // 2. STRIP SUPERIOR - Imagen/Logo
+  // wideLogo = Banner ancho superior (660x210px) - estilo PassSlot
+  // programLogo = Logo pequeño cuadrado
+  if (config.wide_logo_url) {
+    // Banner ancho en la parte superior (como PassSlot)
+    payload.wideLogo = {
+      sourceUri: { uri: config.wide_logo_url }
+    };
+    // Si hay wideLogo, no usar programLogo
+    if (payload.logo) delete payload.logo;
+  } else if (payload.logo) {
+    // Logo pequeño tradicional
     payload.programLogo = payload.logo;
     delete payload.logo;
   } else if (config.strip_logo_url) {
