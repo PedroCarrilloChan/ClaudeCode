@@ -470,6 +470,8 @@
                                 <option value="offer">🎁 Oferta/Cupón</option>
                                 <option value="giftcard">💳 Tarjeta de Regalo</option>
                                 <option value="eventticket">🎟️ Boleto de Evento</option>
+                                <option value="transit">🚇 Transporte</option>
+                                <option value="flight">✈️ Pase de Abordar</option>
                             </select>
                         </div>
 
@@ -495,8 +497,26 @@
                         </div>
 
                         <div class="form-group">
-                            <label>URL Hero Image</label>
+                            <label>URL Hero Image / Banner</label>
                             <input type="url" id="heroUrl" placeholder="https://example.com/hero.jpg">
+                            <small id="heroHint" style="color: #999; display: none; margin-top: 5px;">
+                                💡 <strong>Loyalty:</strong> Usa imagen 3:1 (1032x336px) con texto pre-diseñado. Aparecerá justo después del strip superior.
+                            </small>
+                        </div>
+
+                        <!-- Campos específicos para LOYALTY -->
+                        <div id="loyaltyFields" style="display: none;">
+                            <div class="form-group">
+                                <label>Nombre del Programa de Lealtad</label>
+                                <input type="text" id="programName" placeholder="Programa VIP">
+                                <small style="color: #999;">Aparece en el strip superior</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Campos del Miembro (opcional)</label>
+                                <input type="text" id="memberFields" placeholder="nombre,nivel,descuento,telefono">
+                                <small style="color: #999;">Separados por comas. Ejemplo: nombre,nivel,descuento</small>
+                            </div>
                         </div>
 
                         <div class="loading" id="loading">Creando clase en Google Wallet...</div>
@@ -618,7 +638,9 @@
                 'loyalty': '⭐',
                 'offer': '🎁',
                 'giftcard': '💳',
-                'eventticket': '🎟️'
+                'eventticket': '🎟️',
+                'transit': '🚇',
+                'flight': '✈️'
             };
 
             container.innerHTML = clasesData.map((clase, index) => `
@@ -686,7 +708,9 @@
             'loyalty': { icono: '⭐', nombre: 'Programa de Lealtad' },
             'offer': { icono: '🎁', nombre: 'Oferta/Cupón' },
             'giftcard': { icono: '💳', nombre: 'Tarjeta de Regalo' },
-            'eventticket': { icono: '🎟️', nombre: 'Boleto de Evento' }
+            'eventticket': { icono: '🎟️', nombre: 'Boleto de Evento' },
+            'transit': { icono: '🚇', nombre: 'Transporte Público' },
+            'flight': { icono: '✈️', nombre: 'Pase de Abordar' }
         };
 
         function updatePreview() {
@@ -696,6 +720,17 @@
             const colorFondo = document.getElementById('colorFondo').value;
             const logoUrl = document.getElementById('logoUrl').value;
             const heroUrl = document.getElementById('heroUrl').value;
+
+            // Mostrar/ocultar campos específicos de loyalty
+            const loyaltyFields = document.getElementById('loyaltyFields');
+            const heroHint = document.getElementById('heroHint');
+            if (tipo === 'loyalty') {
+                loyaltyFields.style.display = 'block';
+                heroHint.style.display = 'block';
+            } else {
+                loyaltyFields.style.display = 'none';
+                heroHint.style.display = 'none';
+            }
 
             // Actualizar color de fondo
             const header = document.getElementById('previewHeader');
@@ -711,7 +746,12 @@
 
             // Actualizar nombre del emisor
             const issuer = document.getElementById('previewIssuer');
-            issuer.textContent = issuerName || 'Mi Negocio';
+            const programName = document.getElementById('programName').value;
+            if (tipo === 'loyalty' && programName) {
+                issuer.textContent = programName;
+            } else {
+                issuer.textContent = issuerName || 'Mi Negocio';
+            }
 
             // Actualizar hero image
             const hero = document.getElementById('previewHero');
@@ -744,6 +784,8 @@
         document.getElementById('colorFondo').addEventListener('input', updatePreview);
         document.getElementById('logoUrl').addEventListener('input', updatePreview);
         document.getElementById('heroUrl').addEventListener('input', updatePreview);
+        document.getElementById('programName').addEventListener('input', updatePreview);
+        document.getElementById('memberFields').addEventListener('input', updatePreview);
 
         // Actualizar preview al abrir modal
         const originalOpenModal = openCreateClaseModal;
@@ -766,6 +808,7 @@
             successMsg.style.display = 'none';
             errorMsg.style.display = 'none';
 
+            const tipo = document.getElementById('tipoPase').value;
             const config = {
                 issuer_name: document.getElementById('issuerName').value,
                 color_fondo: document.getElementById('colorFondo').value,
@@ -773,6 +816,21 @@
                 hero_url: document.getElementById('heroUrl').value || null,
                 webhook_url: `${API_URL}/webhook/wallet-events`
             };
+
+            // Agregar campos específicos para LOYALTY
+            if (tipo === 'loyalty') {
+                const programName = document.getElementById('programName').value;
+                const memberFields = document.getElementById('memberFields').value;
+
+                if (programName) {
+                    config.program_name = programName;
+                }
+
+                if (memberFields) {
+                    // Convertir string separado por comas a array
+                    config.member_fields = memberFields.split(',').map(f => f.trim()).filter(f => f);
+                }
+            }
 
             try {
                 let response;
@@ -857,6 +915,16 @@
                 document.getElementById('colorFondo').value = config.color_fondo || '#4285F4';
                 document.getElementById('logoUrl').value = config.logo_url || '';
                 document.getElementById('heroUrl').value = config.hero_url || '';
+
+                // Llenar campos específicos de LOYALTY
+                if (clase.tipo === 'loyalty') {
+                    document.getElementById('programName').value = config.program_name || '';
+                    if (config.member_fields && Array.isArray(config.member_fields)) {
+                        document.getElementById('memberFields').value = config.member_fields.join(',');
+                    } else {
+                        document.getElementById('memberFields').value = '';
+                    }
+                }
 
                 // Actualizar preview
                 setTimeout(updatePreview, 50);
