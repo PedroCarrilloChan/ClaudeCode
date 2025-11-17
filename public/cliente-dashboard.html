@@ -1832,7 +1832,8 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                     'generic': 'Genérico'
                 };
 
-                const walletUrl = `https://pay.google.com/gp/v/save/${pase.objeto_id}`;
+                // Usar el link firmado que viene del backend
+                const walletUrl = pase.link || `https://pay.google.com/gp/v/save/${pase.objeto_id}`;
 
                 return `
                     <div class="pase-card">
@@ -1912,7 +1913,8 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
 
                 if (!container) return;
 
-                const walletUrl = `https://pay.google.com/gp/v/save/${pase.objeto_id}`;
+                // Usar el link firmado que viene del backend
+                const walletUrl = pase.link || `https://pay.google.com/gp/v/save/${pase.objeto_id}`;
 
                 try {
                     // Create Google Wallet button using the official SDK

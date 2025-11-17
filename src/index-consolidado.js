@@ -605,7 +605,7 @@ async function crearObjeto(credentials, tipo, classId, datos) {
     );
 
     if (response.ok) {
-      const link = generarLinkWallet(credentials, tipo, objetoId);
+      const link = await generarLinkWallet(credentials, tipo, objetoId);
       return {
         success: true,
         objetoId,
@@ -783,8 +783,13 @@ async function enviarNotificacionClase(credentials, tipo, classId, mensaje) {
 // GENERAR LINK "ADD TO WALLET"
 // ==========================================
 
-function generarLinkWallet(credentials, tipo, objetoId) {
+async function generarLinkWallet(credentials, tipo, objetoId) {
   const endpoint = TIPOS_PASE[tipo]?.endpoint_objeto || 'genericObject';
+
+  const header = {
+    alg: 'RS256',
+    typ: 'JWT'
+  };
 
   const payload = {
     iss: credentials.client_email,
@@ -797,8 +802,15 @@ function generarLinkWallet(credentials, tipo, objetoId) {
     }
   };
 
-  const token = base64urlEncode(JSON.stringify(payload));
-  return `https://pay.google.com/gp/v/save/${token}`;
+  // Generar JWT firmado correctamente (header.payload.signature)
+  const encodedHeader = base64urlEncode(JSON.stringify(header));
+  const encodedPayload = base64urlEncode(JSON.stringify(payload));
+  const signatureInput = `${encodedHeader}.${encodedPayload}`;
+
+  const signature = await signJWT(signatureInput, credentials.private_key);
+  const jwt = `${signatureInput}.${signature}`;
+
+  return `https://pay.google.com/gp/v/save/${jwt}`;
 }
 
 // ==========================================
@@ -1061,11 +1073,13 @@ export default {
 
         const { results: pases } = await env.DB.prepare(query).bind(...params).all();
 
-        // Parsear los datos JSON de cada pase
-        const pasesFormateados = pases.map(pase => ({
+        // Parsear los datos JSON de cada pase y generar link firmado
+        const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
+        const pasesFormateados = await Promise.all(pases.map(async pase => ({
           ...pase,
-          datos: typeof pase.datos === 'string' ? JSON.parse(pase.datos) : pase.datos
-        }));
+          datos: typeof pase.datos === 'string' ? JSON.parse(pase.datos) : pase.datos,
+          link: await generarLinkWallet(credentials, pase.tipo, pase.objeto_id)
+        })));
 
         return jsonResponse({
           success: true,
