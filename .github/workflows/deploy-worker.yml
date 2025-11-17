@@ -1,0 +1,39 @@
+name: Deploy Worker to Cloudflare
+
+on:
+  push:
+    branches:
+      - claude/implement-ssis-01FmhxkYVXwgxZbK7cAcuyZA
+      - main
+    paths:
+      - 'src/**'
+      - 'wrangler.toml'
+      - '.github/workflows/deploy-worker.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy Worker
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Wrangler
+        run: npm install -g wrangler
+
+      - name: Deploy to Cloudflare Workers
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          wrangler deploy --config wrangler.toml
+
+      - name: Deployment Summary
+        run: |
+          echo "✅ Worker desplegado exitosamente"
+          echo "🔗 URL: https://smart-passes-api.smartpasses.workers.dev"
