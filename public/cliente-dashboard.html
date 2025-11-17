@@ -528,6 +528,176 @@
         .info-box strong {
             color: #1976d2;
         }
+        /* PASES LIST STYLES */
+        .filter-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .filter-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .filter-section select {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+        .pases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+        .pase-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .pase-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #11998e;
+        }
+        .pase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .pase-tipo {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .pase-tipo.lealtad {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .pase-tipo.cupon {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        .pase-tipo.evento {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .pase-tipo.tarjeta-regalo {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        .pase-tipo.transporte {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+        .pase-tipo.generico {
+            background: #f5f5f5;
+            color: #616161;
+        }
+        .pase-info {
+            margin: 15px 0;
+        }
+        .pase-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+        .pase-info-row strong {
+            color: #666;
+            font-weight: 600;
+        }
+        .pase-info-row span {
+            color: #333;
+        }
+        .pase-clase-tag {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .pase-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #f0f0f0;
+        }
+        .btn-wallet {
+            flex: 1;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-wallet:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(17, 153, 142, 0.3);
+        }
+        .btn-details {
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            color: #666;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-details:hover {
+            background: #e0e0e0;
+            border-color: #bbb;
+        }
+        .pases-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            color: white;
+        }
+        .pases-stat-item {
+            flex: 1;
+            text-align: center;
+        }
+        .pases-stat-item .label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .pases-stat-item .value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -809,13 +979,41 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
 
             <!-- TAB: Mis Pases -->
             <div id="tab-mis-pases" class="tab-content">
-                <h2>👥 Mis Pases</h2>
-                <p style="color: #666;">Esta sección estará disponible próximamente. Aquí podrás ver todos los pases individuales que has creado.</p>
+                <h2>👥 Mis Pases Creados</h2>
+                <p style="color: #666; margin-bottom: 25px;">Todos los pases individuales que has creado para tus usuarios.</p>
 
-                <div class="empty-state">
-                    <div class="icon">🚧</div>
-                    <h3>Próximamente</h3>
-                    <p>Estamos trabajando en esta funcionalidad</p>
+                <!-- Estadísticas de Pases -->
+                <div class="pases-stats" id="pasesStats">
+                    <div class="pases-stat-item">
+                        <div class="label">Total Pases</div>
+                        <div class="value" id="totalPasesCount">0</div>
+                    </div>
+                    <div class="pases-stat-item">
+                        <div class="label">Clases Activas</div>
+                        <div class="value" id="clasesActivasCount">0</div>
+                    </div>
+                    <div class="pases-stat-item">
+                        <div class="label">Último Creado</div>
+                        <div class="value" id="ultimoPaseDate" style="font-size: 16px;">-</div>
+                    </div>
+                </div>
+
+                <!-- Filtro por Clase -->
+                <div class="filter-section">
+                    <label for="filtroClase">🔍 Filtrar por Clase</label>
+                    <select id="filtroClase" onchange="filterPasesByClase()">
+                        <option value="">Todas las clases</option>
+                    </select>
+                </div>
+
+                <!-- Grid de Pases -->
+                <div id="pasesContainer" class="pases-grid"></div>
+
+                <!-- Empty State -->
+                <div id="emptyStatePases" class="empty-state" style="display: none;">
+                    <div class="icon">📭</div>
+                    <h3>No hay pases creados</h3>
+                    <p>Los pases que crees mediante la API aparecerán aquí</p>
                 </div>
             </div>
 
@@ -942,6 +1140,11 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
 
             // Activate button
             event.target.classList.add('active');
+
+            // Cargar datos específicos del tab
+            if (tabName === 'mis-pases') {
+                loadPases();
+            }
         }
 
         // Función para mostrar errores globales
@@ -1050,6 +1253,178 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
             setTimeout(() => {
                 btn.textContent = originalText;
             }, 2000);
+        }
+
+        // ==========================================
+        // FUNCIONES PARA TAB "MIS PASES"
+        // ==========================================
+
+        let pasesData = [];
+        let pasesDataFiltered = [];
+
+        async function loadPases() {
+            const sessionId = localStorage.getItem('sessionId');
+            const classId = new URLSearchParams(window.location.search).get('class_id');
+
+            let url = `${API_URL}/cliente/pases`;
+            if (classId) {
+                url += `?class_id=${classId}`;
+            }
+
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    pasesData = data.pases || [];
+                    pasesDataFiltered = [...pasesData];
+
+                    updatePasesStats();
+                    populateFiltroClase();
+                    renderPases();
+                } else {
+                    console.error('Error al cargar pases:', data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function updatePasesStats() {
+            document.getElementById('totalPasesCount').textContent = pasesData.length;
+
+            const clasesUnicas = new Set(pasesData.map(p => p.class_id)).size;
+            document.getElementById('clasesActivasCount').textContent = clasesUnicas;
+
+            if (pasesData.length > 0) {
+                const ultimoPase = pasesData[0]; // Ya están ordenados por fecha DESC
+                const fecha = new Date(ultimoPase.creado_en);
+                document.getElementById('ultimoPaseDate').textContent = fecha.toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: 'short'
+                });
+            }
+        }
+
+        function populateFiltroClase() {
+            const select = document.getElementById('filtroClase');
+            const clasesUnicas = [...new Set(pasesData.map(p => ({
+                id: p.class_id,
+                nombre: p.nombre_clase || p.class_id
+            })).map(c => JSON.stringify(c)))].map(c => JSON.parse(c));
+
+            select.innerHTML = '<option value="">Todas las clases</option>';
+            clasesUnicas.forEach(clase => {
+                const option = document.createElement('option');
+                option.value = clase.id;
+                option.textContent = clase.nombre;
+                select.appendChild(option);
+            });
+        }
+
+        function filterPasesByClase() {
+            const filtro = document.getElementById('filtroClase').value;
+
+            if (filtro === '') {
+                pasesDataFiltered = [...pasesData];
+            } else {
+                pasesDataFiltered = pasesData.filter(p => p.class_id === filtro);
+            }
+
+            renderPases();
+        }
+
+        function renderPases() {
+            const container = document.getElementById('pasesContainer');
+            const emptyState = document.getElementById('emptyStatePases');
+
+            if (pasesDataFiltered.length === 0) {
+                container.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            container.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            container.innerHTML = pasesDataFiltered.map(pase => {
+                const datos = pase.datos || {};
+                const tipo = pase.tipo || 'generico';
+                const tipoDisplay = {
+                    'loyalty': 'Lealtad',
+                    'offer': 'Cupón',
+                    'eventticket': 'Evento',
+                    'giftcard': 'Tarjeta Regalo',
+                    'transit': 'Transporte',
+                    'generic': 'Genérico'
+                };
+
+                const walletUrl = `https://pay.google.com/gp/v/save/${pase.objeto_id}`;
+
+                return `
+                    <div class="pase-card">
+                        <div class="pase-header">
+                            <span class="pase-tipo ${tipo}">${tipoDisplay[tipo] || 'Genérico'}</span>
+                            <span style="font-size: 12px; color: #999;">
+                                ${new Date(pase.creado_en).toLocaleDateString('es-ES')}
+                            </span>
+                        </div>
+
+                        <div class="pase-info">
+                            <div class="pase-info-row">
+                                <strong>ID Objeto:</strong>
+                                <span style="font-size: 11px; font-family: monospace;">${pase.objeto_id.substring(pase.objeto_id.lastIndexOf('.') + 1, pase.objeto_id.lastIndexOf('.') + 15)}...</span>
+                            </div>
+                            ${datos.cardTitle ? `
+                            <div class="pase-info-row">
+                                <strong>Título:</strong>
+                                <span>${datos.cardTitle}</span>
+                            </div>
+                            ` : ''}
+                            ${datos.header ? `
+                            <div class="pase-info-row">
+                                <strong>Header:</strong>
+                                <span>${datos.header}</span>
+                            </div>
+                            ` : ''}
+                            ${datos.accountName ? `
+                            <div class="pase-info-row">
+                                <strong>Usuario:</strong>
+                                <span>${datos.accountName}</span>
+                            </div>
+                            ` : ''}
+                            ${datos.points !== undefined ? `
+                            <div class="pase-info-row">
+                                <strong>Puntos:</strong>
+                                <span>${datos.points} pts</span>
+                            </div>
+                            ` : ''}
+                            ${datos.balance ? `
+                            <div class="pase-info-row">
+                                <strong>Balance:</strong>
+                                <span>$${datos.balance}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="pase-clase-tag">
+                            📁 ${pase.nombre_clase || pase.class_id}
+                        </div>
+
+                        <div class="pase-actions">
+                            <a href="${walletUrl}" target="_blank" class="btn-wallet" style="text-decoration: none;">
+                                <span>📲</span>
+                                <span>Agregar a Wallet</span>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function openCreateClaseModal() {

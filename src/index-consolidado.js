@@ -816,6 +816,7 @@ export default {
             admin_crear_cliente: '/admin/crear-cliente',
             cliente_login: '/cliente/login',
             cliente_dashboard: '/cliente/dashboard',
+            cliente_pases: '/cliente/pases',
             cliente_crear_clase: '/cliente/crear-clase',
             cliente_editar_clase: '/cliente/editar-clase',
             api_crear_pase: '/api/crear-pase',
@@ -1005,6 +1006,50 @@ export default {
           },
           clases,
           tipos_pases: TIPOS_PASE
+        }, corsHeaders);
+      }
+
+      // CLIENTE - OBTENER PASES
+      if (url.pathname === '/cliente/pases' && request.method === 'GET') {
+        const session = await validateSession(request, env, 'cliente');
+        if (!session.valid) {
+          return jsonResponse({ error: 'No autorizado' }, corsHeaders, 401);
+        }
+
+        // Obtener parámetro opcional de filtro por clase
+        const classId = url.searchParams.get('class_id');
+
+        let query = `
+          SELECT
+            p.*,
+            c.nombre as nombre_clase,
+            c.tipo as tipo_clase
+          FROM pases p
+          LEFT JOIN clases c ON p.class_id = c.id
+          WHERE p.cliente_id = ?
+        `;
+
+        const params = [session.data.clienteId];
+
+        if (classId) {
+          query += ' AND p.class_id = ?';
+          params.push(classId);
+        }
+
+        query += ' ORDER BY p.creado_en DESC';
+
+        const { results: pases } = await env.DB.prepare(query).bind(...params).all();
+
+        // Parsear los datos JSON de cada pase
+        const pasesFormateados = pases.map(pase => ({
+          ...pase,
+          datos: typeof pase.datos === 'string' ? JSON.parse(pase.datos) : pase.datos
+        }));
+
+        return jsonResponse({
+          success: true,
+          pases: pasesFormateados,
+          total: pases.length
         }, corsHeaders);
       }
 
