@@ -238,9 +238,9 @@ function crearClaseLealtad(classId, config) {
    * ESTRUCTURA VISUAL:
    * 1. Strip superior: wideLogo (banner ancho) O programLogo (logo pequeño)
    * 2. Nombre del programa
-   * 3. Datos del miembro: Filas estructuradas (nombre, nivel, etc.)
-   * 4. QR code + número de membresía
-   * 5. Hero image (banner inferior debajo del QR)
+   * 3. Imagen central VIP (imageModulesData) - Banner 3:1 en el frente
+   * 4. Datos del miembro: Filas estructuradas (nombre, nivel, etc.)
+   * 5. QR code + número de membresía
    */
   const payload = crearClaseGenerica(classId, config);
 
@@ -267,7 +267,7 @@ function crearClaseLealtad(classId, config) {
     };
   }
 
-  // 3. IMAGEN CENTRAL VIP - Banner rectangular (3:1)
+  // 3. IMAGEN CENTRAL VIP - Banner rectangular (3:1) EN EL FRENTE
   if (config.central_image_url) {
     payload.imageModulesData = [{
       id: 'vip_banner',
@@ -281,6 +281,12 @@ function crearClaseLealtad(classId, config) {
         }
       }
     }];
+  }
+
+  // IMPORTANTE: Eliminar heroImage porque aparece al FINAL (atrás) de la tarjeta
+  // Para loyalty usamos imageModulesData que aparece en el FRENTE
+  if (payload.heroImage) {
+    delete payload.heroImage;
   }
 
   // 4. TEMPLATE - Estructura de filas para datos del miembro

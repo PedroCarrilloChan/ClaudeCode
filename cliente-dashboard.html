@@ -916,31 +916,34 @@
 
                 const config = typeof clase.config === 'string' ? JSON.parse(clase.config) : clase.config;
 
-                // Llenar formulario con datos existentes
-                document.getElementById('tipoPase').value = clase.tipo;
-                document.getElementById('nombreClase').value = clase.nombre || '';
-                document.getElementById('issuerName').value = config.issuer_name || '';
-                document.getElementById('colorFondo').value = config.color_fondo || '#4285F4';
-                document.getElementById('logoUrl').value = config.logo_url || '';
-                document.getElementById('heroUrl').value = config.hero_url || '';
-
-                // Llenar campos específicos de LOYALTY
-                if (clase.tipo === 'loyalty') {
-                    document.getElementById('wideLogoUrl').value = config.wide_logo_url || '';
-                    document.getElementById('centralImageUrl').value = config.central_image_url || '';
-                    document.getElementById('programName').value = config.program_name || '';
-                    if (config.member_fields && Array.isArray(config.member_fields)) {
-                        document.getElementById('memberFields').value = config.member_fields.join(',');
-                    } else {
-                        document.getElementById('memberFields').value = '';
-                    }
-                }
-
-                // Actualizar preview
-                setTimeout(updatePreview, 50);
-
-                // Abrir modal
+                // Abrir modal PRIMERO
                 openCreateClaseModal();
+
+                // Esperar a que el DOM esté listo y luego llenar los campos
+                setTimeout(() => {
+                    // Llenar formulario con datos existentes
+                    document.getElementById('tipoPase').value = clase.tipo;
+                    document.getElementById('nombreClase').value = clase.nombre || '';
+                    document.getElementById('issuerName').value = config.issuer_name || '';
+                    document.getElementById('colorFondo').value = config.color_fondo || '#4285F4';
+                    document.getElementById('logoUrl').value = config.logo_url || '';
+                    document.getElementById('heroUrl').value = config.hero_url || '';
+
+                    // Llenar campos específicos de LOYALTY
+                    if (clase.tipo === 'loyalty') {
+                        document.getElementById('wideLogoUrl').value = config.wide_logo_url || '';
+                        document.getElementById('centralImageUrl').value = config.central_image_url || '';
+                        document.getElementById('programName').value = config.program_name || '';
+                        if (config.member_fields && Array.isArray(config.member_fields)) {
+                            document.getElementById('memberFields').value = config.member_fields.join(',');
+                        } else {
+                            document.getElementById('memberFields').value = '';
+                        }
+                    }
+
+                    // Actualizar preview después de llenar todos los campos
+                    updatePreview();
+                }, 100);
 
                 // Cambiar título del modal
                 document.querySelector('#createClaseModal h2').textContent = 'Editar Clase';
