@@ -1,5 +1,5 @@
 name = "smart-passes-api"
-main = "src/index.js"
+main = "src/index-consolidado.js"
 compatibility_date = "2024-01-01"
 
 # D1 Database
