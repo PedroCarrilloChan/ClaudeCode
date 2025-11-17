@@ -282,9 +282,6 @@ function crearClaseLealtad(classId, config) {
     payload.rewardsTier = config.reward_tiers;
   }
 
-  // NO usar heroImage para evitar conflictos
-  if (payload.heroImage) delete payload.heroImage;
-
   return payload;
 }
 
