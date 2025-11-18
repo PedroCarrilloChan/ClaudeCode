@@ -73,6 +73,58 @@
             font-weight: 700;
             color: #11998e;
         }
+
+        /* TABS SYSTEM */
+        .tabs-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .tabs-header {
+            display: flex;
+            border-bottom: 2px solid #f0f0f0;
+            background: #fafafa;
+            overflow-x: auto;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 18px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tab-btn:hover {
+            background: #f5f5f5;
+            color: #11998e;
+        }
+        .tab-btn.active {
+            color: #11998e;
+            border-bottom-color: #11998e;
+            background: white;
+        }
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.3s;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* EXISTING STYLES */
         .section {
             background: white;
             padding: 30px;
@@ -398,6 +450,436 @@
             z-index: 2000;
             max-width: 400px;
         }
+
+        /* API DOCS STYLES */
+        .api-section {
+            margin-bottom: 40px;
+        }
+        .api-section h3 {
+            color: #11998e;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        .api-section h4 {
+            color: #333;
+            margin: 20px 0 10px;
+            font-size: 16px;
+        }
+        .endpoint-card {
+            background: #f8f9fa;
+            border-left: 4px solid #11998e;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .method-badge {
+            background: #11998e;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+        }
+        .method-badge.patch {
+            background: #ff9800;
+        }
+        .endpoint-url {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #333;
+            font-weight: 600;
+        }
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+        .code-block .comment {
+            color: #75715e;
+        }
+        .code-block .string {
+            color: #a6e22e;
+        }
+        .code-block .number {
+            color: #ae81ff;
+        }
+        .code-block .keyword {
+            color: #f92672;
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        .info-box strong {
+            color: #1976d2;
+        }
+        /* PASES LIST STYLES */
+        .filter-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .filter-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .filter-section select {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+        .pases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+        .pase-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .pase-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #11998e;
+        }
+        .pase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .pase-tipo {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .pase-tipo.lealtad {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .pase-tipo.cupon {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        .pase-tipo.evento {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .pase-tipo.tarjeta-regalo {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        .pase-tipo.transporte {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+        .pase-tipo.generico {
+            background: #f5f5f5;
+            color: #616161;
+        }
+        .pase-info {
+            margin: 15px 0;
+        }
+        .pase-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+        .pase-info-row strong {
+            color: #666;
+            font-weight: 600;
+        }
+        .pase-info-row span {
+            color: #333;
+        }
+        .pase-clase-tag {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .pase-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #f0f0f0;
+        }
+        .btn-wallet {
+            flex: 1;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-wallet:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(17, 153, 142, 0.3);
+        }
+        .btn-details {
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            color: #666;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-details:hover {
+            background: #e0e0e0;
+            border-color: #bbb;
+        }
+        .pases-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            color: white;
+        }
+        .pases-stat-item {
+            flex: 1;
+            text-align: center;
+        }
+        .pases-stat-item .label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .pases-stat-item .value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        /* NOTIFICACIONES STYLES */
+        .notification-forms {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .notification-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s;
+        }
+        .notification-card:hover {
+            border-color: #11998e;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .notification-card h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .notification-card p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        .form-group select,
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        .form-group select:focus,
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #11998e;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .btn-send-notification {
+            width: 100%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-send-notification:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
+        }
+        .btn-send-notification:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .historial-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            border: 2px solid #e0e0e0;
+        }
+        .historial-section h3 {
+            margin: 0 0 20px 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .historial-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .historial-item {
+            background: #f8f9fa;
+            border-left: 4px solid #11998e;
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .historial-item:hover {
+            background: #e9ecef;
+        }
+        .historial-item.error {
+            border-left-color: #dc3545;
+        }
+        .historial-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+        .historial-type {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .historial-type.clase {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .historial-type.pase {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .historial-time {
+            font-size: 12px;
+            color: #999;
+        }
+        .historial-content {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .historial-target {
+            font-size: 13px;
+            color: #666;
+            font-family: monospace;
+            background: white;
+            padding: 6px 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        .success-msg {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+        .error-msg {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -406,12 +888,13 @@
 
     <div class="header">
         <div class="header-content">
-            <h1><span>🎫</span> <span id="nombreNegocio">Mi Negocio</span></h1>
+            <h1><span>🎫</span> <span id="nombreNegocio">Smart Passes</span></h1>
             <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
         </div>
     </div>
 
     <div class="container">
+        <!-- Stats Cards -->
         <div class="stats-grid">
             <div class="stat-card">
                 <h3>Pases Creados</h3>
@@ -427,24 +910,568 @@
             </div>
         </div>
 
-        <div class="section">
-            <h2>API Key</h2>
-            <p style="color: #666; margin-bottom: 10px;">Usa esta clave para crear pases mediante la API</p>
-            <div class="api-key-box">
-                <code id="apiKeyDisplay">••••••••••••••••••••</code>
-                <button class="btn-copy" onclick="copyApiKey()">Copiar</button>
+        <!-- Tabs Container -->
+        <div class="tabs-container">
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="switchTab('crear-clase')">
+                    🎨 Crear Nueva Clase
+                </button>
+                <button class="tab-btn" onclick="switchTab('mis-clases')">
+                    📋 Mis Clases
+                </button>
+                <button class="tab-btn" onclick="switchTab('api')">
+                    🔌 Integración API
+                </button>
+                <button class="tab-btn" onclick="switchTab('mis-pases')">
+                    👥 Mis Pases
+                </button>
+                <button class="tab-btn" onclick="switchTab('notificaciones')">
+                    🔔 Notificaciones
+                </button>
+                <button class="tab-btn" onclick="switchTab('updates')">
+                    🔄 Updates
+                </button>
+                <button class="tab-btn" onclick="switchTab('webhooks')">
+                    🔗 Webhooks
+                </button>
             </div>
-        </div>
 
-        <div class="section">
-            <h2>Mis Clases de Google Wallet</h2>
-            <button class="btn-primary" onclick="openCreateClaseModal()">➕ Crear Nueva Clase</button>
+            <!-- TAB: Crear Nueva Clase -->
+            <div id="tab-crear-clase" class="tab-content active">
+                <h2>Crear Nueva Clase de Google Wallet</h2>
+                <p style="color: #666; margin-bottom: 30px;">Las clases son plantillas reutilizables. Una vez creada, puedes generar múltiples pases usando tu API Key.</p>
 
-            <div id="clasesContainer" class="clases-grid"></div>
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <div class="icon">📦</div>
-                <h3>No tienes clases creadas</h3>
-                <p>Crea tu primera clase de Google Wallet para empezar a generar pases</p>
+                <button class="btn-primary" onclick="openCreateClaseModal()">➕ Crear Nueva Clase</button>
+
+                <div class="info-box">
+                    <strong>💡 Tip:</strong> Crea diferentes clases para diferentes tipos de pases (lealtad, cupones, eventos, etc.). Cada clase puede tener su propio diseño y configuración.
+                </div>
+            </div>
+
+            <!-- TAB: Mis Clases -->
+            <div id="tab-mis-clases" class="tab-content">
+                <h2>Mis Clases de Google Wallet</h2>
+
+                <div id="clasesContainer" class="clases-grid"></div>
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div class="icon">📦</div>
+                    <h3>No tienes clases creadas</h3>
+                    <p>Crea tu primera clase de Google Wallet para empezar a generar pases</p>
+                </div>
+            </div>
+
+            <!-- TAB: Integración API -->
+            <div id="tab-api" class="tab-content">
+                <h2>🔌 Integración API</h2>
+                <p style="color: #666; margin-bottom: 30px;">Usa estos endpoints para integrar Smart Passes en tu aplicación.</p>
+
+                <!-- API Key Section -->
+                <div class="api-section">
+                    <h3>🔑 Tu API Key</h3>
+                    <p style="color: #666; margin-bottom: 15px;">Incluye esta clave en el header <code>Authorization</code> de todas tus peticiones.</p>
+                    <div class="api-key-box">
+                        <code id="apiKeyDisplay2">••••••••••••••••••••</code>
+                        <button class="btn-copy" onclick="copyApiKey()">Copiar</button>
+                    </div>
+                </div>
+
+                <!-- Endpoint 1: Crear Pase -->
+                <div class="api-section">
+                    <h3>1️⃣ Crear Pase Individual</h3>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge">POST</span>
+                            <span class="endpoint-url">/api/crear-pase</span>
+                        </div>
+
+                        <p><strong>Descripción:</strong> Crea un pase individual en Google Wallet y retorna el link para agregarlo.</p>
+
+                        <h4>📥 Request</h4>
+                        <div class="code-block">curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/crear-pase \
+  -H "Authorization: Bearer TU_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "class_id": "3388000000022737801.smartpasses-123-tarjeta-lealtad",
+    "datos": {
+      "nombre": "Juan Pérez",
+      "puntos": 1500,
+      "account_id": "MEMBER-00123",
+      "barcode": {
+        "type": "QR_CODE",
+        "value": "MEMBER-00123"
+      }
+    }
+  }'</div>
+
+                        <h4>📤 Response</h4>
+                        <div class="code-block">{
+  "success": true,
+  "objeto_id": "3388000000022737801.smartpasses-123-tarjeta-lealtad-a1b2c3d4",
+  "link": "https://pay.google.com/gp/v/save/eyJh..."
+}</div>
+
+                        <h4>🔧 Ejemplo JavaScript</h4>
+                        <div class="code-block">const response = await fetch('https://smart-passes-api.smartpasses.workers.dev/api/crear-pase', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer TU_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    class_id: '3388000000022737801.smartpasses-123-tarjeta-lealtad',
+    datos: {
+      nombre: 'Juan Pérez',
+      puntos: 1500,
+      account_id: 'MEMBER-00123',
+      barcode: {
+        type: 'QR_CODE',
+        value: 'MEMBER-00123'
+      }
+    }
+  })
+});
+
+const data = await response.json();
+console.log(data.link); // Link para agregar a Google Wallet</div>
+                    </div>
+                </div>
+
+                <!-- Endpoint 2: Actualizar Pase -->
+                <div class="api-section">
+                    <h3>2️⃣ Actualizar Pase Existente</h3>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge patch">POST</span>
+                            <span class="endpoint-url">/api/actualizar-pase</span>
+                        </div>
+
+                        <p><strong>Descripción:</strong> Actualiza campos de un pase existente. Google Wallet enviará notificación automática si hay cambios importantes.</p>
+
+                        <h4>📥 Request</h4>
+                        <div class="code-block">curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/actualizar-pase \
+  -H "Authorization: Bearer TU_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "objeto_id": "3388000000022737801.smartpasses-123-tarjeta-lealtad-a1b2c3d4",
+    "datos_actualizados": {
+      "puntos": 2000
+    }
+  }'</div>
+
+                        <h4>📤 Response</h4>
+                        <div class="code-block">{
+  "success": true,
+  "mensaje": "Pase actualizado. Google Wallet enviará notificación automática si hubo cambios importantes."
+}</div>
+                    </div>
+                </div>
+
+                <!-- Endpoint 3: Notificación Individual -->
+                <div class="api-section">
+                    <h3>3️⃣ Enviar Notificación a UN Pase</h3>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge">POST</span>
+                            <span class="endpoint-url">/api/notificar-pase</span>
+                        </div>
+
+                        <p><strong>Descripción:</strong> Envía una notificación push a un pase específico. Aparece en la bandeja de notificaciones del teléfono.</p>
+
+                        <h4>📥 Request</h4>
+                        <div class="code-block">curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/notificar-pase \
+  -H "Authorization: Bearer TU_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "objeto_id": "3388000000022737801.smartpasses-123-tarjeta-lealtad-a1b2c3d4",
+    "mensaje": {
+      "header": "¡Promoción Especial!",
+      "body": "Doble puntos en todas tus compras este fin de semana"
+    }
+  }'</div>
+
+                        <h4>📤 Response</h4>
+                        <div class="code-block">{
+  "success": true,
+  "mensaje": "Notificación enviada"
+}</div>
+                    </div>
+                </div>
+
+                <!-- Endpoint 4: Notificación Masiva -->
+                <div class="api-section">
+                    <h3>4️⃣ Enviar Notificación Masiva (Toda una Clase)</h3>
+
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method-badge">POST</span>
+                            <span class="endpoint-url">/api/notificar-clase</span>
+                        </div>
+
+                        <p><strong>Descripción:</strong> Envía una notificación push a TODOS los pases de una clase. Perfecto para campañas masivas.</p>
+
+                        <h4>📥 Request</h4>
+                        <div class="code-block">curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/notificar-clase \
+  -H "Authorization: Bearer TU_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "class_id": "3388000000022737801.smartpasses-123-tarjeta-lealtad",
+    "mensaje": {
+      "header": "Actualización Importante",
+      "body": "Nuevos beneficios disponibles para todos los miembros"
+    }
+  }'</div>
+
+                        <h4>📤 Response</h4>
+                        <div class="code-block">{
+  "success": true,
+  "mensaje": "Notificación enviada a todos los pases de la clase"
+}</div>
+                    </div>
+                </div>
+
+                <!-- Authentication Info -->
+                <div class="api-section">
+                    <h3>🔐 Autenticación</h3>
+                    <div class="info-box">
+                        <strong>Importante:</strong> Todas las peticiones requieren tu API Key en el header <code>Authorization</code>:
+                        <div class="code-block" style="margin-top: 10px;">Authorization: Bearer TU_API_KEY</div>
+                    </div>
+                </div>
+
+                <!-- Error Codes -->
+                <div class="api-section">
+                    <h3>⚠️ Códigos de Error</h3>
+                    <table style="width: 100%; border-collapse: collapse; background: white;">
+                        <tr style="background: #f5f5f5;">
+                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Código</th>
+                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Descripción</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border: 1px solid #ddd;"><code>401</code></td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">API key inválida o no proporcionada</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border: 1px solid #ddd;"><code>404</code></td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">Clase o pase no encontrado</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border: 1px solid #ddd;"><code>500</code></td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">Error del servidor o error de Google Wallet API</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: Mis Pases -->
+            <div id="tab-mis-pases" class="tab-content">
+                <h2>👥 Mis Pases Creados</h2>
+                <p style="color: #666; margin-bottom: 25px;">Todos los pases individuales que has creado para tus usuarios.</p>
+
+                <!-- Estadísticas de Pases -->
+                <div class="pases-stats" id="pasesStats">
+                    <div class="pases-stat-item">
+                        <div class="label">Total Pases</div>
+                        <div class="value" id="totalPasesCount">0</div>
+                    </div>
+                    <div class="pases-stat-item">
+                        <div class="label">Clases Activas</div>
+                        <div class="value" id="clasesActivasCount">0</div>
+                    </div>
+                    <div class="pases-stat-item">
+                        <div class="label">Último Creado</div>
+                        <div class="value" id="ultimoPaseDate" style="font-size: 16px;">-</div>
+                    </div>
+                </div>
+
+                <!-- Filtro por Clase -->
+                <div class="filter-section">
+                    <label for="filtroClase">🔍 Filtrar por Clase</label>
+                    <select id="filtroClase" onchange="filterPasesByClase()">
+                        <option value="">Todas las clases</option>
+                    </select>
+                </div>
+
+                <!-- Grid de Pases -->
+                <div id="pasesContainer" class="pases-grid"></div>
+
+                <!-- Empty State -->
+                <div id="emptyStatePases" class="empty-state" style="display: none;">
+                    <div class="icon">📭</div>
+                    <h3>No hay pases creados</h3>
+                    <p>Los pases que crees mediante la API aparecerán aquí</p>
+                </div>
+            </div>
+
+            <!-- TAB: Notificaciones -->
+            <div id="tab-notificaciones" class="tab-content">
+                <h2>🔔 Notificaciones Push</h2>
+                <p style="color: #666; margin-bottom: 30px;">Envía notificaciones push a los dispositivos de tus usuarios con Google Wallet.</p>
+
+                <!-- Formularios de Notificación -->
+                <div class="notification-forms">
+                    <!-- Notificar Clase Completa -->
+                    <div class="notification-card">
+                        <h3>
+                            <span>📢</span>
+                            <span>Notificar Clase Completa</span>
+                        </h3>
+                        <p>Envía una notificación a todos los pases de una clase específica</p>
+
+                        <form id="formNotificarClase" onsubmit="enviarNotificacionClase(event)">
+                            <div class="form-group">
+                                <label for="notifClaseSelect">Seleccionar Clase</label>
+                                <select id="notifClaseSelect" required>
+                                    <option value="">-- Selecciona una clase --</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="notifClaseMensaje">Mensaje</label>
+                                <textarea
+                                    id="notifClaseMensaje"
+                                    placeholder="Escribe el mensaje que se enviará a todos los usuarios..."
+                                    required
+                                    maxlength="200"
+                                    oninput="updateCharCounter('notifClaseMensaje', 'charCounterClase')"
+                                ></textarea>
+                                <div class="char-counter">
+                                    <span id="charCounterClase">0</span>/200 caracteres
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-send-notification">
+                                <span>📤</span>
+                                <span>Enviar a Toda la Clase</span>
+                            </button>
+
+                            <div class="success-msg" id="successMsgClase"></div>
+                            <div class="error-msg" id="errorMsgClase"></div>
+                        </form>
+                    </div>
+
+                    <!-- Notificar Pase Individual -->
+                    <div class="notification-card">
+                        <h3>
+                            <span>👤</span>
+                            <span>Notificar Pase Individual</span>
+                        </h3>
+                        <p>Envía una notificación a un pase específico</p>
+
+                        <form id="formNotificarPase" onsubmit="enviarNotificacionPase(event)">
+                            <div class="form-group">
+                                <label for="notifPaseClaseSelect">Clase</label>
+                                <select id="notifPaseClaseSelect" onchange="cargarPasesDeClase()" required>
+                                    <option value="">-- Selecciona una clase --</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="notifPaseSelect">Seleccionar Pase</label>
+                                <select id="notifPaseSelect" required disabled>
+                                    <option value="">-- Primero selecciona una clase --</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="notifPaseMensaje">Mensaje</label>
+                                <textarea
+                                    id="notifPaseMensaje"
+                                    placeholder="Escribe el mensaje que se enviará al usuario..."
+                                    required
+                                    maxlength="200"
+                                    oninput="updateCharCounter('notifPaseMensaje', 'charCounterPase')"
+                                ></textarea>
+                                <div class="char-counter">
+                                    <span id="charCounterPase">0</span>/200 caracteres
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-send-notification">
+                                <span>📤</span>
+                                <span>Enviar al Pase</span>
+                            </button>
+
+                            <div class="success-msg" id="successMsgPase"></div>
+                            <div class="error-msg" id="errorMsgPase"></div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Historial de Notificaciones -->
+                <div class="historial-section">
+                    <h3>
+                        <span>📋</span>
+                        <span>Historial de Notificaciones</span>
+                    </h3>
+
+                    <div id="historialNotificaciones" class="historial-list">
+                        <div class="empty-state">
+                            <div class="icon">📭</div>
+                            <h3>Sin notificaciones</h3>
+                            <p>Las notificaciones que envíes aparecerán aquí</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Updates -->
+            <div id="tab-updates" class="tab-content">
+                <h2>🔄 Actualizar Pases</h2>
+                <p style="color: #666; margin-bottom: 30px;">Actualiza la información de tus pases de Google Wallet en tiempo real.</p>
+
+                <!-- Formularios de Actualización -->
+                <div class="notification-forms">
+                    <!-- Actualizar Pase Individual -->
+                    <div class="notification-card">
+                        <h3>
+                            <span>📝</span>
+                            <span>Actualizar Pase Individual</span>
+                        </h3>
+                        <p>Actualiza la información de un pase específico</p>
+
+                        <form id="formActualizarPase" onsubmit="actualizarPaseIndividual(event)">
+                            <div class="form-group">
+                                <label for="updateClaseSelect">Clase</label>
+                                <select id="updateClaseSelect" onchange="cargarPasesParaUpdate()" required>
+                                    <option value="">-- Selecciona una clase --</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="updatePaseSelect">Seleccionar Pase</label>
+                                <select id="updatePaseSelect" onchange="mostrarCamposUpdate()" required disabled>
+                                    <option value="">-- Primero selecciona una clase --</option>
+                                </select>
+                            </div>
+
+                            <!-- Campos dinámicos según tipo de pase -->
+                            <div id="camposUpdateDinamicos"></div>
+
+                            <button type="submit" class="btn-send-notification" disabled id="btnActualizarPase">
+                                <span>💾</span>
+                                <span>Actualizar Pase</span>
+                            </button>
+
+                            <div class="success-msg" id="successMsgUpdate"></div>
+                            <div class="error-msg" id="errorMsgUpdate"></div>
+                        </form>
+                    </div>
+
+                    <!-- Actualizar Clase Completa -->
+                    <div class="notification-card">
+                        <h3>
+                            <span>📢</span>
+                            <span>Actualizar Clase Completa</span>
+                        </h3>
+                        <p>Actualiza todos los pases de una clase a la vez</p>
+
+                        <form id="formActualizarClase" onsubmit="actualizarClaseCompleta(event)">
+                            <div class="form-group">
+                                <label for="updateClaseCompletaSelect">Seleccionar Clase</label>
+                                <select id="updateClaseCompletaSelect" onchange="mostrarCamposUpdateClase()" required>
+                                    <option value="">-- Selecciona una clase --</option>
+                                </select>
+                            </div>
+
+                            <div class="info-box" style="margin-bottom: 20px;">
+                                <strong>⚠️ Importante:</strong> Esta acción actualizará TODOS los pases de la clase seleccionada. Los campos que dejes vacíos no se modificarán.
+                            </div>
+
+                            <!-- Campos dinámicos para actualización masiva -->
+                            <div id="camposUpdateClaseDinamicos"></div>
+
+                            <button type="submit" class="btn-send-notification" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" disabled id="btnActualizarClase">
+                                <span>🔄</span>
+                                <span>Actualizar Todos los Pases</span>
+                            </button>
+
+                            <div class="success-msg" id="successMsgUpdateClase"></div>
+                            <div class="error-msg" id="errorMsgUpdateClase"></div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Historial de Actualizaciones -->
+                <div class="historial-section">
+                    <h3>
+                        <span>📋</span>
+                        <span>Historial de Actualizaciones</span>
+                    </h3>
+
+                    <div id="historialUpdates" class="historial-list">
+                        <div class="empty-state">
+                            <div class="icon">📭</div>
+                            <h3>Sin actualizaciones</h3>
+                            <p>Las actualizaciones que realices aparecerán aquí</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Webhooks -->
+            <div id="tab-webhooks" class="tab-content">
+                <h2>🔗 Webhooks y Eventos</h2>
+                <p style="color: #666; margin-bottom: 30px;">Monitorea los eventos de Google Wallet en tiempo real.</p>
+
+                <!-- Estadísticas de Eventos -->
+                <div class="pases-stats" id="webhooksStats" style="display: none;">
+                    <div class="pases-stat-item">
+                        <div class="label">Total Eventos</div>
+                        <div class="value" id="totalEventosCount">0</div>
+                    </div>
+                    <div class="pases-stat-item">
+                        <div class="label">Pases Guardados</div>
+                        <div class="value" id="eventosSaveCount">0</div>
+                    </div>
+                    <div class="pases-stat-item">
+                        <div class="label">Pases Eliminados</div>
+                        <div class="value" id="eventosDeleteCount">0</div>
+                    </div>
+                </div>
+
+                <!-- Información del Webhook -->
+                <div class="notification-card" style="margin-bottom: 30px;">
+                    <h3>
+                        <span>⚙️</span>
+                        <span>Configuración del Webhook</span>
+                    </h3>
+                    <p>Para recibir eventos de Google Wallet, configura esta URL en tu Google Cloud Console:</p>
+
+                    <div class="api-key-box" style="margin: 15px 0;">
+                        <code id="webhookUrlDisplay">https://smart-passes-api.smartpasses.workers.dev/webhook/wallet-events</code>
+                        <button class="btn-copy" onclick="copyWebhookUrl()">Copiar</button>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 20px;">
+                        <strong>📝 Tipos de eventos:</strong>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li><strong>save:</strong> Usuario guardó el pase en Google Wallet</li>
+                            <li><strong>del:</strong> Usuario eliminó el pase de Google Wallet</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Lista de Eventos -->
+                <div class="historial-section">
+                    <h3>
+                        <span>📋</span>
+                        <span>Log de Eventos</span>
+                        <button onclick="refreshWebhooks()" style="margin-left: auto; padding: 8px 15px; background: #11998e; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">
+                            🔄 Actualizar
+                        </button>
+                    </h3>
+
+                    <div id="eventosContainer" class="historial-list">
+                        <div class="empty-state">
+                            <div class="icon">📭</div>
+                            <h3>Sin eventos</h3>
+                            <p>Los eventos de Google Wallet aparecerán aquí</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -499,33 +1526,6 @@
                             <input type="url" id="heroUrl" placeholder="https://example.com/hero.jpg">
                         </div>
 
-                        <!-- Campos específicos para LOYALTY -->
-                        <div id="loyaltyFields" style="display: none;">
-                            <div class="form-group">
-                                <label>Banner Ancho Superior (Wide Logo)</label>
-                                <input type="url" id="wideLogoUrl" placeholder="https://example.com/wide-banner-660x210.jpg">
-                                <small style="color: #999;">660x210px - Aparece en el strip superior</small>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Imagen Central VIP</label>
-                                <input type="url" id="centralImageUrl" placeholder="https://example.com/central-image-3x1.jpg">
-                                <small style="color: #999;">Ratio 3:1 (1032x336px) - Banner central con texto pre-diseñado</small>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Nombre del Programa de Lealtad</label>
-                                <input type="text" id="programName" placeholder="Programa VIP">
-                                <small style="color: #999;">Aparece en el strip superior</small>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Campos del Miembro (opcional)</label>
-                                <input type="text" id="memberFields" placeholder="nombre,nivel,descuento,telefono">
-                                <small style="color: #999;">Separados por comas. Ejemplo: nombre,nivel,descuento</small>
-                            </div>
-                        </div>
-
                         <div class="loading" id="loading">Creando clase en Google Wallet...</div>
 
                         <div class="form-actions">
@@ -567,6 +1567,36 @@
         const API_URL = 'https://smart-passes-api.smartpasses.workers.dev';
         let clienteData = {};
         let clasesData = [];
+
+        // TAB SWITCHING
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById('tab-' + tabName).classList.add('active');
+
+            // Activate button
+            event.target.classList.add('active');
+
+            // Cargar datos específicos del tab
+            if (tabName === 'mis-pases') {
+                loadPases();
+            } else if (tabName === 'notificaciones') {
+                loadNotificaciones();
+            } else if (tabName === 'updates') {
+                loadUpdates();
+            } else if (tabName === 'webhooks') {
+                loadWebhooks();
+            }
+        }
 
         // Función para mostrar errores globales
         function showError(mensaje, duracion = 5000) {
@@ -610,6 +1640,7 @@
                     // Actualizar UI
                     document.getElementById('nombreNegocio').textContent = clienteData.nombre_negocio;
                     document.getElementById('apiKeyDisplay').textContent = clienteData.api_key;
+                    document.getElementById('apiKeyDisplay2').textContent = clienteData.api_key;
                     document.getElementById('totalPases').textContent = clienteData.estadisticas.pases_creados;
                     document.getElementById('totalClases').textContent = clienteData.estadisticas.clases_creadas;
                     document.getElementById('pasesActivos').textContent = clienteData.estadisticas.pases_activos;
@@ -675,6 +1706,1059 @@
             }, 2000);
         }
 
+        // ==========================================
+        // FUNCIONES PARA TAB "MIS PASES"
+        // ==========================================
+
+        let pasesData = [];
+        let pasesDataFiltered = [];
+
+        async function loadPases() {
+            const sessionId = localStorage.getItem('sessionId');
+            const classId = new URLSearchParams(window.location.search).get('class_id');
+
+            let url = `${API_URL}/cliente/pases`;
+            if (classId) {
+                url += `?class_id=${classId}`;
+            }
+
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    pasesData = data.pases || [];
+                    pasesDataFiltered = [...pasesData];
+
+                    updatePasesStats();
+                    populateFiltroClase();
+                    renderPases();
+                } else {
+                    console.error('Error al cargar pases:', data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function updatePasesStats() {
+            document.getElementById('totalPasesCount').textContent = pasesData.length;
+
+            const clasesUnicas = new Set(pasesData.map(p => p.class_id)).size;
+            document.getElementById('clasesActivasCount').textContent = clasesUnicas;
+
+            if (pasesData.length > 0) {
+                const ultimoPase = pasesData[0]; // Ya están ordenados por fecha DESC
+                const fecha = new Date(ultimoPase.creado_en);
+                document.getElementById('ultimoPaseDate').textContent = fecha.toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: 'short'
+                });
+            }
+        }
+
+        function populateFiltroClase() {
+            const select = document.getElementById('filtroClase');
+            const clasesUnicas = [...new Set(pasesData.map(p => ({
+                id: p.class_id,
+                nombre: p.nombre_clase || p.class_id
+            })).map(c => JSON.stringify(c)))].map(c => JSON.parse(c));
+
+            select.innerHTML = '<option value="">Todas las clases</option>';
+            clasesUnicas.forEach(clase => {
+                const option = document.createElement('option');
+                option.value = clase.id;
+                option.textContent = clase.nombre;
+                select.appendChild(option);
+            });
+        }
+
+        function filterPasesByClase() {
+            const filtro = document.getElementById('filtroClase').value;
+
+            if (filtro === '') {
+                pasesDataFiltered = [...pasesData];
+            } else {
+                pasesDataFiltered = pasesData.filter(p => p.class_id === filtro);
+            }
+
+            renderPases();
+        }
+
+        function renderPases() {
+            const container = document.getElementById('pasesContainer');
+            const emptyState = document.getElementById('emptyStatePases');
+
+            if (pasesDataFiltered.length === 0) {
+                container.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            container.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            container.innerHTML = pasesDataFiltered.map(pase => {
+                const datos = pase.datos || {};
+                const tipo = pase.tipo || 'generico';
+                const tipoDisplay = {
+                    'loyalty': 'Lealtad',
+                    'offer': 'Cupón',
+                    'eventticket': 'Evento',
+                    'giftcard': 'Tarjeta Regalo',
+                    'transit': 'Transporte',
+                    'generic': 'Genérico'
+                };
+
+                const walletUrl = `https://pay.google.com/gp/v/save/${pase.objeto_id}`;
+
+                return `
+                    <div class="pase-card">
+                        <div class="pase-header">
+                            <span class="pase-tipo ${tipo}">${tipoDisplay[tipo] || 'Genérico'}</span>
+                            <span style="font-size: 12px; color: #999;">
+                                ${new Date(pase.creado_en).toLocaleDateString('es-ES')}
+                            </span>
+                        </div>
+
+                        <div class="pase-info">
+                            <div class="pase-info-row">
+                                <strong>ID Objeto:</strong>
+                                <span style="font-size: 11px; font-family: monospace;">${pase.objeto_id.substring(pase.objeto_id.lastIndexOf('.') + 1, pase.objeto_id.lastIndexOf('.') + 15)}...</span>
+                            </div>
+                            ${datos.cardTitle ? `
+                            <div class="pase-info-row">
+                                <strong>Título:</strong>
+                                <span>${datos.cardTitle}</span>
+                            </div>
+                            ` : ''}
+                            ${datos.header ? `
+                            <div class="pase-info-row">
+                                <strong>Header:</strong>
+                                <span>${datos.header}</span>
+                            </div>
+                            ` : ''}
+                            ${datos.accountName ? `
+                            <div class="pase-info-row">
+                                <strong>Usuario:</strong>
+                                <span>${datos.accountName}</span>
+                            </div>
+                            ` : ''}
+                            ${datos.points !== undefined ? `
+                            <div class="pase-info-row">
+                                <strong>Puntos:</strong>
+                                <span>${datos.points} pts</span>
+                            </div>
+                            ` : ''}
+                            ${datos.balance ? `
+                            <div class="pase-info-row">
+                                <strong>Balance:</strong>
+                                <span>$${datos.balance}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="pase-clase-tag">
+                            📁 ${pase.nombre_clase || pase.class_id}
+                        </div>
+
+                        <div class="pase-actions">
+                            <a href="${walletUrl}" target="_blank" class="btn-wallet" style="text-decoration: none;">
+                                <span>📲</span>
+                                <span>Agregar a Wallet</span>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==========================================
+        // FUNCIONES PARA TAB "NOTIFICACIONES"
+        // ==========================================
+
+        let notificacionesHistorial = [];
+
+        function loadNotificaciones() {
+            // Cargar historial de localStorage
+            const historialGuardado = localStorage.getItem('notificaciones_historial');
+            if (historialGuardado) {
+                notificacionesHistorial = JSON.parse(historialGuardado);
+                renderHistorialNotificaciones();
+            }
+
+            // Poblar selectores de clases
+            populateNotificacionesClases();
+        }
+
+        function populateNotificacionesClases() {
+            const selectClase = document.getElementById('notifClaseSelect');
+            const selectPaseClase = document.getElementById('notifPaseClaseSelect');
+
+            selectClase.innerHTML = '<option value="">-- Selecciona una clase --</option>';
+            selectPaseClase.innerHTML = '<option value="">-- Selecciona una clase --</option>';
+
+            clasesData.forEach(clase => {
+                const optionClase = document.createElement('option');
+                optionClase.value = clase.id;
+                optionClase.textContent = `${clase.nombre} (${clase.tipo})`;
+                selectClase.appendChild(optionClase);
+
+                const optionPaseClase = document.createElement('option');
+                optionPaseClase.value = clase.id;
+                optionPaseClase.textContent = `${clase.nombre} (${clase.tipo})`;
+                selectPaseClase.appendChild(optionPaseClase);
+            });
+        }
+
+        async function cargarPasesDeClase() {
+            const classId = document.getElementById('notifPaseClaseSelect').value;
+            const selectPase = document.getElementById('notifPaseSelect');
+
+            if (!classId) {
+                selectPase.innerHTML = '<option value="">-- Primero selecciona una clase --</option>';
+                selectPase.disabled = true;
+                return;
+            }
+
+            selectPase.disabled = true;
+            selectPase.innerHTML = '<option value="">Cargando pases...</option>';
+
+            const sessionId = localStorage.getItem('sessionId');
+
+            try {
+                const response = await fetch(`${API_URL}/cliente/pases?class_id=${classId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.pases.length > 0) {
+                    selectPase.innerHTML = '<option value="">-- Selecciona un pase --</option>';
+                    data.pases.forEach(pase => {
+                        const option = document.createElement('option');
+                        option.value = pase.objeto_id;
+                        const datos = pase.datos || {};
+                        const label = datos.accountName || datos.cardTitle || datos.header || pase.objeto_id.substring(0, 30);
+                        option.textContent = label;
+                        selectPase.appendChild(option);
+                    });
+                    selectPase.disabled = false;
+                } else {
+                    selectPase.innerHTML = '<option value="">-- No hay pases en esta clase --</option>';
+                }
+            } catch (error) {
+                console.error('Error al cargar pases:', error);
+                selectPase.innerHTML = '<option value="">-- Error al cargar pases --</option>';
+            }
+        }
+
+        async function enviarNotificacionClase(event) {
+            event.preventDefault();
+
+            const classId = document.getElementById('notifClaseSelect').value;
+            const mensaje = document.getElementById('notifClaseMensaje').value;
+            const btn = event.target.querySelector('button[type="submit"]');
+            const successMsg = document.getElementById('successMsgClase');
+            const errorMsg = document.getElementById('errorMsgClase');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span><span>Enviando...</span>';
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_URL}/api/notificar-clase`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${clienteData.api_key}`
+                    },
+                    body: JSON.stringify({
+                        class_id: classId,
+                        mensaje: mensaje
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    successMsg.textContent = `✓ Notificación enviada exitosamente a toda la clase`;
+                    successMsg.style.display = 'block';
+
+                    // Guardar en historial
+                    agregarAlHistorial('clase', classId, mensaje, true);
+
+                    // Limpiar formulario
+                    document.getElementById('formNotificarClase').reset();
+                    document.getElementById('charCounterClase').textContent = '0';
+                } else {
+                    errorMsg.textContent = `✗ Error: ${data.error}`;
+                    errorMsg.style.display = 'block';
+
+                    agregarAlHistorial('clase', classId, mensaje, false, data.error);
+                }
+            } catch (error) {
+                errorMsg.textContent = `✗ Error de conexión: ${error.message}`;
+                errorMsg.style.display = 'block';
+
+                agregarAlHistorial('clase', classId, mensaje, false, error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>📤</span><span>Enviar a Toda la Clase</span>';
+            }
+        }
+
+        async function enviarNotificacionPase(event) {
+            event.preventDefault();
+
+            const objetoId = document.getElementById('notifPaseSelect').value;
+            const mensaje = document.getElementById('notifPaseMensaje').value;
+            const btn = event.target.querySelector('button[type="submit"]');
+            const successMsg = document.getElementById('successMsgPase');
+            const errorMsg = document.getElementById('errorMsgPase');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span><span>Enviando...</span>';
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_URL}/api/notificar-pase`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${clienteData.api_key}`
+                    },
+                    body: JSON.stringify({
+                        objeto_id: objetoId,
+                        mensaje: mensaje
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    successMsg.textContent = `✓ Notificación enviada exitosamente al pase`;
+                    successMsg.style.display = 'block';
+
+                    agregarAlHistorial('pase', objetoId, mensaje, true);
+
+                    // Limpiar formulario
+                    document.getElementById('formNotificarPase').reset();
+                    document.getElementById('charCounterPase').textContent = '0';
+                    document.getElementById('notifPaseSelect').disabled = true;
+                } else {
+                    errorMsg.textContent = `✗ Error: ${data.error}`;
+                    errorMsg.style.display = 'block';
+
+                    agregarAlHistorial('pase', objetoId, mensaje, false, data.error);
+                }
+            } catch (error) {
+                errorMsg.textContent = `✗ Error de conexión: ${error.message}`;
+                errorMsg.style.display = 'block';
+
+                agregarAlHistorial('pase', objetoId, mensaje, false, error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>📤</span><span>Enviar al Pase</span>';
+            }
+        }
+
+        function agregarAlHistorial(tipo, target, mensaje, exito, error = null) {
+            const notificacion = {
+                id: Date.now(),
+                tipo: tipo,
+                target: target,
+                mensaje: mensaje,
+                exito: exito,
+                error: error,
+                timestamp: new Date().toISOString()
+            };
+
+            notificacionesHistorial.unshift(notificacion);
+
+            // Guardar en localStorage (últimas 50)
+            if (notificacionesHistorial.length > 50) {
+                notificacionesHistorial = notificacionesHistorial.slice(0, 50);
+            }
+
+            localStorage.setItem('notificaciones_historial', JSON.stringify(notificacionesHistorial));
+
+            renderHistorialNotificaciones();
+        }
+
+        function renderHistorialNotificaciones() {
+            const container = document.getElementById('historialNotificaciones');
+
+            if (notificacionesHistorial.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <h3>Sin notificaciones</h3>
+                        <p>Las notificaciones que envíes aparecerán aquí</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = notificacionesHistorial.map(notif => {
+                const fecha = new Date(notif.timestamp);
+                const fechaStr = fecha.toLocaleString('es-ES', {
+                    day: '2-digit',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const targetDisplay = notif.tipo === 'clase'
+                    ? `Clase: ${clasesData.find(c => c.id === notif.target)?.nombre || notif.target}`
+                    : `Pase: ${notif.target.substring(0, 40)}...`;
+
+                return `
+                    <div class="historial-item ${notif.exito ? '' : 'error'}">
+                        <div class="historial-header">
+                            <span class="historial-type ${notif.tipo}">${notif.tipo}</span>
+                            <span class="historial-time">${fechaStr}</span>
+                        </div>
+                        <div class="historial-content">"${notif.mensaje}"</div>
+                        <div class="historial-target">${targetDisplay}</div>
+                        ${notif.error ? `<div style="color: #dc3545; font-size: 12px; margin-top: 8px;">❌ ${notif.error}</div>` : ''}
+                        ${notif.exito ? '<div style="color: #28a745; font-size: 12px; margin-top: 8px;">✓ Enviado exitosamente</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateCharCounter(textareaId, counterId) {
+            const textarea = document.getElementById(textareaId);
+            const counter = document.getElementById(counterId);
+            counter.textContent = textarea.value.length;
+        }
+
+        // ==========================================
+        // FUNCIONES PARA TAB "UPDATES"
+        // ==========================================
+
+        let updatesHistorial = [];
+        let paseSeleccionadoParaUpdate = null;
+
+        function loadUpdates() {
+            // Cargar historial de localStorage
+            const historialGuardado = localStorage.getItem('updates_historial');
+            if (historialGuardado) {
+                updatesHistorial = JSON.parse(historialGuardado);
+                renderHistorialUpdates();
+            }
+
+            // Poblar selectores de clases
+            populateUpdatesClases();
+        }
+
+        function populateUpdatesClases() {
+            const selectClase = document.getElementById('updateClaseSelect');
+            const selectClaseCompleta = document.getElementById('updateClaseCompletaSelect');
+
+            selectClase.innerHTML = '<option value="">-- Selecciona una clase --</option>';
+            selectClaseCompleta.innerHTML = '<option value="">-- Selecciona una clase --</option>';
+
+            clasesData.forEach(clase => {
+                const option = document.createElement('option');
+                option.value = clase.id;
+                option.dataset.tipo = clase.tipo;
+                option.textContent = `${clase.nombre} (${clase.tipo})`;
+                selectClase.appendChild(option);
+
+                const option2 = document.createElement('option');
+                option2.value = clase.id;
+                option2.dataset.tipo = clase.tipo;
+                option2.textContent = `${clase.nombre} (${clase.tipo})`;
+                selectClaseCompleta.appendChild(option2);
+            });
+        }
+
+        async function cargarPasesParaUpdate() {
+            const select = document.getElementById('updateClaseSelect');
+            const classId = select.value;
+            const selectPase = document.getElementById('updatePaseSelect');
+            const camposDiv = document.getElementById('camposUpdateDinamicos');
+
+            if (!classId) {
+                selectPase.innerHTML = '<option value="">-- Primero selecciona una clase --</option>';
+                selectPase.disabled = true;
+                camposDiv.innerHTML = '';
+                document.getElementById('btnActualizarPase').disabled = true;
+                return;
+            }
+
+            selectPase.disabled = true;
+            selectPase.innerHTML = '<option value="">Cargando pases...</option>';
+
+            const sessionId = localStorage.getItem('sessionId');
+
+            try {
+                const response = await fetch(`${API_URL}/cliente/pases?class_id=${classId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.pases.length > 0) {
+                    selectPase.innerHTML = '<option value="">-- Selecciona un pase --</option>';
+                    data.pases.forEach(pase => {
+                        const option = document.createElement('option');
+                        option.value = pase.objeto_id;
+                        option.dataset.pase = JSON.stringify(pase);
+                        const datos = pase.datos || {};
+                        const label = datos.accountName || datos.cardTitle || datos.header || pase.objeto_id.substring(0, 30);
+                        option.textContent = label;
+                        selectPase.appendChild(option);
+                    });
+                    selectPase.disabled = false;
+                } else {
+                    selectPase.innerHTML = '<option value="">-- No hay pases en esta clase --</option>';
+                }
+            } catch (error) {
+                console.error('Error al cargar pases:', error);
+                selectPase.innerHTML = '<option value="">-- Error al cargar pases --</option>';
+            }
+        }
+
+        function mostrarCamposUpdate() {
+            const selectPase = document.getElementById('updatePaseSelect');
+            const camposDiv = document.getElementById('camposUpdateDinamicos');
+            const btn = document.getElementById('btnActualizarPase');
+
+            if (!selectPase.value) {
+                camposDiv.innerHTML = '';
+                btn.disabled = true;
+                return;
+            }
+
+            const option = selectPase.options[selectPase.selectedIndex];
+            paseSeleccionadoParaUpdate = JSON.parse(option.dataset.pase);
+            const tipo = paseSeleccionadoParaUpdate.tipo;
+            const datosActuales = paseSeleccionadoParaUpdate.datos || {};
+
+            camposDiv.innerHTML = generarCamposUpdatePorTipo(tipo, datosActuales);
+            btn.disabled = false;
+        }
+
+        function mostrarCamposUpdateClase() {
+            const select = document.getElementById('updateClaseCompletaSelect');
+            const camposDiv = document.getElementById('camposUpdateClaseDinamicos');
+            const btn = document.getElementById('btnActualizarClase');
+
+            if (!select.value) {
+                camposDiv.innerHTML = '';
+                btn.disabled = true;
+                return;
+            }
+
+            const option = select.options[select.selectedIndex];
+            const tipo = option.dataset.tipo;
+
+            camposDiv.innerHTML = generarCamposUpdatePorTipo(tipo, {}, true);
+            btn.disabled = false;
+        }
+
+        function generarCamposUpdatePorTipo(tipo, datosActuales, esClase = false) {
+            let html = '';
+
+            switch (tipo) {
+                case 'loyalty':
+                    html = `
+                        <div class="form-group">
+                            <label>Puntos ${esClase ? '(incrementar/decrementar)' : ''}</label>
+                            <input type="number" id="update_points" placeholder="${datosActuales.points !== undefined ? 'Actual: ' + datosActuales.points : 'Ej: 100'}">
+                            <small style="color: #666; font-size: 12px;">${esClase ? 'Se sumará o restará este valor a los puntos actuales' : 'Nuevos puntos totales'}</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre del Usuario</label>
+                            <input type="text" id="update_accountName" value="${datosActuales.accountName || ''}" placeholder="Ej: Juan Pérez">
+                        </div>
+                        <div class="form-group">
+                            <label>Mensaje/Estado</label>
+                            <input type="text" id="update_message" value="${datosActuales.message || ''}" placeholder="Ej: Gracias por tu preferencia">
+                        </div>
+                    `;
+                    break;
+
+                case 'offer':
+                    html = `
+                        <div class="form-group">
+                            <label>Título del Cupón</label>
+                            <input type="text" id="update_header" value="${datosActuales.header || ''}" placeholder="Ej: 20% de descuento">
+                        </div>
+                        <div class="form-group">
+                            <label>Usuario</label>
+                            <input type="text" id="update_accountName" value="${datosActuales.accountName || ''}" placeholder="Ej: Juan Pérez">
+                        </div>
+                        <div class="form-group">
+                            <label>Detalles</label>
+                            <textarea id="update_details" placeholder="Ej: Válido en todos los productos">${datosActuales.details || ''}</textarea>
+                        </div>
+                    `;
+                    break;
+
+                case 'giftcard':
+                    html = `
+                        <div class="form-group">
+                            <label>Balance ${esClase ? '(incrementar/decrementar)' : ''}</label>
+                            <input type="number" step="0.01" id="update_balance" placeholder="${datosActuales.balance ? 'Actual: $' + datosActuales.balance : 'Ej: 100.00'}">
+                            <small style="color: #666; font-size: 12px;">${esClase ? 'Se sumará o restará este valor al balance actual' : 'Nuevo balance total'}</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre del Usuario</label>
+                            <input type="text" id="update_cardholderName" value="${datosActuales.cardholderName || ''}" placeholder="Ej: María García">
+                        </div>
+                        <div class="form-group">
+                            <label>Mensaje</label>
+                            <input type="text" id="update_message" value="${datosActuales.message || ''}" placeholder="Ej: Gracias por tu compra">
+                        </div>
+                    `;
+                    break;
+
+                case 'eventticket':
+                    html = `
+                        <div class="form-group">
+                            <label>Nombre del Evento</label>
+                            <input type="text" id="update_eventName" value="${datosActuales.eventName || ''}" placeholder="Ej: Concierto 2024">
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha/Hora</label>
+                            <input type="text" id="update_datetime" value="${datosActuales.datetime || ''}" placeholder="Ej: 15 Dic 2024, 8:00 PM">
+                        </div>
+                        <div class="form-group">
+                            <label>Ubicación</label>
+                            <input type="text" id="update_venue" value="${datosActuales.venue || ''}" placeholder="Ej: Estadio Nacional">
+                        </div>
+                        <div class="form-group">
+                            <label>Asiento/Sección</label>
+                            <input type="text" id="update_seat" value="${datosActuales.seat || ''}" placeholder="Ej: Sección A, Fila 5">
+                        </div>
+                    `;
+                    break;
+
+                case 'generic':
+                default:
+                    html = `
+                        <div class="form-group">
+                            <label>Título</label>
+                            <input type="text" id="update_cardTitle" value="${datosActuales.cardTitle || ''}" placeholder="Título del pase">
+                        </div>
+                        <div class="form-group">
+                            <label>Subtítulo</label>
+                            <input type="text" id="update_subheader" value="${datosActuales.subheader || ''}" placeholder="Subtítulo">
+                        </div>
+                        <div class="form-group">
+                            <label>Texto Principal</label>
+                            <input type="text" id="update_header" value="${datosActuales.header || ''}" placeholder="Texto principal">
+                        </div>
+                    `;
+                    break;
+            }
+
+            return html;
+        }
+
+        async function actualizarPaseIndividual(event) {
+            event.preventDefault();
+
+            const objetoId = document.getElementById('updatePaseSelect').value;
+            const btn = event.target.querySelector('button[type="submit"]');
+            const successMsg = document.getElementById('successMsgUpdate');
+            const errorMsg = document.getElementById('errorMsgUpdate');
+
+            // Recolectar datos actualizados
+            const datosActualizados = {};
+            const inputs = document.querySelectorAll('#camposUpdateDinamicos input, #camposUpdateDinamicos textarea');
+
+            inputs.forEach(input => {
+                const key = input.id.replace('update_', '');
+                if (input.value.trim()) {
+                    if (input.type === 'number') {
+                        datosActualizados[key] = parseFloat(input.value);
+                    } else {
+                        datosActualizados[key] = input.value.trim();
+                    }
+                }
+            });
+
+            if (Object.keys(datosActualizados).length === 0) {
+                errorMsg.textContent = '✗ Debes modificar al menos un campo';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span><span>Actualizando...</span>';
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_URL}/api/actualizar-pase`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${clienteData.api_key}`
+                    },
+                    body: JSON.stringify({
+                        objeto_id: objetoId,
+                        datos_actualizados: datosActualizados
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    successMsg.textContent = `✓ Pase actualizado exitosamente`;
+                    successMsg.style.display = 'block';
+
+                    agregarAlHistorialUpdates('pase', objetoId, datosActualizados, true);
+
+                    // Limpiar formulario
+                    document.getElementById('formActualizarPase').reset();
+                    document.getElementById('camposUpdateDinamicos').innerHTML = '';
+                    document.getElementById('updatePaseSelect').disabled = true;
+                    document.getElementById('btnActualizarPase').disabled = true;
+                } else {
+                    errorMsg.textContent = `✗ Error: ${data.error}`;
+                    errorMsg.style.display = 'block';
+
+                    agregarAlHistorialUpdates('pase', objetoId, datosActualizados, false, data.error);
+                }
+            } catch (error) {
+                errorMsg.textContent = `✗ Error de conexión: ${error.message}`;
+                errorMsg.style.display = 'block';
+
+                agregarAlHistorialUpdates('pase', objetoId, datosActualizados, false, error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>💾</span><span>Actualizar Pase</span>';
+            }
+        }
+
+        async function actualizarClaseCompleta(event) {
+            event.preventDefault();
+
+            const classId = document.getElementById('updateClaseCompletaSelect').value;
+            const btn = event.target.querySelector('button[type="submit"]');
+            const successMsg = document.getElementById('successMsgUpdateClase');
+            const errorMsg = document.getElementById('errorMsgUpdateClase');
+
+            // Recolectar datos actualizados
+            const datosActualizados = {};
+            const inputs = document.querySelectorAll('#camposUpdateClaseDinamicos input, #camposUpdateClaseDinamicos textarea');
+
+            inputs.forEach(input => {
+                const key = input.id.replace('update_', '');
+                if (input.value.trim()) {
+                    if (input.type === 'number') {
+                        datosActualizados[key] = parseFloat(input.value);
+                    } else {
+                        datosActualizados[key] = input.value.trim();
+                    }
+                }
+            });
+
+            if (Object.keys(datosActualizados).length === 0) {
+                errorMsg.textContent = '✗ Debes modificar al menos un campo';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // Confirmar acción
+            if (!confirm(`¿Estás seguro de actualizar TODOS los pases de esta clase?\n\nCampos a actualizar: ${Object.keys(datosActualizados).join(', ')}`)) {
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span><span>Actualizando...</span>';
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+
+            try {
+                // Obtener todos los pases de la clase
+                const sessionId = localStorage.getItem('sessionId');
+                const response = await fetch(`${API_URL}/cliente/pases?class_id=${classId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                const pasesData = await response.json();
+
+                if (!pasesData.success || pasesData.pases.length === 0) {
+                    errorMsg.textContent = '✗ No se encontraron pases para actualizar';
+                    errorMsg.style.display = 'block';
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>🔄</span><span>Actualizar Todos los Pases</span>';
+                    return;
+                }
+
+                // Actualizar cada pase
+                let exitosos = 0;
+                let fallidos = 0;
+
+                for (const pase of pasesData.pases) {
+                    try {
+                        const updateResponse = await fetch(`${API_URL}/api/actualizar-pase`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${clienteData.api_key}`
+                            },
+                            body: JSON.stringify({
+                                objeto_id: pase.objeto_id,
+                                datos_actualizados: datosActualizados
+                            })
+                        });
+
+                        const updateData = await updateResponse.json();
+                        if (updateData.success) {
+                            exitosos++;
+                        } else {
+                            fallidos++;
+                        }
+                    } catch (err) {
+                        fallidos++;
+                    }
+                }
+
+                if (exitosos > 0) {
+                    successMsg.textContent = `✓ Se actualizaron ${exitosos} pase(s) exitosamente${fallidos > 0 ? `. ${fallidos} fallaron.` : ''}`;
+                    successMsg.style.display = 'block';
+
+                    agregarAlHistorialUpdates('clase', classId, datosActualizados, true, null, exitosos);
+
+                    // Limpiar formulario
+                    document.getElementById('formActualizarClase').reset();
+                    document.getElementById('camposUpdateClaseDinamicos').innerHTML = '';
+                    document.getElementById('btnActualizarClase').disabled = true;
+                } else {
+                    errorMsg.textContent = `✗ Error: No se pudo actualizar ningún pase`;
+                    errorMsg.style.display = 'block';
+
+                    agregarAlHistorialUpdates('clase', classId, datosActualizados, false, 'No se pudo actualizar ningún pase');
+                }
+            } catch (error) {
+                errorMsg.textContent = `✗ Error de conexión: ${error.message}`;
+                errorMsg.style.display = 'block';
+
+                agregarAlHistorialUpdates('clase', classId, datosActualizados, false, error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>🔄</span><span>Actualizar Todos los Pases</span>';
+            }
+        }
+
+        function agregarAlHistorialUpdates(tipo, target, datos, exito, error = null, cantidad = 1) {
+            const update = {
+                id: Date.now(),
+                tipo: tipo,
+                target: target,
+                datos: datos,
+                exito: exito,
+                error: error,
+                cantidad: cantidad,
+                timestamp: new Date().toISOString()
+            };
+
+            updatesHistorial.unshift(update);
+
+            // Guardar en localStorage (últimas 50)
+            if (updatesHistorial.length > 50) {
+                updatesHistorial = updatesHistorial.slice(0, 50);
+            }
+
+            localStorage.setItem('updates_historial', JSON.stringify(updatesHistorial));
+
+            renderHistorialUpdates();
+        }
+
+        function renderHistorialUpdates() {
+            const container = document.getElementById('historialUpdates');
+
+            if (updatesHistorial.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <h3>Sin actualizaciones</h3>
+                        <p>Las actualizaciones que realices aparecerán aquí</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = updatesHistorial.map(update => {
+                const fecha = new Date(update.timestamp);
+                const fechaStr = fecha.toLocaleString('es-ES', {
+                    day: '2-digit',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const targetDisplay = update.tipo === 'clase'
+                    ? `Clase: ${clasesData.find(c => c.id === update.target)?.nombre || update.target} (${update.cantidad} pase${update.cantidad > 1 ? 's' : ''})`
+                    : `Pase: ${update.target.substring(0, 40)}...`;
+
+                const camposActualizados = Object.keys(update.datos).map(k =>
+                    `${k}: ${update.datos[k]}`
+                ).join(', ');
+
+                return `
+                    <div class="historial-item ${update.exito ? '' : 'error'}">
+                        <div class="historial-header">
+                            <span class="historial-type ${update.tipo}">${update.tipo}</span>
+                            <span class="historial-time">${fechaStr}</span>
+                        </div>
+                        <div class="historial-content">${camposActualizados}</div>
+                        <div class="historial-target">${targetDisplay}</div>
+                        ${update.error ? `<div style="color: #dc3545; font-size: 12px; margin-top: 8px;">❌ ${update.error}</div>` : ''}
+                        ${update.exito ? '<div style="color: #28a745; font-size: 12px; margin-top: 8px;">✓ Actualizado exitosamente</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==========================================
+        // FUNCIONES PARA TAB "WEBHOOKS"
+        // ==========================================
+
+        let eventosData = [];
+
+        async function loadWebhooks() {
+            const sessionId = localStorage.getItem('sessionId');
+
+            try {
+                const response = await fetch(`${API_URL}/cliente/eventos`, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    eventosData = data.eventos || [];
+                    const estadisticas = data.estadisticas || [];
+
+                    updateWebhooksStats(estadisticas);
+                    renderWebhooks();
+                } else {
+                    console.error('Error al cargar webhooks:', data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function updateWebhooksStats(estadisticas) {
+            const statsDiv = document.getElementById('webhooksStats');
+
+            if (eventosData.length === 0) {
+                statsDiv.style.display = 'none';
+                return;
+            }
+
+            statsDiv.style.display = 'flex';
+
+            const totalEventos = eventosData.length;
+            const saveCount = estadisticas.find(s => s.tipo === 'save')?.count || 0;
+            const deleteCount = estadisticas.find(s => s.tipo === 'del')?.count || 0;
+
+            document.getElementById('totalEventosCount').textContent = totalEventos;
+            document.getElementById('eventosSaveCount').textContent = saveCount;
+            document.getElementById('eventosDeleteCount').textContent = deleteCount;
+        }
+
+        function renderWebhooks() {
+            const container = document.getElementById('eventosContainer');
+
+            if (eventosData.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <h3>Sin eventos</h3>
+                        <p>Los eventos de Google Wallet aparecerán aquí</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = eventosData.map(evento => {
+                const fecha = new Date(evento.timestamp);
+                const fechaStr = fecha.toLocaleString('es-ES', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const tipoDisplay = {
+                    'save': '💾 Guardado',
+                    'del': '🗑️ Eliminado',
+                    'update': '🔄 Actualizado'
+                };
+
+                const tipoClase = evento.tipo === 'save' ? 'clase' : 'pase';
+                const icono = tipoDisplay[evento.tipo] || evento.tipo;
+
+                return `
+                    <div class="historial-item">
+                        <div class="historial-header">
+                            <span class="historial-type ${tipoClase}">${icono}</span>
+                            <span class="historial-time">${fechaStr}</span>
+                        </div>
+                        <div class="historial-content">
+                            <strong>Evento:</strong> ${evento.tipo.toUpperCase()}
+                        </div>
+                        <div class="historial-target">
+                            <strong>Pase:</strong> ${evento.objeto_id ? evento.objeto_id.substring(0, 50) + '...' : 'N/A'}
+                        </div>
+                        ${evento.class_id ? `<div style="font-size: 12px; color: #666; margin-top: 5px;"><strong>Clase:</strong> ${evento.class_id}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function refreshWebhooks() {
+            const btn = event.target;
+            const originalHTML = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Actualizando...';
+
+            await loadWebhooks();
+
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+        }
+
+        function copyWebhookUrl() {
+            const url = document.getElementById('webhookUrlDisplay').textContent;
+            navigator.clipboard.writeText(url);
+
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✓ Copiado';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 2000);
+        }
+
         function openCreateClaseModal() {
             const modal = document.getElementById('createClaseModal');
             const form = document.getElementById('createClaseForm');
@@ -724,14 +2808,6 @@
             const logoUrl = document.getElementById('logoUrl').value;
             const heroUrl = document.getElementById('heroUrl').value;
 
-            // Mostrar/ocultar campos específicos de loyalty
-            const loyaltyFields = document.getElementById('loyaltyFields');
-            if (tipo === 'loyalty') {
-                loyaltyFields.style.display = 'block';
-            } else {
-                loyaltyFields.style.display = 'none';
-            }
-
             // Actualizar color de fondo
             const header = document.getElementById('previewHeader');
             header.style.background = colorFondo || '#4285F4';
@@ -746,12 +2822,7 @@
 
             // Actualizar nombre del emisor
             const issuer = document.getElementById('previewIssuer');
-            const programName = document.getElementById('programName') ? document.getElementById('programName').value : '';
-            if (tipo === 'loyalty' && programName) {
-                issuer.textContent = programName;
-            } else {
-                issuer.textContent = issuerName || 'Mi Negocio';
-            }
+            issuer.textContent = issuerName || 'Mi Negocio';
 
             // Actualizar hero image
             const hero = document.getElementById('previewHero');
@@ -784,10 +2855,6 @@
         document.getElementById('colorFondo').addEventListener('input', updatePreview);
         document.getElementById('logoUrl').addEventListener('input', updatePreview);
         document.getElementById('heroUrl').addEventListener('input', updatePreview);
-        document.getElementById('programName').addEventListener('input', updatePreview);
-        document.getElementById('wideLogoUrl').addEventListener('input', updatePreview);
-        document.getElementById('centralImageUrl').addEventListener('input', updatePreview);
-        document.getElementById('memberFields').addEventListener('input', updatePreview);
 
         // Actualizar preview al abrir modal
         const originalOpenModal = openCreateClaseModal;
@@ -810,7 +2877,6 @@
             successMsg.style.display = 'none';
             errorMsg.style.display = 'none';
 
-            const tipo = document.getElementById('tipoPase').value;
             const config = {
                 issuer_name: document.getElementById('issuerName').value,
                 color_fondo: document.getElementById('colorFondo').value,
@@ -818,27 +2884,6 @@
                 hero_url: document.getElementById('heroUrl').value || null,
                 webhook_url: `${API_URL}/webhook/wallet-events`
             };
-
-            // Agregar campos específicos para LOYALTY
-            if (tipo === 'loyalty') {
-                const wideLogoUrl = document.getElementById('wideLogoUrl').value;
-                const centralImageUrl = document.getElementById('centralImageUrl').value;
-                const programName = document.getElementById('programName').value;
-                const memberFields = document.getElementById('memberFields').value;
-
-                if (wideLogoUrl) {
-                    config.wide_logo_url = wideLogoUrl;
-                }
-                if (centralImageUrl) {
-                    config.central_image_url = centralImageUrl;
-                }
-                if (programName) {
-                    config.program_name = programName;
-                }
-                if (memberFields) {
-                    config.member_fields = memberFields.split(',').map(f => f.trim()).filter(f => f);
-                }
-            }
 
             try {
                 let response;
@@ -916,34 +2961,19 @@
 
                 const config = typeof clase.config === 'string' ? JSON.parse(clase.config) : clase.config;
 
-                // Abrir modal PRIMERO
+                // Llenar formulario con datos existentes
+                document.getElementById('tipoPase').value = clase.tipo;
+                document.getElementById('nombreClase').value = clase.nombre || '';
+                document.getElementById('issuerName').value = config.issuer_name || '';
+                document.getElementById('colorFondo').value = config.color_fondo || '#4285F4';
+                document.getElementById('logoUrl').value = config.logo_url || '';
+                document.getElementById('heroUrl').value = config.hero_url || '';
+
+                // Actualizar preview
+                setTimeout(updatePreview, 50);
+
+                // Abrir modal
                 openCreateClaseModal();
-
-                // Esperar a que el DOM esté listo y luego llenar los campos
-                setTimeout(() => {
-                    // Llenar formulario con datos existentes
-                    document.getElementById('tipoPase').value = clase.tipo;
-                    document.getElementById('nombreClase').value = clase.nombre || '';
-                    document.getElementById('issuerName').value = config.issuer_name || '';
-                    document.getElementById('colorFondo').value = config.color_fondo || '#4285F4';
-                    document.getElementById('logoUrl').value = config.logo_url || '';
-                    document.getElementById('heroUrl').value = config.hero_url || '';
-
-                    // Llenar campos específicos de LOYALTY
-                    if (clase.tipo === 'loyalty') {
-                        document.getElementById('wideLogoUrl').value = config.wide_logo_url || '';
-                        document.getElementById('centralImageUrl').value = config.central_image_url || '';
-                        document.getElementById('programName').value = config.program_name || '';
-                        if (config.member_fields && Array.isArray(config.member_fields)) {
-                            document.getElementById('memberFields').value = config.member_fields.join(',');
-                        } else {
-                            document.getElementById('memberFields').value = '';
-                        }
-                    }
-
-                    // Actualizar preview después de llenar todos los campos
-                    updatePreview();
-                }, 100);
 
                 // Cambiar título del modal
                 document.querySelector('#createClaseModal h2').textContent = 'Editar Clase';
