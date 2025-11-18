@@ -1526,6 +1526,33 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                             <input type="url" id="heroUrl" placeholder="https://example.com/hero.jpg">
                         </div>
 
+                        <!-- Campos específicos para LOYALTY -->
+                        <div id="loyaltyFields" style="display: none;">
+                            <div class="form-group">
+                                <label>Banner Ancho Superior (Wide Logo)</label>
+                                <input type="url" id="wideLogoUrl" placeholder="https://example.com/wide-banner-660x210.jpg">
+                                <small style="color: #999;">660x210px - Aparece en el strip superior</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Imagen Central VIP</label>
+                                <input type="url" id="centralImageUrl" placeholder="https://example.com/central-image-3x1.jpg">
+                                <small style="color: #999;">Ratio 3:1 (1032x336px) - Banner central con texto pre-diseñado</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Nombre del Programa de Lealtad</label>
+                                <input type="text" id="programName" placeholder="Programa VIP">
+                                <small style="color: #999;">Aparece en el strip superior</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Campos del Miembro (opcional)</label>
+                                <input type="text" id="memberFields" placeholder="nombre,nivel,descuento,telefono">
+                                <small style="color: #999;">Separados por comas. Ejemplo: nombre,nivel,descuento</small>
+                            </div>
+                        </div>
+
                         <div class="loading" id="loading">Creando clase en Google Wallet...</div>
 
                         <div class="form-actions">
@@ -2808,6 +2835,14 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
             const logoUrl = document.getElementById('logoUrl').value;
             const heroUrl = document.getElementById('heroUrl').value;
 
+            // Mostrar/Ocultar campos específicos de LOYALTY
+            const loyaltyFields = document.getElementById('loyaltyFields');
+            if (tipo === 'loyalty') {
+                loyaltyFields.style.display = 'block';
+            } else {
+                loyaltyFields.style.display = 'none';
+            }
+
             // Actualizar color de fondo
             const header = document.getElementById('previewHeader');
             header.style.background = colorFondo || '#4285F4';
@@ -2885,6 +2920,28 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                 webhook_url: `${API_URL}/webhook/wallet-events`
             };
 
+            // Agregar campos específicos para LOYALTY
+            const tipo = document.getElementById('tipoPase').value;
+            if (tipo === 'loyalty') {
+                const wideLogoUrl = document.getElementById('wideLogoUrl').value;
+                const centralImageUrl = document.getElementById('centralImageUrl').value;
+                const programName = document.getElementById('programName').value;
+                const memberFields = document.getElementById('memberFields').value;
+
+                if (wideLogoUrl) {
+                    config.wide_logo_url = wideLogoUrl;
+                }
+                if (centralImageUrl) {
+                    config.central_image_url = centralImageUrl;
+                }
+                if (programName) {
+                    config.program_name = programName;
+                }
+                if (memberFields) {
+                    config.member_fields = memberFields.split(',').map(f => f.trim()).filter(f => f);
+                }
+            }
+
             try {
                 let response;
 
@@ -2961,19 +3018,32 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
 
                 const config = typeof clase.config === 'string' ? JSON.parse(clase.config) : clase.config;
 
-                // Llenar formulario con datos existentes
-                document.getElementById('tipoPase').value = clase.tipo;
-                document.getElementById('nombreClase').value = clase.nombre || '';
-                document.getElementById('issuerName').value = config.issuer_name || '';
-                document.getElementById('colorFondo').value = config.color_fondo || '#4285F4';
-                document.getElementById('logoUrl').value = config.logo_url || '';
-                document.getElementById('heroUrl').value = config.hero_url || '';
-
-                // Actualizar preview
-                setTimeout(updatePreview, 50);
-
-                // Abrir modal
+                // Abrir modal PRIMERO
                 openCreateClaseModal();
+
+                // Esperar a que el DOM esté listo y luego llenar los campos
+                setTimeout(() => {
+                    // Llenar formulario con datos existentes
+                    document.getElementById('tipoPase').value = clase.tipo;
+                    document.getElementById('nombreClase').value = clase.nombre || '';
+                    document.getElementById('issuerName').value = config.issuer_name || '';
+                    document.getElementById('colorFondo').value = config.color_fondo || '#4285F4';
+                    document.getElementById('logoUrl').value = config.logo_url || '';
+                    document.getElementById('heroUrl').value = config.hero_url || '';
+
+                    // Llenar campos específicos de LOYALTY
+                    if (clase.tipo === 'loyalty') {
+                        document.getElementById('wideLogoUrl').value = config.wide_logo_url || '';
+                        document.getElementById('centralImageUrl').value = config.central_image_url || '';
+                        document.getElementById('programName').value = config.program_name || '';
+                        if (config.member_fields && Array.isArray(config.member_fields)) {
+                            document.getElementById('memberFields').value = config.member_fields.join(',');
+                        }
+                    }
+
+                    // Actualizar preview
+                    updatePreview();
+                }, 100);
 
                 // Cambiar título del modal
                 document.querySelector('#createClaseModal h2').textContent = 'Editar Clase';
