@@ -1031,7 +1031,7 @@ export default {
         }
 
         const cliente = await env.DB.prepare(
-          'SELECT id, nombre_negocio, email, api_key FROM clientes WHERE id = ?'
+          'SELECT id, nombre_negocio, email, api_key, webhook_url FROM clientes WHERE id = ?'
         ).bind(session.data.clienteId).first();
 
         const { results: clases } = await env.DB.prepare(
@@ -1054,6 +1054,38 @@ export default {
           },
           clases,
           tipos_pases: TIPOS_PASE
+        }, corsHeaders);
+      }
+
+      // CLIENTE - ACTUALIZAR WEBHOOK URL
+      if (url.pathname === '/cliente/actualizar-webhook' && request.method === 'POST') {
+        const session = await validateSession(request, env, 'cliente');
+        if (!session.valid) {
+          return jsonResponse({ error: 'No autorizado' }, corsHeaders, 401);
+        }
+
+        const { webhook_url } = await request.json();
+
+        // Validar URL si se proporciona (puede ser null/vacío para eliminar)
+        if (webhook_url && webhook_url.trim() !== '') {
+          try {
+            new URL(webhook_url);  // Validar que sea una URL válida
+          } catch (error) {
+            return jsonResponse({
+              success: false,
+              error: 'URL de webhook inválida'
+            }, corsHeaders, 400);
+          }
+        }
+
+        await env.DB.prepare(
+          'UPDATE clientes SET webhook_url = ? WHERE id = ?'
+        ).bind(webhook_url || null, session.data.clienteId).run();
+
+        return jsonResponse({
+          success: true,
+          mensaje: 'Webhook URL actualizada correctamente',
+          webhook_url: webhook_url || null
         }, corsHeaders);
       }
 
@@ -1495,12 +1527,13 @@ export default {
         return jsonResponse(resultado, corsHeaders);
       }
 
-      // WEBHOOKS
+      // WEBHOOKS - Recibir eventos de Google Wallet y reenviar al webhook del cliente
       if (url.pathname === '/webhook/wallet-events' && request.method === 'POST') {
         const data = await request.json();
 
         console.log('🔔 Webhook recibido:', data);
 
+        // Guardar evento en BD
         await env.DB.prepare(
           `INSERT INTO eventos (tipo, objeto_id, class_id, datos, timestamp)
            VALUES (?, ?, ?, ?, ?)`
@@ -1512,10 +1545,73 @@ export default {
           Date.now()
         ).run();
 
+        // Actualizar estado si es eliminación
         if (data.eventType === 'delete') {
           await env.DB.prepare(
             'UPDATE pases SET estado = ? WHERE objeto_id = ?'
           ).bind('DELETED', data.objectId).run();
+        }
+
+        // Identificar al cliente desde el class_id o object_id
+        let clienteId = null;
+
+        // Intentar obtener cliente desde la clase
+        if (data.classId) {
+          const clase = await env.DB.prepare(
+            'SELECT cliente_id FROM clases WHERE id = ?'
+          ).bind(data.classId).first();
+
+          if (clase) {
+            clienteId = clase.cliente_id;
+          }
+        }
+
+        // Si no se encontró por clase, intentar por pase
+        if (!clienteId && data.objectId) {
+          const pase = await env.DB.prepare(
+            'SELECT cliente_id FROM pases WHERE objeto_id = ?'
+          ).bind(data.objectId).first();
+
+          if (pase) {
+            clienteId = pase.cliente_id;
+          }
+        }
+
+        // Si se identificó al cliente, reenviar a su webhook configurado
+        if (clienteId) {
+          const cliente = await env.DB.prepare(
+            'SELECT webhook_url FROM clientes WHERE id = ?'
+          ).bind(clienteId).first();
+
+          if (cliente && cliente.webhook_url) {
+            try {
+              // Preparar payload para el webhook del cliente
+              const webhookPayload = {
+                event_type: data.eventType,
+                object_id: data.objectId,
+                class_id: data.classId,
+                timestamp: new Date().toISOString(),
+                raw_data: data
+              };
+
+              console.log(`📤 Reenviando webhook a: ${cliente.webhook_url}`);
+
+              // Reenviar a la URL del cliente (Make.com, Zapier, etc.)
+              const webhookResponse = await fetch(cliente.webhook_url, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'User-Agent': 'SmartPasses-Webhook/1.0'
+                },
+                body: JSON.stringify(webhookPayload)
+              });
+
+              console.log(`✅ Webhook enviado. Status: ${webhookResponse.status}`);
+            } catch (error) {
+              console.error('❌ Error al reenviar webhook:', error);
+              // No fallar el proceso principal si el reenvío falla
+            }
+          }
         }
 
         return jsonResponse({ success: true }, corsHeaders);
