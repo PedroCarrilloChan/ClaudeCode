@@ -1031,8 +1031,19 @@ export default {
         }
 
         const cliente = await env.DB.prepare(
-          'SELECT id, nombre_negocio, email, api_key, webhook_url FROM clientes WHERE id = ?'
+          'SELECT id, nombre_negocio, email, api_key FROM clientes WHERE id = ?'
         ).bind(session.data.clienteId).first();
+
+        // Intentar obtener webhook_url si la columna existe (puede fallar si no se ha migrado)
+        let webhookUrl = null;
+        try {
+          const webhookData = await env.DB.prepare(
+            'SELECT webhook_url FROM clientes WHERE id = ?'
+          ).bind(session.data.clienteId).first();
+          webhookUrl = webhookData?.webhook_url;
+        } catch (error) {
+          // Columna webhook_url no existe aún, ignorar silenciosamente
+        }
 
         const { results: clases } = await env.DB.prepare(
           'SELECT * FROM clases WHERE cliente_id = ? ORDER BY creada_en DESC'
@@ -1046,6 +1057,7 @@ export default {
           success: true,
           cliente: {
             ...cliente,
+            webhook_url: webhookUrl,
             estadisticas: {
               pases_creados: pasesCount?.count || 0,
               clases_creadas: clases.length,
@@ -1078,15 +1090,22 @@ export default {
           }
         }
 
-        await env.DB.prepare(
-          'UPDATE clientes SET webhook_url = ? WHERE id = ?'
-        ).bind(webhook_url || null, session.data.clienteId).run();
+        try {
+          await env.DB.prepare(
+            'UPDATE clientes SET webhook_url = ? WHERE id = ?'
+          ).bind(webhook_url || null, session.data.clienteId).run();
 
-        return jsonResponse({
-          success: true,
-          mensaje: 'Webhook URL actualizada correctamente',
-          webhook_url: webhook_url || null
-        }, corsHeaders);
+          return jsonResponse({
+            success: true,
+            mensaje: 'Webhook URL actualizada correctamente',
+            webhook_url: webhook_url || null
+          }, corsHeaders);
+        } catch (error) {
+          return jsonResponse({
+            success: false,
+            error: 'La columna webhook_url no existe en la base de datos. Por favor ejecuta: ALTER TABLE clientes ADD COLUMN webhook_url TEXT;'
+          }, corsHeaders, 500);
+        }
       }
 
       // CLIENTE - OBTENER PASES
@@ -1579,38 +1598,43 @@ export default {
 
         // Si se identificó al cliente, reenviar a su webhook configurado
         if (clienteId) {
-          const cliente = await env.DB.prepare(
-            'SELECT webhook_url FROM clientes WHERE id = ?'
-          ).bind(clienteId).first();
+          try {
+            const cliente = await env.DB.prepare(
+              'SELECT webhook_url FROM clientes WHERE id = ?'
+            ).bind(clienteId).first();
 
-          if (cliente && cliente.webhook_url) {
-            try {
-              // Preparar payload para el webhook del cliente
-              const webhookPayload = {
-                event_type: data.eventType,
-                object_id: data.objectId,
-                class_id: data.classId,
-                timestamp: new Date().toISOString(),
-                raw_data: data
-              };
+            if (cliente && cliente.webhook_url) {
+              try {
+                // Preparar payload para el webhook del cliente
+                const webhookPayload = {
+                  event_type: data.eventType,
+                  object_id: data.objectId,
+                  class_id: data.classId,
+                  timestamp: new Date().toISOString(),
+                  raw_data: data
+                };
 
-              console.log(`📤 Reenviando webhook a: ${cliente.webhook_url}`);
+                console.log(`📤 Reenviando webhook a: ${cliente.webhook_url}`);
 
-              // Reenviar a la URL del cliente (Make.com, Zapier, etc.)
-              const webhookResponse = await fetch(cliente.webhook_url, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'User-Agent': 'SmartPasses-Webhook/1.0'
-                },
-                body: JSON.stringify(webhookPayload)
-              });
+                // Reenviar a la URL del cliente (Make.com, Zapier, etc.)
+                const webhookResponse = await fetch(cliente.webhook_url, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'SmartPasses-Webhook/1.0'
+                  },
+                  body: JSON.stringify(webhookPayload)
+                });
 
-              console.log(`✅ Webhook enviado. Status: ${webhookResponse.status}`);
-            } catch (error) {
-              console.error('❌ Error al reenviar webhook:', error);
-              // No fallar el proceso principal si el reenvío falla
+                console.log(`✅ Webhook enviado. Status: ${webhookResponse.status}`);
+              } catch (error) {
+                console.error('❌ Error al reenviar webhook:', error);
+                // No fallar el proceso principal si el reenvío falla
+              }
             }
+          } catch (error) {
+            // Columna webhook_url probablemente no existe, ignorar silenciosamente
+            console.log('⚠️ Columna webhook_url no existe, saltando reenvío');
           }
         }
 
