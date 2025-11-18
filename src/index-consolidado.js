@@ -869,6 +869,7 @@ export default {
             cliente_eliminar_clase: '/cliente/eliminar-clase',
             api_crear_pase: '/api/crear-pase',
             api_actualizar_pase: '/api/actualizar-pase',
+            api_obtener_pase: '/api/obtener-pase/{objeto_id}',
             api_notificar_pase: '/api/notificar-pase',
             api_notificar_clase: '/api/notificar-clase',
             webhook_events: '/webhook/wallet-events'
@@ -1462,6 +1463,68 @@ export default {
         ).bind(JSON.stringify(datos_actualizados), Date.now(), objeto_id).run();
 
         return jsonResponse(resultado, corsHeaders);
+      }
+
+      // API - OBTENER DATOS DE UN PASE (Para consultar al escanear QR)
+      if (url.pathname.startsWith('/api/obtener-pase/') && request.method === 'GET') {
+        const apiKey = request.headers.get('Authorization')?.replace('Bearer ', '');
+
+        if (!apiKey) {
+          return jsonResponse({
+            success: false,
+            error: 'API key no proporcionada'
+          }, corsHeaders, 401);
+        }
+
+        const cliente = await env.DB.prepare(
+          'SELECT * FROM clientes WHERE api_key = ? AND activo = 1'
+        ).bind(apiKey).first();
+
+        if (!cliente) {
+          return jsonResponse({
+            success: false,
+            error: 'API key inválida'
+          }, corsHeaders, 401);
+        }
+
+        // Extraer objeto_id de la URL
+        const objeto_id = url.pathname.replace('/api/obtener-pase/', '');
+
+        if (!objeto_id) {
+          return jsonResponse({
+            success: false,
+            error: 'objeto_id no proporcionado'
+          }, corsHeaders, 400);
+        }
+
+        // Obtener pase desde la base de datos
+        const pase = await env.DB.prepare(
+          'SELECT * FROM pases WHERE objeto_id = ? AND cliente_id = ?'
+        ).bind(objeto_id, cliente.id).first();
+
+        if (!pase) {
+          return jsonResponse({
+            success: false,
+            error: 'Pase no encontrado o no pertenece a este cliente'
+          }, corsHeaders, 404);
+        }
+
+        // Parsear datos JSON
+        const datos = typeof pase.datos === 'string' ? JSON.parse(pase.datos) : pase.datos;
+
+        // Devolver información completa del pase
+        return jsonResponse({
+          success: true,
+          pase: {
+            objeto_id: pase.objeto_id,
+            class_id: pase.class_id,
+            tipo: pase.tipo,
+            estado: pase.estado,
+            datos: datos,
+            creado_en: pase.creado_en,
+            actualizado_en: pase.actualizado_en
+          }
+        }, corsHeaders);
       }
 
       // API - NOTIFICAR PASE
