@@ -247,18 +247,36 @@ function crearClaseLealtad(classId, config) {
   // 1. STRIP SUPERIOR - Nombre del programa
   payload.programName = config.program_name || config.issuer_name || 'Programa de Lealtad';
 
-  // 2. STRIP SUPERIOR - Imagen/Logo
-  // wideLogo = Banner ancho superior (660x210px) - estilo PassSlot
-  // programLogo = Logo pequeño cuadrado
-  if (config.wide_logo_url) {
-    // Banner ancho en la parte superior (como PassSlot)
-    payload.wideLogo = {
+  // 2. IMAGEN PROMINENTE AL FRENTE - wideProgramLogo
+  // ESTA es la forma CORRECTA de mostrar imagen al frente en loyalty cards
+  if (config.central_image_url) {
+    // Usar imagen central como wideProgramLogo (aparece prominente al frente)
+    payload.wideProgramLogo = {
+      sourceUri: { uri: config.central_image_url },
+      contentDescription: {
+        defaultValue: {
+          language: 'es-MX',
+          value: config.central_image_description || 'Miembro VIP'
+        }
+      }
+    };
+
+    // Si tenemos wideProgramLogo, usar logo normal como programLogo (pequeño)
+    if (payload.logo) {
+      payload.programLogo = payload.logo;
+      delete payload.logo;
+    }
+  } else if (config.wide_logo_url) {
+    // Si no hay central_image pero hay wide_logo, usarlo como wideProgramLogo
+    payload.wideProgramLogo = {
       sourceUri: { uri: config.wide_logo_url }
     };
-    // Si hay wideLogo, no usar programLogo
-    if (payload.logo) delete payload.logo;
+    if (payload.logo) {
+      payload.programLogo = payload.logo;
+      delete payload.logo;
+    }
   } else if (payload.logo) {
-    // Logo pequeño tradicional
+    // Solo logo pequeño tradicional
     payload.programLogo = payload.logo;
     delete payload.logo;
   } else if (config.strip_logo_url) {
@@ -267,24 +285,7 @@ function crearClaseLealtad(classId, config) {
     };
   }
 
-  // 3. IMAGEN CENTRAL VIP - Banner rectangular (3:1) EN EL FRENTE
-  if (config.central_image_url) {
-    payload.imageModulesData = [{
-      id: 'vip_banner',
-      mainImage: {
-        sourceUri: { uri: config.central_image_url },
-        contentDescription: {
-          defaultValue: {
-            language: 'es-MX',
-            value: config.central_image_description || 'Miembro VIP'
-          }
-        }
-      }
-    }];
-  }
-
-  // IMPORTANTE: Eliminar heroImage porque aparece al FINAL (atrás) de la tarjeta
-  // Para loyalty usamos imageModulesData que aparece en el FRENTE
+  // 3. ELIMINAR heroImage (aparece al final/atrás)
   if (payload.heroImage) {
     delete payload.heroImage;
   }
