@@ -263,7 +263,7 @@ export default {
 
         const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
         const issuerIdMatch = credentials.client_email.match(/(\d+)-/);
-        const issuerId = issuerIdMatch ? issuerIdMatch[1] : '3388000000022737801';
+        const issuerId = issuerIdMatch ? issuerIdMatch[1] : '3388000000023027790';
 
         const classId = `${issuerId}.${session.data.clienteId}-${nombre_clase}`;
 

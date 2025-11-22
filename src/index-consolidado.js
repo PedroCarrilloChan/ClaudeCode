@@ -1218,7 +1218,7 @@ export default {
 
         const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
         const issuerIdMatch = credentials.client_email.match(/(\d+)-/);
-        const issuerId = issuerIdMatch ? issuerIdMatch[1] : '3388000000022737801';
+        const issuerId = issuerIdMatch ? issuerIdMatch[1] : '3388000000023027790';
 
         // Sanitizar nombre_clase: eliminar espacios y caracteres especiales
         const sanitizedName = nombre_clase

@@ -192,7 +192,7 @@ curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/crear-pase \
   -H "Authorization: Bearer TU_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "class_id": "3388000000022737801.cliente-restaurante-vip-2024",
+    "class_id": "3388000000023027790.cliente-restaurante-vip-2024",
     "datos": {
       "nombre": "Mario Canul",
       "titulo": "Miembro VIP Oro",
@@ -226,7 +226,7 @@ curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/actualizar-pas
   -H "Authorization: Bearer TU_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "objeto_id": "3388000000022737801.cliente-clase-abc123...",
+    "objeto_id": "3388000000023027790.cliente-clase-abc123...",
     "datos_actualizados": {
       "puntos": 250,
       "campos_texto": [
@@ -252,7 +252,7 @@ curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/actualizar-pas
   -H "Authorization: Bearer TU_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "objeto_id": "3388000000022737801.cliente-giftcard-xyz789...",
+    "objeto_id": "3388000000023027790.cliente-giftcard-xyz789...",
     "datos_actualizados": {
       "saldo": 500.00,
       "moneda": "MXN"
@@ -275,7 +275,7 @@ curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/notificar-pase
   -H "Authorization: Bearer TU_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "objeto_id": "3388000000022737801.cliente-clase-abc123...",
+    "objeto_id": "3388000000023027790.cliente-clase-abc123...",
     "mensaje": {
       "header": "¡Promoción Especial!",
       "body": "Tienes 20% de descuento extra hoy"
@@ -290,7 +290,7 @@ curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/notificar-pase
   -H "Authorization: Bearer TU_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "objeto_id": "3388000000022737801.cliente-clase-abc123...",
+    "objeto_id": "3388000000023027790.cliente-clase-abc123...",
     "mensaje": "¡Tienes un nuevo descuento disponible!"
   }'
 ```
@@ -306,7 +306,7 @@ curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/notificar-clas
   -H "Authorization: Bearer TU_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "class_id": "3388000000022737801.cliente-restaurante-vip-2024",
+    "class_id": "3388000000023027790.cliente-restaurante-vip-2024",
     "mensaje": {
       "header": "Evento Especial",
       "body": "Te invitamos a nuestro evento VIP el próximo viernes"
@@ -344,7 +344,7 @@ curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/crear-pase \
   -H "Authorization: Bearer API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "class_id": "3388000000022737801.cliente-metro-mensual",
+    "class_id": "3388000000023027790.cliente-metro-mensual",
     "datos": {
       "nombre": "Juan Pérez",
       "titulo": "Pase Mensual",
@@ -392,7 +392,7 @@ curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/crear-pase \
   -H "Authorization: Bearer API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "class_id": "3388000000022737801.cliente-aeromexico-vuelos",
+    "class_id": "3388000000023027790.cliente-aeromexico-vuelos",
     "datos": {
       "nombre": "María García",
       "titulo": "Pase de Abordar",
@@ -418,7 +418,7 @@ curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/actualizar-pas
   -H "Authorization: Bearer API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "objeto_id": "3388000000022737801.cliente-lealtad-abc123",
+    "objeto_id": "3388000000023027790.cliente-lealtad-abc123",
     "datos_actualizados": {
       "puntos": 500
     }
@@ -429,7 +429,7 @@ curl -X POST https://smart-passes-api.smartpasses.workers.dev/api/notificar-pase
   -H "Authorization: Bearer API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "objeto_id": "3388000000022737801.cliente-lealtad-abc123",
+    "objeto_id": "3388000000023027790.cliente-lealtad-abc123",
     "mensaje": {
       "header": "¡Felicidades!",
       "body": "Has alcanzado 500 puntos. ¡Canjea tu recompensa!"

@@ -992,7 +992,7 @@
   -H "Authorization: Bearer TU_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "class_id": "3388000000022737801.smartpasses-123-tarjeta-lealtad",
+    "class_id": "3388000000023027790.smartpasses-123-tarjeta-lealtad",
     "datos": {
       "nombre": "Juan Pérez",
       "puntos": 1500,
@@ -1007,7 +1007,7 @@
                         <h4>📤 Response</h4>
                         <div class="code-block">{
   "success": true,
-  "objeto_id": "3388000000022737801.smartpasses-123-tarjeta-lealtad-a1b2c3d4",
+  "objeto_id": "3388000000023027790.smartpasses-123-tarjeta-lealtad-a1b2c3d4",
   "link": "https://pay.google.com/gp/v/save/eyJh..."
 }</div>
 
@@ -1019,7 +1019,7 @@
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    class_id: '3388000000022737801.smartpasses-123-tarjeta-lealtad',
+    class_id: '3388000000023027790.smartpasses-123-tarjeta-lealtad',
     datos: {
       nombre: 'Juan Pérez',
       puntos: 1500,
@@ -1054,7 +1054,7 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
   -H "Authorization: Bearer TU_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "objeto_id": "3388000000022737801.smartpasses-123-tarjeta-lealtad-a1b2c3d4",
+    "objeto_id": "3388000000023027790.smartpasses-123-tarjeta-lealtad-a1b2c3d4",
     "datos_actualizados": {
       "puntos": 2000
     }
@@ -1085,7 +1085,7 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
   -H "Authorization: Bearer TU_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "objeto_id": "3388000000022737801.smartpasses-123-tarjeta-lealtad-a1b2c3d4",
+    "objeto_id": "3388000000023027790.smartpasses-123-tarjeta-lealtad-a1b2c3d4",
     "mensaje": {
       "header": "¡Promoción Especial!",
       "body": "Doble puntos en todas tus compras este fin de semana"
@@ -1117,7 +1117,7 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
   -H "Authorization: Bearer TU_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "class_id": "3388000000022737801.smartpasses-123-tarjeta-lealtad",
+    "class_id": "3388000000023027790.smartpasses-123-tarjeta-lealtad",
     "mensaje": {
       "header": "Actualización Importante",
       "body": "Nuevos beneficios disponibles para todos los miembros"
@@ -1504,8 +1504,8 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                         <strong>📤 Formato del payload:</strong>
                         <pre style="background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 8px; overflow-x: auto; margin-top: 10px; font-size: 12px;">{
   "event_type": "save",
-  "object_id": "3388000000022737801.123-pase-abc",
-  "class_id": "3388000000022737801.123-loyalty-vip",
+  "object_id": "3388000000023027790.123-pase-abc",
+  "class_id": "3388000000023027790.123-loyalty-vip",
   "timestamp": "2024-01-18T08:00:00.000Z",
   "raw_data": { ... }
 }</pre>
