@@ -12,3 +12,14 @@ database_id = "7217ec92-9a49-44ce-bac3-6d1ae94954d5"
 [[kv_namespaces]]
 binding = "SESSIONS"
 id = "3ae0339f593548fd81941838eb087749"
+
+# Variables de entorno requeridas (configurar como secrets):
+# - GOOGLE_CREDENTIALS: JSON de la cuenta de servicio de Google Wallet
+# - ISSUER_ID: El Issuer ID de 13 dígitos de Google Wallet (ej: 3388000000023027790)
+#
+# Para configurar:
+# wrangler secret put GOOGLE_CREDENTIALS
+# wrangler secret put ISSUER_ID
+#
+# O desde Cloudflare Dashboard:
+# Workers & Pages > smart-passes-api > Settings > Variables

@@ -262,8 +262,11 @@ export default {
         }
 
         const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
-        const issuerIdMatch = credentials.client_email.match(/(\d+)-/);
-        const issuerId = issuerIdMatch ? issuerIdMatch[1] : '3388000000023027790';
+
+        // Usar el Issuer ID de la variable de entorno o el valor por defecto
+        // IMPORTANTE: El Issuer ID NO es el número del proyecto de Google Cloud
+        // El Issuer ID es el identificador de 13 dígitos de Google Wallet
+        const issuerId = env.ISSUER_ID || '3388000000023027790';
 
         const classId = `${issuerId}.${session.data.clienteId}-${nombre_clase}`;
 

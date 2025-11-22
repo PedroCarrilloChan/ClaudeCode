@@ -70,12 +70,18 @@ cuentaserviciogooglewallet@modular-impulse-478415.p9.iam.gserviceaccount.com
 ```bash
 # Desde la terminal (requiere autenticación)
 wrangler secret put GOOGLE_CREDENTIALS
+wrangler secret put ISSUER_ID
 
 # O desde el Dashboard de Cloudflare:
 # 1. Ir a: Workers & Pages > smart-passes-api > Settings > Variables
 # 2. Agregar variable tipo "Secret" llamada: GOOGLE_CREDENTIALS
 # 3. Pegar el contenido del JSON completo
+# 4. Agregar variable tipo "Secret" llamada: ISSUER_ID
+# 5. Pegar el valor: 3388000000023027790
 ```
+
+**⚠️ IMPORTANTE**: El `ISSUER_ID` (3388000000023027790) es DIFERENTE del número de proyecto (478415).
+El Issuer ID es el identificador de 13 dígitos de Google Wallet que aparece en la consola de Google Wallet.
 
 ---
 
