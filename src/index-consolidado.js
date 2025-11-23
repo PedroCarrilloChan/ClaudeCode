@@ -1463,9 +1463,9 @@ export default {
           }, corsHeaders, 404);
         }
 
-        // Verificar si hay pases asociados a esta clase
+        // Verificar si hay pases ACTIVOS asociados a esta clase
         const pasesCount = await env.DB.prepare(
-          'SELECT COUNT(*) as count FROM pases WHERE class_id = ?'
+          'SELECT COUNT(*) as count FROM pases WHERE class_id = ? AND (estado IS NULL OR estado = \'ACTIVE\')'
         ).bind(class_id).first();
 
         if (pasesCount.count > 0) {
