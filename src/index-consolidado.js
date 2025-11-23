@@ -707,6 +707,54 @@ async function actualizarPase(credentials, tipo, objetoId, datosActualizados) {
 }
 
 // ==========================================
+// ELIMINAR PASE
+// ==========================================
+
+async function eliminarPase(credentials, tipo, objetoId) {
+  /**
+   * Marca un pase como EXPIRED en Google Wallet
+   * Esto hace que el pase desaparezca de la wallet del usuario
+   */
+  try {
+    if (!TIPOS_PASE[tipo]) {
+      return { success: false, error: `Tipo de pase no válido: ${tipo}` };
+    }
+
+    const endpoint = TIPOS_PASE[tipo].endpoint_objeto;
+    const token = await obtenerTokenGoogle(credentials);
+
+    // Cambiar el estado del objeto a EXPIRED
+    const payload = {
+      state: 'EXPIRED'
+    };
+
+    const response = await fetch(
+      `https://walletobjects.googleapis.com/walletobjects/v1/${endpoint}/${objetoId}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    if (response.ok) {
+      return {
+        success: true,
+        mensaje: 'Pase eliminado exitosamente. El pase desaparecerá de Google Wallet del usuario.'
+      };
+    } else {
+      const error = await response.text();
+      return { success: false, error };
+    }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// ==========================================
 // NOTIFICACIONES PUSH
 // ==========================================
 
@@ -1152,6 +1200,57 @@ export default {
           success: true,
           pases: pasesFormateados,
           total: pases.length
+        }, corsHeaders);
+      }
+
+      // CLIENTE - ELIMINAR PASE
+      if (url.pathname.startsWith('/cliente/pases/') && request.method === 'DELETE') {
+        const session = await validateSession(request, env, 'cliente');
+        if (!session.valid) {
+          return jsonResponse({ error: 'No autorizado' }, corsHeaders, 401);
+        }
+
+        // Extraer objeto_id de la URL: /cliente/pases/{objeto_id}
+        const objetoId = url.pathname.replace('/cliente/pases/', '');
+
+        if (!objetoId) {
+          return jsonResponse({
+            success: false,
+            error: 'ID de objeto requerido'
+          }, corsHeaders, 400);
+        }
+
+        // Verificar que el pase pertenece al cliente
+        const pase = await env.DB.prepare(
+          'SELECT * FROM pases WHERE objeto_id = ? AND cliente_id = ?'
+        ).bind(objetoId, session.data.clienteId).first();
+
+        if (!pase) {
+          return jsonResponse({
+            success: false,
+            error: 'Pase no encontrado o no tienes permisos para eliminarlo'
+          }, corsHeaders, 404);
+        }
+
+        // Eliminar el pase en Google Wallet (marcarlo como EXPIRED)
+        const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
+        const resultado = await eliminarPase(credentials, pase.tipo, objetoId);
+
+        if (!resultado.success) {
+          return jsonResponse({
+            success: false,
+            error: `Error al eliminar en Google Wallet: ${resultado.error}`
+          }, corsHeaders, 500);
+        }
+
+        // Actualizar estado en la base de datos
+        await env.DB.prepare(
+          'UPDATE pases SET estado = ?, actualizado_en = ? WHERE objeto_id = ?'
+        ).bind('DELETED', Date.now(), objetoId).run();
+
+        return jsonResponse({
+          success: true,
+          mensaje: 'Pase eliminado exitosamente'
         }, corsHeaders);
       }
 

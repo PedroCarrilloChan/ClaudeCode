@@ -1961,10 +1961,45 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                                 <span>📲</span>
                                 <span>Agregar a Wallet</span>
                             </a>
+                            <button onclick="eliminarPaseIndividual('${pase.objeto_id}')" class="btn-danger" style="margin-top: 10px; padding: 10px 20px; border: none; border-radius: 8px; background: #dc3545; color: white; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; justify-content: center;">
+                                <span>🗑️</span>
+                                <span>Eliminar Pase</span>
+                            </button>
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        // Función para eliminar pase individual
+        async function eliminarPaseIndividual(objetoId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este pase? Esta acción no se puede deshacer y el pase desaparecerá de Google Wallet del usuario.')) {
+                return;
+            }
+
+            try {
+                const sessionId = localStorage.getItem('sessionId');
+
+                const response = await fetch(`${API_URL}/cliente/pases/${objetoId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Pase eliminado exitosamente');
+                    // Recargar la lista de pases
+                    await loadPases();
+                } else {
+                    alert('❌ Error al eliminar pase: ' + (data.error || 'Error desconocido'));
+                }
+            } catch (error) {
+                console.error('Error al eliminar pase:', error);
+                alert('❌ Error al eliminar pase: ' + error.message);
+            }
         }
 
         // ==========================================
