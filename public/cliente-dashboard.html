@@ -1919,6 +1919,24 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
             }, duracion);
         }
 
+        // Función para mostrar mensajes de éxito
+        function showSuccess(mensaje, duracion = 3000) {
+            const successDiv = document.getElementById('globalSuccess') || createSuccessDiv();
+            successDiv.textContent = mensaje;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, duracion);
+        }
+
+        function createSuccessDiv() {
+            const div = document.createElement('div');
+            div.id = 'globalSuccess';
+            div.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 15px 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; display: none; font-weight: 500;';
+            document.body.appendChild(div);
+            return div;
+        }
+
         // Verificar sesión al cargar
         window.addEventListener('DOMContentLoaded', async () => {
             const sessionId = localStorage.getItem('sessionId');
@@ -2004,6 +2022,9 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                     <div class="class-id">${clase.id}</div>
                     <button class="btn-edit-clase" onclick="editarClasePorIndice(${index})">
                         ✏️ Editar
+                    </button>
+                    <button class="btn-delete-clase" onclick="eliminarClasePorIndice(${index})" style="background: #ef4444; margin-top: 10px;">
+                        🗑️ Eliminar
                     </button>
                 </div>
             `).join('');
@@ -3646,6 +3667,50 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
             } catch (error) {
                 console.error('Error al editar clase:', error);
                 showError('Error al cargar datos de la clase');
+            }
+        }
+
+        // ==========================================
+        // ELIMINAR CLASE
+        // ==========================================
+
+        async function eliminarClasePorIndice(index) {
+            try {
+                const clase = clasesData[index];
+                if (!clase) {
+                    showError('Clase no encontrada');
+                    return;
+                }
+
+                if (!confirm(`¿Estás seguro de que deseas eliminar la clase "${clase.nombre}"?\n\nSi tiene pases asociados, no podrá eliminarse.`)) {
+                    return;
+                }
+
+                const sessionId = localStorage.getItem('sessionId');
+
+                const response = await fetch(`${API_URL}/cliente/eliminar-clase`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionId}`
+                    },
+                    body: JSON.stringify({
+                        class_id: clase.id
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showSuccess('✅ Clase eliminada exitosamente');
+                    // Recargar clases
+                    await loadClases();
+                } else {
+                    showError('❌ Error: ' + (data.error || 'Error desconocido'));
+                }
+            } catch (error) {
+                console.error('Error al eliminar clase:', error);
+                showError('❌ Error al eliminar clase');
             }
         }
     </script>
