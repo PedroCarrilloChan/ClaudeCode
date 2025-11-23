@@ -1269,26 +1269,30 @@ export default {
           }, corsHeaders, 404);
         }
 
-        // Eliminar el pase en Google Wallet (marcarlo como EXPIRED)
+        // Intentar eliminar el pase en Google Wallet (marcarlo como EXPIRED)
+        // Si falla, continuamos de todas formas y lo marcamos como eliminado en BD
         const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
         const resultado = await eliminarPase(credentials, pase.tipo, objetoId);
 
-        if (!resultado.success) {
-          return jsonResponse({
-            success: false,
-            error: `Error al eliminar en Google Wallet: ${resultado.error}`
-          }, corsHeaders, 500);
-        }
-
-        // Actualizar estado en la base de datos
+        // Actualizar estado en la base de datos (siempre, aunque falle en Google Wallet)
         await env.DB.prepare(
           'UPDATE pases SET estado = ?, actualizado_en = ? WHERE objeto_id = ?'
         ).bind('DELETED', Date.now(), objetoId).run();
 
-        return jsonResponse({
-          success: true,
-          mensaje: 'Pase eliminado exitosamente'
-        }, corsHeaders);
+        // Retornar éxito con mensaje apropiado
+        if (resultado.success) {
+          return jsonResponse({
+            success: true,
+            mensaje: 'Pase eliminado exitosamente de Google Wallet y de la base de datos'
+          }, corsHeaders);
+        } else {
+          // Falló en Google Wallet pero se eliminó de nuestra BD
+          return jsonResponse({
+            success: true,
+            mensaje: 'Pase eliminado de la base de datos. Nota: No se pudo eliminar de Google Wallet (posiblemente ya no existe)',
+            warning: resultado.error
+          }, corsHeaders);
+        }
       }
 
       // CLIENTE - OBTENER EVENTOS/WEBHOOKS
