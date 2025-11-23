@@ -546,22 +546,23 @@ async function crearObjeto(credentials, tipo, classId, datos) {
       state: 'ACTIVE'
     };
 
-    // Título de la tarjeta
-    if (datos.nombre) {
+    // Título de la tarjeta (soporta nombre y accountName)
+    const nombreUsuario = datos.nombre || datos.accountName || datos.cardTitle;
+    if (nombreUsuario) {
       payload.cardTitle = {
         defaultValue: {
           language: 'es-MX',
-          value: datos.nombre
+          value: nombreUsuario
         }
       };
     }
 
     // Encabezado
-    if (datos.titulo) {
+    if (datos.titulo || datos.header) {
       payload.header = {
         defaultValue: {
           language: 'es-MX',
-          value: datos.titulo
+          value: datos.titulo || datos.header
         }
       };
     }
@@ -591,10 +592,46 @@ async function crearObjeto(credentials, tipo, classId, datos) {
         }
       }
 
-      // Número de cuenta/membresía
-      const accountId = datos.account_id || datos.numero_membresia;
+      // Número de cuenta/membresía (soporta múltiples formatos)
+      const accountId = datos.accountId || datos.account_id || datos.numero_membresia;
       if (accountId && String(accountId).trim()) {
         payload.accountId = String(accountId).trim();
+      }
+
+      // Nombre del titular (accountName)
+      const accountName = datos.accountName || datos.nombre;
+      if (accountName && String(accountName).trim()) {
+        payload.accountName = String(accountName).trim();
+      }
+
+      // Email (opcional pero recomendado)
+      if (datos.email && String(datos.email).trim()) {
+        // Google Wallet no tiene campo directo de email en el objeto,
+        // pero podemos agregarlo en textModulesData si no existe
+        if (!datos.campos_texto || !datos.campos_texto.find(c => c.id === 'email')) {
+          if (!payload.textModulesData) {
+            payload.textModulesData = [];
+          }
+          payload.textModulesData.push({
+            header: 'Email',
+            body: String(datos.email).trim(),
+            id: 'email'
+          });
+        }
+      }
+
+      // Teléfono (opcional)
+      if (datos.telefono && String(datos.telefono).trim()) {
+        if (!datos.campos_texto || !datos.campos_texto.find(c => c.id === 'telefono')) {
+          if (!payload.textModulesData) {
+            payload.textModulesData = [];
+          }
+          payload.textModulesData.push({
+            header: 'Teléfono',
+            body: String(datos.telefono).trim(),
+            id: 'telefono'
+          });
+        }
       }
     }
 
@@ -1174,7 +1211,7 @@ export default {
             c.tipo as tipo_clase
           FROM pases p
           LEFT JOIN clases c ON p.class_id = c.id
-          WHERE p.cliente_id = ?
+          WHERE p.cliente_id = ? AND (p.estado IS NULL OR p.estado = 'ACTIVE')
         `;
 
         const params = [session.data.clienteId];
@@ -1232,26 +1269,30 @@ export default {
           }, corsHeaders, 404);
         }
 
-        // Eliminar el pase en Google Wallet (marcarlo como EXPIRED)
+        // Intentar eliminar el pase en Google Wallet (marcarlo como EXPIRED)
+        // Si falla, continuamos de todas formas y lo marcamos como eliminado en BD
         const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
         const resultado = await eliminarPase(credentials, pase.tipo, objetoId);
 
-        if (!resultado.success) {
-          return jsonResponse({
-            success: false,
-            error: `Error al eliminar en Google Wallet: ${resultado.error}`
-          }, corsHeaders, 500);
-        }
-
-        // Actualizar estado en la base de datos
+        // Actualizar estado en la base de datos (siempre, aunque falle en Google Wallet)
         await env.DB.prepare(
           'UPDATE pases SET estado = ?, actualizado_en = ? WHERE objeto_id = ?'
         ).bind('DELETED', Date.now(), objetoId).run();
 
-        return jsonResponse({
-          success: true,
-          mensaje: 'Pase eliminado exitosamente'
-        }, corsHeaders);
+        // Retornar éxito con mensaje apropiado
+        if (resultado.success) {
+          return jsonResponse({
+            success: true,
+            mensaje: 'Pase eliminado exitosamente de Google Wallet y de la base de datos'
+          }, corsHeaders);
+        } else {
+          // Falló en Google Wallet pero se eliminó de nuestra BD
+          return jsonResponse({
+            success: true,
+            mensaje: 'Pase eliminado de la base de datos. Nota: No se pudo eliminar de Google Wallet (posiblemente ya no existe)',
+            warning: resultado.error
+          }, corsHeaders);
+        }
       }
 
       // CLIENTE - OBTENER EVENTOS/WEBHOOKS
@@ -1422,9 +1463,9 @@ export default {
           }, corsHeaders, 404);
         }
 
-        // Verificar si hay pases asociados a esta clase
+        // Verificar si hay pases ACTIVOS asociados a esta clase
         const pasesCount = await env.DB.prepare(
-          'SELECT COUNT(*) as count FROM pases WHERE class_id = ?'
+          'SELECT COUNT(*) as count FROM pases WHERE class_id = ? AND (estado IS NULL OR estado = \'ACTIVE\')'
         ).bind(class_id).first();
 
         if (pasesCount.count > 0) {
