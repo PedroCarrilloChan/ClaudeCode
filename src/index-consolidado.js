@@ -1162,8 +1162,11 @@ export default {
           return jsonResponse({ error: 'No autorizado' }, corsHeaders, 401);
         }
 
-        // Extraer objeto_id de la URL
-        const objetoId = url.pathname.replace('/cliente/pases/', '');
+        // Extraer objeto_id de la URL y decodificarlo
+        const objetoIdEncoded = url.pathname.replace('/cliente/pases/', '');
+        const objetoId = decodeURIComponent(objetoIdEncoded);
+
+        console.log('DELETE Pase - objeto_id recibido:', objetoId);
 
         if (!objetoId) {
           return jsonResponse({
@@ -1177,6 +1180,8 @@ export default {
           'SELECT * FROM pases WHERE objeto_id = ? AND cliente_id = ?'
         ).bind(objetoId, session.data.clienteId).first();
 
+        console.log('DELETE Pase - pase encontrado:', pase ? 'Sí' : 'No');
+
         if (!pase) {
           return jsonResponse({
             success: false,
@@ -1188,6 +1193,8 @@ export default {
         await env.DB.prepare(
           'DELETE FROM pases WHERE objeto_id = ?'
         ).bind(objetoId).run();
+
+        console.log('DELETE Pase - eliminado exitosamente');
 
         return jsonResponse({
           success: true,
