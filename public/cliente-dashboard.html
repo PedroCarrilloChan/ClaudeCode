@@ -210,6 +210,12 @@
             margin-top: 10px;
             word-break: break-all;
         }
+        .clase-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            width: 100%;
+        }
         .btn-edit-clase {
             background: rgba(255,255,255,0.3);
             border: 1px solid rgba(255,255,255,0.5);
@@ -219,13 +225,28 @@
             cursor: pointer;
             font-size: 13px;
             font-weight: 600;
-            margin-top: 12px;
-            width: 100%;
+            flex: 1;
             transition: all 0.2s;
         }
         .btn-edit-clase:hover {
             background: rgba(255,255,255,0.4);
             border-color: white;
+        }
+        .btn-delete-clase {
+            background: rgba(220, 53, 69, 0.3);
+            border: 1px solid rgba(220, 53, 69, 0.5);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            flex: 1;
+            transition: all 0.2s;
+        }
+        .btn-delete-clase:hover {
+            background: rgba(220, 53, 69, 0.5);
+            border-color: rgb(220, 53, 69);
         }
         .empty-state {
             text-align: center;
@@ -1776,9 +1797,14 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                     </h3>
                     <div class="tipo">${clase.tipo.toUpperCase()}</div>
                     <div class="class-id">${clase.id}</div>
-                    <button class="btn-edit-clase" onclick="editarClasePorIndice(${index})">
-                        ✏️ Editar
-                    </button>
+                    <div class="clase-actions">
+                        <button class="btn-edit-clase" onclick="editarClasePorIndice(${index})">
+                            ✏️ Editar
+                        </button>
+                        <button class="btn-delete-clase" onclick="eliminarClasePorIndice(${index})">
+                            🗑️ Eliminar
+                        </button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -3204,6 +3230,62 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
             } catch (error) {
                 console.error('Error al editar clase:', error);
                 showError('Error al cargar datos de la clase');
+            }
+        }
+
+        // ==========================================
+        // ELIMINAR CLASE
+        // ==========================================
+
+        async function eliminarClasePorIndice(index) {
+            try {
+                const clase = clasesData[index];
+                if (!clase) {
+                    showError('Clase no encontrada');
+                    return;
+                }
+
+                // Pedir confirmación al usuario
+                const confirmacion = confirm(
+                    `¿Estás seguro de que deseas eliminar la clase "${clase.nombre}"?\n\n` +
+                    `Tipo: ${clase.tipo.toUpperCase()}\n` +
+                    `ID: ${clase.id}\n\n` +
+                    `Esta acción no se puede deshacer.`
+                );
+
+                if (!confirmacion) {
+                    return;
+                }
+
+                const sessionId = localStorage.getItem('sessionId');
+
+                // Mostrar loading (podemos usar el mismo sistema de notificaciones)
+                const response = await fetch(`${API_URL}/cliente/eliminar-clase`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        class_id: clase.id
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showSuccess('✅ Clase eliminada exitosamente');
+
+                    // Recargar el dashboard después de un breve delay
+                    setTimeout(async () => {
+                        await loadDashboard();
+                    }, 1000);
+                } else {
+                    showError(data.error || 'Error al eliminar clase');
+                }
+            } catch (error) {
+                console.error('Error al eliminar clase:', error);
+                showError('Error de conexión al eliminar clase');
             }
         }
     </script>
