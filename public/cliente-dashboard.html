@@ -880,6 +880,232 @@
             color: #999;
             margin-top: 5px;
         }
+
+        /* MODAL VISTA DETALLADA DE PASE */
+        .pase-detail-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .pase-detail-container {
+            max-width: 1400px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .pase-detail-header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .pase-detail-header h2 {
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .pase-detail-close {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .pase-detail-close:hover {
+            background: white;
+            color: #11998e;
+        }
+        .pase-detail-content {
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            gap: 30px;
+            padding: 30px;
+        }
+        .pase-detail-left {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .pase-detail-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .pase-detail-section h3 {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pase-detail-table {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 12px;
+            align-items: start;
+        }
+        .pase-detail-table strong {
+            color: #333;
+            font-size: 14px;
+        }
+        .pase-detail-table span {
+            color: #666;
+            font-size: 14px;
+        }
+        .pase-detail-right {
+            position: sticky;
+            top: 20px;
+        }
+        .pase-preview-card {
+            background: #2c3e50;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .pase-preview-header {
+            text-align: center;
+            color: #ecf0f1;
+            margin-bottom: 20px;
+        }
+        .pase-preview-header h4 {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        .pase-preview-header .puntos {
+            font-size: 36px;
+            font-weight: 700;
+            color: #f39c12;
+        }
+        .pase-preview-body {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .pase-preview-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .pase-preview-qr {
+            width: 100%;
+            height: 200px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        .pase-preview-qr img {
+            max-width: 180px;
+            max-height: 180px;
+        }
+        .pase-preview-id {
+            text-align: center;
+            font-size: 12px;
+            color: #7f8c8d;
+            font-family: monospace;
+        }
+        .pase-actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .pase-action-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .pase-action-btn.primary {
+            background: #3498db;
+            color: white;
+        }
+        .pase-action-btn.primary:hover {
+            background: #2980b9;
+        }
+        .pase-action-btn.success {
+            background: #2ecc71;
+            color: white;
+        }
+        .pase-action-btn.success:hover {
+            background: #27ae60;
+        }
+        .pase-action-btn.warning {
+            background: #f39c12;
+            color: white;
+        }
+        .pase-action-btn.warning:hover {
+            background: #e67e22;
+        }
+        .pase-action-btn.danger {
+            background: #e74c3c;
+            color: white;
+        }
+        .pase-action-btn.danger:hover {
+            background: #c0392b;
+        }
+        .pase-history-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 3px solid #11998e;
+        }
+        .pase-history-item .time {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+        .pase-history-item .action {
+            font-size: 13px;
+            color: #333;
+        }
+        @media (max-width: 1024px) {
+            .pase-detail-content {
+                grid-template-columns: 1fr;
+            }
+            .pase-detail-right {
+                position: relative;
+                top: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1454,6 +1680,64 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                     </div>
                 </div>
 
+                <!-- Configuración de Webhook Personalizado -->
+                <div class="notification-card" style="margin-bottom: 30px;">
+                    <h3>
+                        <span>🎯</span>
+                        <span>Reenvío de Webhooks (Make.com, Zapier, etc.)</span>
+                    </h3>
+                    <p style="color: #666; margin-bottom: 20px;">
+                        Configura una URL para recibir automáticamente todos los eventos de Google Wallet.
+                        Los eventos se guardarán en nuestra base de datos y se reenviarán a tu sistema en tiempo real.
+                    </p>
+
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">
+                                URL de tu Webhook
+                            </label>
+                            <input
+                                type="url"
+                                id="customWebhookUrl"
+                                placeholder="https://hook.us1.make.com/tu-webhook-id"
+                                style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; font-family: 'Courier New', monospace;"
+                            >
+                            <small style="color: #666; display: block; margin-top: 8px;">
+                                Compatible con: Make.com, Zapier, n8n, tu propio servidor, etc.
+                            </small>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button
+                                onclick="guardarWebhookUrl()"
+                                class="btn-primary"
+                                style="margin: 0; padding: 12px 24px;"
+                            >
+                                💾 Guardar URL
+                            </button>
+                            <button
+                                onclick="eliminarWebhookUrl()"
+                                class="btn-secondary"
+                                style="margin: 0; padding: 12px 24px;"
+                            >
+                                🗑️ Eliminar
+                            </button>
+                            <span id="webhookStatusMsg" style="margin-left: 10px; color: #11998e; font-weight: 600;"></span>
+                        </div>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 20px;">
+                        <strong>📤 Formato del payload:</strong>
+                        <pre style="background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 8px; overflow-x: auto; margin-top: 10px; font-size: 12px;">{
+  "event_type": "save",
+  "object_id": "3388000000022737801.123-pase-abc",
+  "class_id": "3388000000022737801.123-loyalty-vip",
+  "timestamp": "2024-01-18T08:00:00.000Z",
+  "raw_data": { ... }
+}</pre>
+                    </div>
+                </div>
+
                 <!-- Lista de Eventos -->
                 <div class="historial-section">
                     <h3>
@@ -1666,11 +1950,15 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
 
                     // Actualizar UI
                     document.getElementById('nombreNegocio').textContent = clienteData.nombre_negocio;
-                    document.getElementById('apiKeyDisplay').textContent = clienteData.api_key;
                     document.getElementById('apiKeyDisplay2').textContent = clienteData.api_key;
                     document.getElementById('totalPases').textContent = clienteData.estadisticas.pases_creados;
                     document.getElementById('totalClases').textContent = clienteData.estadisticas.clases_creadas;
                     document.getElementById('pasesActivos').textContent = clienteData.estadisticas.pases_activos;
+
+                    // Cargar URL de webhook personalizado si existe
+                    if (clienteData.webhook_url) {
+                        document.getElementById('customWebhookUrl').value = clienteData.webhook_url;
+                    }
 
                     renderClases();
                 } else {
@@ -1845,7 +2133,7 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                 const walletUrl = `https://pay.google.com/gp/v/save/${pase.objeto_id}`;
 
                 return `
-                    <div class="pase-card">
+                    <div class="pase-card" onclick="mostrarDetallePase('${pase.objeto_id}')" style="cursor: pointer;">
                         <div class="pase-header">
                             <span class="pase-tipo ${tipo}">${tipoDisplay[tipo] || 'Genérico'}</span>
                             <span style="font-size: 12px; color: #999;">
@@ -1894,16 +2182,232 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                             📁 ${pase.nombre_clase || pase.class_id}
                         </div>
 
-                        <div class="pase-actions">
+                        <div class="pase-actions" onclick="event.stopPropagation();">
                             <a href="${walletUrl}" target="_blank" class="btn-wallet" style="text-decoration: none;">
                                 <span>📲</span>
                                 <span>Agregar a Wallet</span>
                             </a>
+                            <button onclick="event.stopPropagation(); eliminarPaseIndividual('${pase.objeto_id}');" class="btn-danger" style="margin-top: 10px; padding: 10px 20px; border: none; border-radius: 8px; background: #dc3545; color: white; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; justify-content: center;">
+                                <span>🗑️</span>
+                                <span>Eliminar Pase</span>
+                            </button>
                         </div>
                     </div>
                 `;
             }).join('');
         }
+
+        // Función para eliminar pase individual
+        async function eliminarPaseIndividual(objetoId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este pase? Esta acción no se puede deshacer y el pase desaparecerá de Google Wallet del usuario.')) {
+                return;
+            }
+
+            try {
+                const sessionId = localStorage.getItem('sessionId');
+
+                const response = await fetch(`${API_URL}/cliente/pases/${objetoId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Pase eliminado exitosamente');
+                    // Recargar la lista de pases
+                    await loadPases();
+                } else {
+                    alert('❌ Error al eliminar pase: ' + (data.error || 'Error desconocido'));
+                }
+            } catch (error) {
+                console.error('Error al eliminar pase:', error);
+                alert('❌ Error al eliminar pase: ' + error.message);
+            }
+        }
+
+        // ==========================================
+        // FUNCIONES PARA VISTA DETALLADA DE PASE
+        // ==========================================
+
+        let paseActualDetalle = null;
+
+        function mostrarDetallePase(objetoId) {
+            // Buscar el pase en pasesData
+            const pase = pasesData.find(p => p.objeto_id === objetoId);
+            if (!pase) {
+                alert('Pase no encontrado');
+                return;
+            }
+
+            paseActualDetalle = pase;
+            const datos = pase.datos || {};
+
+            // Llenar información del usuario
+            const userInfoHtml = `
+                <strong>Nombre:</strong>
+                <span>${datos.accountName || datos.cardTitle || 'N/A'}</span>
+
+                <strong>Email:</strong>
+                <span>${datos.email || 'N/A'}</span>
+
+                <strong>Card ID:</strong>
+                <span style="font-family: monospace; font-size: 12px;">${pase.objeto_id}</span>
+
+                <strong>Unido el:</strong>
+                <span>${new Date(pase.creado_en).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+
+                <strong>Puntos:</strong>
+                <span>${datos.points !== undefined ? datos.points : '0'}</span>
+
+                <strong>Estado:</strong>
+                <span style="color: ${pase.estado === 'ACTIVE' ? '#2ecc71' : '#e74c3c'}; font-weight: 600;">${pase.estado || 'ACTIVE'}</span>
+
+                ${datos.balance ? `
+                <strong>Balance:</strong>
+                <span>$${datos.balance}</span>
+                ` : ''}
+
+                ${pase.actualizado_en ? `
+                <strong>Última actualización:</strong>
+                <span>${new Date(pase.actualizado_en).toLocaleDateString('es-ES')}</span>
+                ` : ''}
+            `;
+
+            document.getElementById('paseDetailUser').innerHTML = userInfoHtml;
+
+            // Generar preview del pase
+            const tipoDisplay = {
+                'loyalty': 'PROGRAMA DE LEALTAD',
+                'offer': 'CUPÓN',
+                'eventticket': 'EVENTO',
+                'giftcard': 'TARJETA REGALO',
+                'transit': 'TRANSPORTE',
+                'generic': 'GENÉRICO'
+            };
+
+            const previewHtml = `
+                <div class="pase-preview-header">
+                    <h4>${tipoDisplay[pase.tipo] || 'PASE'}</h4>
+                    ${datos.points !== undefined ? `<div class="puntos">${datos.points}</div>` : ''}
+                </div>
+                <div class="pase-preview-body">
+                    <div class="pase-preview-name">${datos.accountName || datos.cardTitle || 'Usuario'}</div>
+                    <div class="pase-preview-qr">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(pase.objeto_id)}" alt="QR Code">
+                    </div>
+                    <div class="pase-preview-id">${pase.objeto_id}</div>
+                </div>
+            `;
+
+            document.getElementById('pasePreviewCard').innerHTML = previewHtml;
+
+            // Llenar historial
+            const historialHtml = `
+                <div class="pase-history-item">
+                    <div class="time">${new Date(pase.creado_en).toLocaleString('es-ES')}</div>
+                    <div class="action">Pase creado</div>
+                </div>
+                ${pase.actualizado_en ? `
+                <div class="pase-history-item">
+                    <div class="time">${new Date(pase.actualizado_en).toLocaleString('es-ES')}</div>
+                    <div class="action">Pase actualizado</div>
+                </div>
+                ` : ''}
+            `;
+
+            document.getElementById('paseDetailHistory').innerHTML = historialHtml || '<p style="color: #999; font-size: 14px;">No hay historial disponible</p>';
+
+            // Actualizar título
+            document.getElementById('paseDetailTitle').textContent = `👤 ${datos.accountName || datos.cardTitle || 'Detalle del Pase'}`;
+
+            // Mostrar modal
+            document.getElementById('paseDetailOverlay').style.display = 'block';
+        }
+
+        function cerrarDetallePase() {
+            document.getElementById('paseDetailOverlay').style.display = 'none';
+            paseActualDetalle = null;
+        }
+
+        function editarPaseDesdeDetalle() {
+            if (!paseActualDetalle) return;
+
+            cerrarDetallePase();
+            switchTab('actualizar');
+
+            // Podríamos pre-llenar el formulario de actualización aquí
+            alert('Funcionalidad de edición - Cambia al tab "Actualizar" para modificar este pase');
+        }
+
+        function notificarPaseDesdeDetalle() {
+            if (!paseActualDetalle) return;
+
+            const mensaje = prompt('Escribe el mensaje de notificación (máx 160 caracteres):');
+            if (!mensaje || mensaje.trim() === '') return;
+
+            if (mensaje.length > 160) {
+                alert('El mensaje es demasiado largo. Máximo 160 caracteres.');
+                return;
+            }
+
+            // Llamar a la función de notificación
+            enviarNotificacionPaseIndividual(paseActualDetalle.objeto_id, mensaje);
+        }
+
+        async function enviarNotificacionPaseIndividual(objetoId, mensaje) {
+            try {
+                const sessionId = localStorage.getItem('sessionId');
+
+                const response = await fetch(`${API_URL}/api/notificar-pase`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${clienteData.api_key}`
+                    },
+                    body: JSON.stringify({
+                        objeto_id: objetoId,
+                        mensaje: mensaje
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Notificación enviada exitosamente');
+                } else {
+                    alert('❌ Error: ' + (data.error || 'Error desconocido'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al enviar notificación');
+            }
+        }
+
+        function abrirWalletPase() {
+            if (!paseActualDetalle) return;
+
+            const walletUrl = `https://pay.google.com/gp/v/save/${paseActualDetalle.objeto_id}`;
+            window.open(walletUrl, '_blank');
+        }
+
+        function eliminarPaseDesdeDetalle() {
+            if (!paseActualDetalle) return;
+
+            cerrarDetallePase();
+            eliminarPaseIndividual(paseActualDetalle.objeto_id);
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('paseDetailOverlay')?.addEventListener('click', (e) => {
+                if (e.target.id === 'paseDetailOverlay') {
+                    cerrarDetallePase();
+                }
+            });
+        });
 
         // ==========================================
         // FUNCIONES PARA TAB "NOTIFICACIONES"
@@ -2786,6 +3290,86 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
             }, 2000);
         }
 
+        // Guardar URL de webhook personalizado
+        async function guardarWebhookUrl() {
+            const webhookUrl = document.getElementById('customWebhookUrl').value.trim();
+            const sessionId = localStorage.getItem('sessionId');
+            const statusMsg = document.getElementById('webhookStatusMsg');
+
+            if (!webhookUrl) {
+                statusMsg.textContent = '⚠️ Por favor ingresa una URL';
+                statusMsg.style.color = '#f39c12';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/cliente/actualizar-webhook`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ webhook_url: webhookUrl })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    statusMsg.textContent = '✅ Guardado correctamente';
+                    statusMsg.style.color = '#11998e';
+                } else {
+                    statusMsg.textContent = '❌ ' + (data.error || 'Error al guardar');
+                    statusMsg.style.color = '#e74c3c';
+                }
+            } catch (error) {
+                statusMsg.textContent = '❌ Error de conexión';
+                statusMsg.style.color = '#e74c3c';
+            }
+
+            setTimeout(() => {
+                statusMsg.textContent = '';
+            }, 3000);
+        }
+
+        // Eliminar URL de webhook personalizado
+        async function eliminarWebhookUrl() {
+            const sessionId = localStorage.getItem('sessionId');
+            const statusMsg = document.getElementById('webhookStatusMsg');
+
+            if (!confirm('¿Estás seguro de eliminar la configuración del webhook?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/cliente/actualizar-webhook`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ webhook_url: null })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('customWebhookUrl').value = '';
+                    statusMsg.textContent = '✅ Eliminado correctamente';
+                    statusMsg.style.color = '#11998e';
+                } else {
+                    statusMsg.textContent = '❌ ' + (data.error || 'Error al eliminar');
+                    statusMsg.style.color = '#e74c3c';
+                }
+            } catch (error) {
+                statusMsg.textContent = '❌ Error de conexión';
+                statusMsg.style.color = '#e74c3c';
+            }
+
+            setTimeout(() => {
+                statusMsg.textContent = '';
+            }, 3000);
+        }
+
         function openCreateClaseModal() {
             const modal = document.getElementById('createClaseModal');
             const form = document.getElementById('createClaseForm');
@@ -3065,5 +3649,66 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
             }
         }
     </script>
+
+    <!-- MODAL VISTA DETALLADA DE PASE -->
+    <div id="paseDetailOverlay" class="pase-detail-overlay">
+        <div class="pase-detail-container">
+            <div class="pase-detail-header">
+                <h2 id="paseDetailTitle">👤 Detalle del Pase</h2>
+                <button class="pase-detail-close" onclick="cerrarDetallePase()">×</button>
+            </div>
+            <div class="pase-detail-content">
+                <!-- Columna Izquierda: Información del Pase -->
+                <div class="pase-detail-left">
+                    <!-- Sección: Información del Usuario -->
+                    <div class="pase-detail-section">
+                        <h3>👤 User</h3>
+                        <div class="pase-detail-table" id="paseDetailUser">
+                            <!-- Se llena dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Sección: Acciones -->
+                    <div class="pase-detail-section">
+                        <h3>⚡ Actions</h3>
+                        <div class="pase-actions-grid">
+                            <button class="pase-action-btn primary" onclick="editarPaseDesdeDetalle()">
+                                <span>✏️</span>
+                                <span>Editar Pase</span>
+                            </button>
+                            <button class="pase-action-btn success" onclick="notificarPaseDesdeDetalle()">
+                                <span>🔔</span>
+                                <span>Notificar</span>
+                            </button>
+                            <button class="pase-action-btn warning" onclick="abrirWalletPase()">
+                                <span>📲</span>
+                                <span>Ver en Wallet</span>
+                            </button>
+                            <button class="pase-action-btn danger" onclick="eliminarPaseDesdeDetalle()">
+                                <span>🗑️</span>
+                                <span>Eliminar</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Historial (opcional) -->
+                    <div class="pase-detail-section">
+                        <h3>📋 Historial</h3>
+                        <div id="paseDetailHistory">
+                            <!-- Se llena dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Preview del Pase -->
+                <div class="pase-detail-right">
+                    <div class="pase-preview-card" id="pasePreviewCard">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

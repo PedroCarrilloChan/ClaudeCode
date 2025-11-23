@@ -1454,6 +1454,64 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                     </div>
                 </div>
 
+                <!-- Configuración de Webhook Personalizado -->
+                <div class="notification-card" style="margin-bottom: 30px;">
+                    <h3>
+                        <span>🎯</span>
+                        <span>Reenvío de Webhooks (Make.com, Zapier, etc.)</span>
+                    </h3>
+                    <p style="color: #666; margin-bottom: 20px;">
+                        Configura una URL para recibir automáticamente todos los eventos de Google Wallet.
+                        Los eventos se guardarán en nuestra base de datos y se reenviarán a tu sistema en tiempo real.
+                    </p>
+
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">
+                                URL de tu Webhook
+                            </label>
+                            <input
+                                type="url"
+                                id="customWebhookUrl"
+                                placeholder="https://hook.us1.make.com/tu-webhook-id"
+                                style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; font-family: 'Courier New', monospace;"
+                            >
+                            <small style="color: #666; display: block; margin-top: 8px;">
+                                Compatible con: Make.com, Zapier, n8n, tu propio servidor, etc.
+                            </small>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button
+                                onclick="guardarWebhookUrl()"
+                                class="btn-primary"
+                                style="margin: 0; padding: 12px 24px;"
+                            >
+                                💾 Guardar URL
+                            </button>
+                            <button
+                                onclick="eliminarWebhookUrl()"
+                                class="btn-secondary"
+                                style="margin: 0; padding: 12px 24px;"
+                            >
+                                🗑️ Eliminar
+                            </button>
+                            <span id="webhookStatusMsg" style="margin-left: 10px; color: #11998e; font-weight: 600;"></span>
+                        </div>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 20px;">
+                        <strong>📤 Formato del payload:</strong>
+                        <pre style="background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 8px; overflow-x: auto; margin-top: 10px; font-size: 12px;">{
+  "event_type": "save",
+  "object_id": "3388000000022737801.123-pase-abc",
+  "class_id": "3388000000022737801.123-loyalty-vip",
+  "timestamp": "2024-01-18T08:00:00.000Z",
+  "raw_data": { ... }
+}</pre>
+                    </div>
+                </div>
+
                 <!-- Lista de Eventos -->
                 <div class="historial-section">
                     <h3>
@@ -1666,11 +1724,15 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
 
                     // Actualizar UI
                     document.getElementById('nombreNegocio').textContent = clienteData.nombre_negocio;
-                    document.getElementById('apiKeyDisplay').textContent = clienteData.api_key;
                     document.getElementById('apiKeyDisplay2').textContent = clienteData.api_key;
                     document.getElementById('totalPases').textContent = clienteData.estadisticas.pases_creados;
                     document.getElementById('totalClases').textContent = clienteData.estadisticas.clases_creadas;
                     document.getElementById('pasesActivos').textContent = clienteData.estadisticas.pases_activos;
+
+                    // Cargar URL de webhook personalizado si existe
+                    if (clienteData.webhook_url) {
+                        document.getElementById('customWebhookUrl').value = clienteData.webhook_url;
+                    }
 
                     renderClases();
                 } else {
@@ -2784,6 +2846,86 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
             setTimeout(() => {
                 btn.textContent = originalText;
             }, 2000);
+        }
+
+        // Guardar URL de webhook personalizado
+        async function guardarWebhookUrl() {
+            const webhookUrl = document.getElementById('customWebhookUrl').value.trim();
+            const sessionId = localStorage.getItem('sessionId');
+            const statusMsg = document.getElementById('webhookStatusMsg');
+
+            if (!webhookUrl) {
+                statusMsg.textContent = '⚠️ Por favor ingresa una URL';
+                statusMsg.style.color = '#f39c12';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/cliente/actualizar-webhook`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ webhook_url: webhookUrl })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    statusMsg.textContent = '✅ Guardado correctamente';
+                    statusMsg.style.color = '#11998e';
+                } else {
+                    statusMsg.textContent = '❌ ' + (data.error || 'Error al guardar');
+                    statusMsg.style.color = '#e74c3c';
+                }
+            } catch (error) {
+                statusMsg.textContent = '❌ Error de conexión';
+                statusMsg.style.color = '#e74c3c';
+            }
+
+            setTimeout(() => {
+                statusMsg.textContent = '';
+            }, 3000);
+        }
+
+        // Eliminar URL de webhook personalizado
+        async function eliminarWebhookUrl() {
+            const sessionId = localStorage.getItem('sessionId');
+            const statusMsg = document.getElementById('webhookStatusMsg');
+
+            if (!confirm('¿Estás seguro de eliminar la configuración del webhook?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/cliente/actualizar-webhook`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ webhook_url: null })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('customWebhookUrl').value = '';
+                    statusMsg.textContent = '✅ Eliminado correctamente';
+                    statusMsg.style.color = '#11998e';
+                } else {
+                    statusMsg.textContent = '❌ ' + (data.error || 'Error al eliminar');
+                    statusMsg.style.color = '#e74c3c';
+                }
+            } catch (error) {
+                statusMsg.textContent = '❌ Error de conexión';
+                statusMsg.style.color = '#e74c3c';
+            }
+
+            setTimeout(() => {
+                statusMsg.textContent = '';
+            }, 3000);
         }
 
         function openCreateClaseModal() {

@@ -707,6 +707,54 @@ async function actualizarPase(credentials, tipo, objetoId, datosActualizados) {
 }
 
 // ==========================================
+// ELIMINAR PASE
+// ==========================================
+
+async function eliminarPase(credentials, tipo, objetoId) {
+  /**
+   * Marca un pase como EXPIRED en Google Wallet
+   * Esto hace que el pase desaparezca de la wallet del usuario
+   */
+  try {
+    if (!TIPOS_PASE[tipo]) {
+      return { success: false, error: `Tipo de pase no válido: ${tipo}` };
+    }
+
+    const endpoint = TIPOS_PASE[tipo].endpoint_objeto;
+    const token = await obtenerTokenGoogle(credentials);
+
+    // Cambiar el estado del objeto a EXPIRED
+    const payload = {
+      state: 'EXPIRED'
+    };
+
+    const response = await fetch(
+      `https://walletobjects.googleapis.com/walletobjects/v1/${endpoint}/${objetoId}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    if (response.ok) {
+      return {
+        success: true,
+        mensaje: 'Pase eliminado exitosamente. El pase desaparecerá de Google Wallet del usuario.'
+      };
+    } else {
+      const error = await response.text();
+      return { success: false, error };
+    }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// ==========================================
 // NOTIFICACIONES PUSH
 // ==========================================
 
@@ -869,6 +917,7 @@ export default {
             cliente_eliminar_clase: '/cliente/eliminar-clase',
             api_crear_pase: '/api/crear-pase',
             api_actualizar_pase: '/api/actualizar-pase',
+            api_obtener_pase: '/api/obtener-pase/{objeto_id}',
             api_notificar_pase: '/api/notificar-pase',
             api_notificar_clase: '/api/notificar-clase',
             webhook_events: '/webhook/wallet-events'
@@ -1034,6 +1083,17 @@ export default {
           'SELECT id, nombre_negocio, email, api_key FROM clientes WHERE id = ?'
         ).bind(session.data.clienteId).first();
 
+        // Intentar obtener webhook_url si la columna existe (puede fallar si no se ha migrado)
+        let webhookUrl = null;
+        try {
+          const webhookData = await env.DB.prepare(
+            'SELECT webhook_url FROM clientes WHERE id = ?'
+          ).bind(session.data.clienteId).first();
+          webhookUrl = webhookData?.webhook_url;
+        } catch (error) {
+          // Columna webhook_url no existe aún, ignorar silenciosamente
+        }
+
         const { results: clases } = await env.DB.prepare(
           'SELECT * FROM clases WHERE cliente_id = ? ORDER BY creada_en DESC'
         ).bind(session.data.clienteId).all();
@@ -1046,6 +1106,7 @@ export default {
           success: true,
           cliente: {
             ...cliente,
+            webhook_url: webhookUrl,
             estadisticas: {
               pases_creados: pasesCount?.count || 0,
               clases_creadas: clases.length,
@@ -1055,6 +1116,45 @@ export default {
           clases,
           tipos_pases: TIPOS_PASE
         }, corsHeaders);
+      }
+
+      // CLIENTE - ACTUALIZAR WEBHOOK URL
+      if (url.pathname === '/cliente/actualizar-webhook' && request.method === 'POST') {
+        const session = await validateSession(request, env, 'cliente');
+        if (!session.valid) {
+          return jsonResponse({ error: 'No autorizado' }, corsHeaders, 401);
+        }
+
+        const { webhook_url } = await request.json();
+
+        // Validar URL si se proporciona (puede ser null/vacío para eliminar)
+        if (webhook_url && webhook_url.trim() !== '') {
+          try {
+            new URL(webhook_url);  // Validar que sea una URL válida
+          } catch (error) {
+            return jsonResponse({
+              success: false,
+              error: 'URL de webhook inválida'
+            }, corsHeaders, 400);
+          }
+        }
+
+        try {
+          await env.DB.prepare(
+            'UPDATE clientes SET webhook_url = ? WHERE id = ?'
+          ).bind(webhook_url || null, session.data.clienteId).run();
+
+          return jsonResponse({
+            success: true,
+            mensaje: 'Webhook URL actualizada correctamente',
+            webhook_url: webhook_url || null
+          }, corsHeaders);
+        } catch (error) {
+          return jsonResponse({
+            success: false,
+            error: 'La columna webhook_url no existe en la base de datos. Por favor ejecuta: ALTER TABLE clientes ADD COLUMN webhook_url TEXT;'
+          }, corsHeaders, 500);
+        }
       }
 
       // CLIENTE - OBTENER PASES
@@ -1100,6 +1200,57 @@ export default {
           success: true,
           pases: pasesFormateados,
           total: pases.length
+        }, corsHeaders);
+      }
+
+      // CLIENTE - ELIMINAR PASE
+      if (url.pathname.startsWith('/cliente/pases/') && request.method === 'DELETE') {
+        const session = await validateSession(request, env, 'cliente');
+        if (!session.valid) {
+          return jsonResponse({ error: 'No autorizado' }, corsHeaders, 401);
+        }
+
+        // Extraer objeto_id de la URL: /cliente/pases/{objeto_id}
+        const objetoId = url.pathname.replace('/cliente/pases/', '');
+
+        if (!objetoId) {
+          return jsonResponse({
+            success: false,
+            error: 'ID de objeto requerido'
+          }, corsHeaders, 400);
+        }
+
+        // Verificar que el pase pertenece al cliente
+        const pase = await env.DB.prepare(
+          'SELECT * FROM pases WHERE objeto_id = ? AND cliente_id = ?'
+        ).bind(objetoId, session.data.clienteId).first();
+
+        if (!pase) {
+          return jsonResponse({
+            success: false,
+            error: 'Pase no encontrado o no tienes permisos para eliminarlo'
+          }, corsHeaders, 404);
+        }
+
+        // Eliminar el pase en Google Wallet (marcarlo como EXPIRED)
+        const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
+        const resultado = await eliminarPase(credentials, pase.tipo, objetoId);
+
+        if (!resultado.success) {
+          return jsonResponse({
+            success: false,
+            error: `Error al eliminar en Google Wallet: ${resultado.error}`
+          }, corsHeaders, 500);
+        }
+
+        // Actualizar estado en la base de datos
+        await env.DB.prepare(
+          'UPDATE pases SET estado = ?, actualizado_en = ? WHERE objeto_id = ?'
+        ).bind('DELETED', Date.now(), objetoId).run();
+
+        return jsonResponse({
+          success: true,
+          mensaje: 'Pase eliminado exitosamente'
         }, corsHeaders);
       }
 
@@ -1413,6 +1564,68 @@ export default {
         return jsonResponse(resultado, corsHeaders);
       }
 
+      // API - OBTENER DATOS DE UN PASE (Para consultar al escanear QR)
+      if (url.pathname.startsWith('/api/obtener-pase/') && request.method === 'GET') {
+        const apiKey = request.headers.get('Authorization')?.replace('Bearer ', '');
+
+        if (!apiKey) {
+          return jsonResponse({
+            success: false,
+            error: 'API key no proporcionada'
+          }, corsHeaders, 401);
+        }
+
+        const cliente = await env.DB.prepare(
+          'SELECT * FROM clientes WHERE api_key = ? AND activo = 1'
+        ).bind(apiKey).first();
+
+        if (!cliente) {
+          return jsonResponse({
+            success: false,
+            error: 'API key inválida'
+          }, corsHeaders, 401);
+        }
+
+        // Extraer objeto_id de la URL
+        const objeto_id = url.pathname.replace('/api/obtener-pase/', '');
+
+        if (!objeto_id) {
+          return jsonResponse({
+            success: false,
+            error: 'objeto_id no proporcionado'
+          }, corsHeaders, 400);
+        }
+
+        // Obtener pase desde la base de datos
+        const pase = await env.DB.prepare(
+          'SELECT * FROM pases WHERE objeto_id = ? AND cliente_id = ?'
+        ).bind(objeto_id, cliente.id).first();
+
+        if (!pase) {
+          return jsonResponse({
+            success: false,
+            error: 'Pase no encontrado o no pertenece a este cliente'
+          }, corsHeaders, 404);
+        }
+
+        // Parsear datos JSON
+        const datos = typeof pase.datos === 'string' ? JSON.parse(pase.datos) : pase.datos;
+
+        // Devolver información completa del pase
+        return jsonResponse({
+          success: true,
+          pase: {
+            objeto_id: pase.objeto_id,
+            class_id: pase.class_id,
+            tipo: pase.tipo,
+            estado: pase.estado,
+            datos: datos,
+            creado_en: pase.creado_en,
+            actualizado_en: pase.actualizado_en
+          }
+        }, corsHeaders);
+      }
+
       // API - NOTIFICAR PASE
       if (url.pathname === '/api/notificar-pase' && request.method === 'POST') {
         const apiKey = request.headers.get('Authorization')?.replace('Bearer ', '');
@@ -1495,12 +1708,13 @@ export default {
         return jsonResponse(resultado, corsHeaders);
       }
 
-      // WEBHOOKS
+      // WEBHOOKS - Recibir eventos de Google Wallet y reenviar al webhook del cliente
       if (url.pathname === '/webhook/wallet-events' && request.method === 'POST') {
         const data = await request.json();
 
         console.log('🔔 Webhook recibido:', data);
 
+        // Guardar evento en BD
         await env.DB.prepare(
           `INSERT INTO eventos (tipo, objeto_id, class_id, datos, timestamp)
            VALUES (?, ?, ?, ?, ?)`
@@ -1512,10 +1726,78 @@ export default {
           Date.now()
         ).run();
 
+        // Actualizar estado si es eliminación
         if (data.eventType === 'delete') {
           await env.DB.prepare(
             'UPDATE pases SET estado = ? WHERE objeto_id = ?'
           ).bind('DELETED', data.objectId).run();
+        }
+
+        // Identificar al cliente desde el class_id o object_id
+        let clienteId = null;
+
+        // Intentar obtener cliente desde la clase
+        if (data.classId) {
+          const clase = await env.DB.prepare(
+            'SELECT cliente_id FROM clases WHERE id = ?'
+          ).bind(data.classId).first();
+
+          if (clase) {
+            clienteId = clase.cliente_id;
+          }
+        }
+
+        // Si no se encontró por clase, intentar por pase
+        if (!clienteId && data.objectId) {
+          const pase = await env.DB.prepare(
+            'SELECT cliente_id FROM pases WHERE objeto_id = ?'
+          ).bind(data.objectId).first();
+
+          if (pase) {
+            clienteId = pase.cliente_id;
+          }
+        }
+
+        // Si se identificó al cliente, reenviar a su webhook configurado
+        if (clienteId) {
+          try {
+            const cliente = await env.DB.prepare(
+              'SELECT webhook_url FROM clientes WHERE id = ?'
+            ).bind(clienteId).first();
+
+            if (cliente && cliente.webhook_url) {
+              try {
+                // Preparar payload para el webhook del cliente
+                const webhookPayload = {
+                  event_type: data.eventType,
+                  object_id: data.objectId,
+                  class_id: data.classId,
+                  timestamp: new Date().toISOString(),
+                  raw_data: data
+                };
+
+                console.log(`📤 Reenviando webhook a: ${cliente.webhook_url}`);
+
+                // Reenviar a la URL del cliente (Make.com, Zapier, etc.)
+                const webhookResponse = await fetch(cliente.webhook_url, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'SmartPasses-Webhook/1.0'
+                  },
+                  body: JSON.stringify(webhookPayload)
+                });
+
+                console.log(`✅ Webhook enviado. Status: ${webhookResponse.status}`);
+              } catch (error) {
+                console.error('❌ Error al reenviar webhook:', error);
+                // No fallar el proceso principal si el reenvío falla
+              }
+            }
+          } catch (error) {
+            // Columna webhook_url probablemente no existe, ignorar silenciosamente
+            console.log('⚠️ Columna webhook_url no existe, saltando reenvío');
+          }
         }
 
         return jsonResponse({ success: true }, corsHeaders);
