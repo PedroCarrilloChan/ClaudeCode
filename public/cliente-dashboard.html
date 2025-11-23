@@ -1576,11 +1576,11 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                     <div class="pase-detail-header">
                         <h2 id="paseDetailName">Nombre del Usuario</h2>
                         <div class="pase-detail-actions">
-                            <button class="btn-action edit" title="Editar">✏️</button>
-                            <button class="btn-action notification" title="Enviar Notificación">🔔</button>
-                            <button class="btn-action settings" title="Configuración">⚙️</button>
-                            <button class="btn-action print" title="Imprimir">🖨️</button>
-                            <button class="btn-action delete" title="Eliminar">🗑️</button>
+                            <button class="btn-action edit" title="Editar" onclick="editarPase()">✏️</button>
+                            <button class="btn-action notification" title="Enviar Notificación" onclick="notificarPase()">🔔</button>
+                            <button class="btn-action settings" title="Configuración" onclick="configurarPase()">⚙️</button>
+                            <button class="btn-action print" title="Imprimir" onclick="imprimirPase()">🖨️</button>
+                            <button class="btn-action delete" title="Eliminar" onclick="eliminarPase()">🗑️</button>
                         </div>
                     </div>
 
@@ -2257,6 +2257,7 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
 
         let pasesData = [];
         let pasesDataFiltered = [];
+        let currentPaseDetail = null; // Pase actual en vista de detalle
 
         async function loadPases() {
             const sessionId = localStorage.getItem('sessionId');
@@ -2391,6 +2392,9 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
             const pase = pasesData.find(p => p.objeto_id === objetoId);
             if (!pase) return;
 
+            // Guardar pase actual en variable global
+            currentPaseDetail = pase;
+
             const datos = pase.datos || {};
 
             // Ocultar vista de listado y mostrar vista de detalle
@@ -2518,6 +2522,99 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
 
             // Aquí podrías mostrar información diferente según el tab
             // Por ahora solo cambiamos el aspecto visual
+        }
+
+        // ==========================================
+        // FUNCIONES DE ACCIONES PARA DETALLE DE PASE
+        // ==========================================
+
+        function editarPase() {
+            if (!currentPaseDetail) return;
+
+            alert('Función de editar pase en desarrollo.\n\nPase: ' + currentPaseDetail.objeto_id);
+            // TODO: Implementar modal de edición
+        }
+
+        async function notificarPase() {
+            if (!currentPaseDetail) return;
+
+            const mensaje = prompt('Ingresa el mensaje de notificación:');
+            if (!mensaje) return;
+
+            const sessionId = localStorage.getItem('sessionId');
+            const apiKey = localStorage.getItem('apiKey');
+
+            try {
+                const response = await fetch(`${API_URL}/api/notificar-pase`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        objeto_id: currentPaseDetail.objeto_id,
+                        mensaje: mensaje
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Notificación enviada exitosamente!');
+                } else {
+                    alert('❌ Error: ' + (data.error || 'No se pudo enviar la notificación'));
+                }
+            } catch (error) {
+                console.error('Error al enviar notificación:', error);
+                alert('❌ Error al enviar notificación');
+            }
+        }
+
+        function configurarPase() {
+            if (!currentPaseDetail) return;
+
+            alert('Función de configuración en desarrollo.\n\nPase: ' + currentPaseDetail.objeto_id);
+            // TODO: Implementar configuración avanzada
+        }
+
+        function imprimirPase() {
+            if (!currentPaseDetail) return;
+
+            // Imprimir solo la sección del detalle del pase
+            window.print();
+        }
+
+        async function eliminarPase() {
+            if (!currentPaseDetail) return;
+
+            const nombre = currentPaseDetail.datos?.accountName || 'Sin nombre';
+            const confirmar = confirm(`¿Estás seguro de que deseas eliminar este pase?\n\nUsuario: ${nombre}\nID: ${currentPaseDetail.objeto_id}`);
+
+            if (!confirmar) return;
+
+            const sessionId = localStorage.getItem('sessionId');
+
+            try {
+                const response = await fetch(`${API_URL}/cliente/pases/${currentPaseDetail.objeto_id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Pase eliminado exitosamente!');
+                    backToPasesList();
+                    loadPases(); // Recargar lista de pases
+                } else {
+                    alert('❌ Error: ' + (data.error || 'No se pudo eliminar el pase'));
+                }
+            } catch (error) {
+                console.error('Error al eliminar pase:', error);
+                alert('❌ Error al eliminar pase');
+            }
         }
 
         // ==========================================

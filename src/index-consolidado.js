@@ -1155,6 +1155,46 @@ export default {
         }, corsHeaders);
       }
 
+      // CLIENTE - ELIMINAR PASE
+      if (url.pathname.startsWith('/cliente/pases/') && request.method === 'DELETE') {
+        const session = await validateSession(request, env, 'cliente');
+        if (!session.valid) {
+          return jsonResponse({ error: 'No autorizado' }, corsHeaders, 401);
+        }
+
+        // Extraer objeto_id de la URL
+        const objetoId = url.pathname.replace('/cliente/pases/', '');
+
+        if (!objetoId) {
+          return jsonResponse({
+            success: false,
+            error: 'objeto_id no proporcionado'
+          }, corsHeaders, 400);
+        }
+
+        // Verificar que el pase pertenece al cliente
+        const pase = await env.DB.prepare(
+          'SELECT * FROM pases WHERE objeto_id = ? AND cliente_id = ?'
+        ).bind(objetoId, session.data.clienteId).first();
+
+        if (!pase) {
+          return jsonResponse({
+            success: false,
+            error: 'Pase no encontrado o no pertenece a este cliente'
+          }, corsHeaders, 404);
+        }
+
+        // Eliminar de la base de datos
+        await env.DB.prepare(
+          'DELETE FROM pases WHERE objeto_id = ?'
+        ).bind(objetoId).run();
+
+        return jsonResponse({
+          success: true,
+          message: 'Pase eliminado exitosamente'
+        }, corsHeaders);
+      }
+
       // CLIENTE - OBTENER EVENTOS/WEBHOOKS
       if (url.pathname === '/cliente/eventos' && request.method === 'GET') {
         const session = await validateSession(request, env, 'cliente');
