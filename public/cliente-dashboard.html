@@ -210,12 +210,6 @@
             margin-top: 10px;
             word-break: break-all;
         }
-        .clase-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-            width: 100%;
-        }
         .btn-edit-clase {
             background: rgba(255,255,255,0.3);
             border: 1px solid rgba(255,255,255,0.5);
@@ -225,28 +219,13 @@
             cursor: pointer;
             font-size: 13px;
             font-weight: 600;
-            flex: 1;
+            margin-top: 12px;
+            width: 100%;
             transition: all 0.2s;
         }
         .btn-edit-clase:hover {
             background: rgba(255,255,255,0.4);
             border-color: white;
-        }
-        .btn-delete-clase {
-            background: rgba(220, 53, 69, 0.3);
-            border: 1px solid rgba(220, 53, 69, 0.5);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            flex: 1;
-            transition: all 0.2s;
-        }
-        .btn-delete-clase:hover {
-            background: rgba(220, 53, 69, 0.5);
-            border-color: rgb(220, 53, 69);
         }
         .empty-state {
             text-align: center;
@@ -720,6 +699,331 @@
             margin-top: 5px;
         }
 
+        /* TABLA DE PASES STYLES */
+        .pases-table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 25px;
+        }
+        .pases-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .pases-table thead {
+            background: #f5f5f5;
+        }
+        .pases-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .pases-table td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #666;
+        }
+        .pases-table tbody tr {
+            transition: background 0.2s;
+        }
+        .pases-table tbody tr:hover {
+            background: #f9f9f9;
+        }
+        .btn-view-details {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+        .btn-view-details:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        /* VISTA DE DETALLE DEL PASE */
+        .pase-detail-view {
+            display: none;
+        }
+        .pase-detail-view.active {
+            display: block;
+        }
+        .pase-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .pase-detail-header h2 {
+            margin: 0;
+            color: #333;
+            font-size: 28px;
+        }
+        .pase-detail-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-action {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-action.edit {
+            background: #2196F3;
+        }
+        .btn-action.notification {
+            background: #00BCD4;
+        }
+        .btn-action.settings {
+            background: #9E9E9E;
+        }
+        .btn-action.print {
+            background: #424242;
+        }
+        .btn-action.delete {
+            background: #f44336;
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .btn-back {
+            background: #f5f5f5;
+            color: #666;
+            border: 2px solid #ddd;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .btn-back:hover {
+            background: #e0e0e0;
+            border-color: #bbb;
+        }
+        .pase-detail-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+        .pase-detail-info {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .pase-detail-section {
+            margin-bottom: 30px;
+        }
+        .pase-detail-section h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pase-detail-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .pase-detail-tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            font-weight: 600;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        .pase-detail-tab.active {
+            color: #2196F3;
+            border-bottom-color: #2196F3;
+        }
+        .pase-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .pase-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .pase-info-item label {
+            font-size: 12px;
+            color: #999;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .pase-info-item value {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+        .pase-digital-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 20px;
+        }
+        .pase-card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .pase-card-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.1;
+            font-size: 80px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px;
+        }
+        .pase-card-title {
+            position: relative;
+            z-index: 1;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .pase-card-body {
+            background: #2d2d2d;
+            padding: 30px;
+            text-align: center;
+        }
+        .pase-card-member {
+            color: #ffd700;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .pase-card-name {
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .pase-card-qr {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+        .pase-card-qr img {
+            display: block;
+            width: 200px;
+            height: 200px;
+        }
+        .pase-card-id {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+        .pase-card-info-icon {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            width: 30px;
+            height: 30px;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .offers-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .offers-table th {
+            text-align: left;
+            padding: 10px;
+            background: #f5f5f5;
+            border-bottom: 2px solid #e0e0e0;
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+        }
+        .offers-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #333;
+        }
+        .actions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .actions-table th {
+            text-align: left;
+            padding: 10px;
+            background: #f5f5f5;
+            border-bottom: 2px solid #e0e0e0;
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+        }
+        .actions-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #333;
+        }
+
         /* NOTIFICACIONES STYLES */
         .notification-forms {
             display: grid;
@@ -1188,41 +1492,146 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
 
             <!-- TAB: Mis Pases -->
             <div id="tab-mis-pases" class="tab-content">
-                <h2>👥 Mis Pases Creados</h2>
-                <p style="color: #666; margin-bottom: 25px;">Todos los pases individuales que has creado para tus usuarios.</p>
+                <!-- Vista de Listado -->
+                <div id="pases-list-view">
+                    <h2>👥 Mis Pases Creados</h2>
+                    <p style="color: #666; margin-bottom: 25px;">Todos los pases individuales que has creado para tus usuarios.</p>
 
-                <!-- Estadísticas de Pases -->
-                <div class="pases-stats" id="pasesStats">
-                    <div class="pases-stat-item">
-                        <div class="label">Total Pases</div>
-                        <div class="value" id="totalPasesCount">0</div>
+                    <!-- Estadísticas de Pases -->
+                    <div class="pases-stats" id="pasesStats">
+                        <div class="pases-stat-item">
+                            <div class="label">Total Pases</div>
+                            <div class="value" id="totalPasesCount">0</div>
+                        </div>
+                        <div class="pases-stat-item">
+                            <div class="label">Clases Activas</div>
+                            <div class="value" id="clasesActivasCount">0</div>
+                        </div>
+                        <div class="pases-stat-item">
+                            <div class="label">Último Creado</div>
+                            <div class="value" id="ultimoPaseDate" style="font-size: 16px;">-</div>
+                        </div>
                     </div>
-                    <div class="pases-stat-item">
-                        <div class="label">Clases Activas</div>
-                        <div class="value" id="clasesActivasCount">0</div>
+
+                    <!-- Filtro por Clase -->
+                    <div class="filter-section">
+                        <label for="filtroClase">🔍 Filtrar por Clase</label>
+                        <select id="filtroClase" onchange="filterPasesByClase()">
+                            <option value="">Todas las clases</option>
+                        </select>
                     </div>
-                    <div class="pases-stat-item">
-                        <div class="label">Último Creado</div>
-                        <div class="value" id="ultimoPaseDate" style="font-size: 16px;">-</div>
+
+                    <!-- Tabla de Pases -->
+                    <div id="pasesTableContainer" class="pases-table-container" style="display: none;">
+                        <table class="pases-table">
+                            <thead>
+                                <tr>
+                                    <th>Unido el</th>
+                                    <th>Nombre</th>
+                                    <th>ID Objeto</th>
+                                    <th>Clase</th>
+                                    <th>Puntos</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pasesTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="emptyStatePases" class="empty-state" style="display: none;">
+                        <div class="icon">📭</div>
+                        <h3>No hay pases creados</h3>
+                        <p>Los pases que crees mediante la API aparecerán aquí</p>
                     </div>
                 </div>
 
-                <!-- Filtro por Clase -->
-                <div class="filter-section">
-                    <label for="filtroClase">🔍 Filtrar por Clase</label>
-                    <select id="filtroClase" onchange="filterPasesByClase()">
-                        <option value="">Todas las clases</option>
-                    </select>
-                </div>
+                <!-- Vista de Detalle -->
+                <div id="pase-detail-view" class="pase-detail-view">
+                    <button class="btn-back" onclick="backToPasesList()">
+                        ← Volver al listado
+                    </button>
 
-                <!-- Grid de Pases -->
-                <div id="pasesContainer" class="pases-grid"></div>
+                    <div class="pase-detail-header">
+                        <h2 id="paseDetailName">Nombre del Usuario</h2>
+                        <div class="pase-detail-actions">
+                            <button class="btn-action edit" title="Editar">✏️</button>
+                            <button class="btn-action notification" title="Enviar Notificación">🔔</button>
+                            <button class="btn-action settings" title="Configuración">⚙️</button>
+                            <button class="btn-action print" title="Imprimir">🖨️</button>
+                            <button class="btn-action delete" title="Eliminar">🗑️</button>
+                        </div>
+                    </div>
 
-                <!-- Empty State -->
-                <div id="emptyStatePases" class="empty-state" style="display: none;">
-                    <div class="icon">📭</div>
-                    <h3>No hay pases creados</h3>
-                    <p>Los pases que crees mediante la API aparecerán aquí</p>
+                    <div class="pase-detail-content">
+                        <div class="pase-detail-info">
+                            <!-- Sección de Usuario -->
+                            <div class="pase-detail-section">
+                                <h3>👤 User</h3>
+                                <div class="pase-detail-tabs">
+                                    <button class="pase-detail-tab active" onclick="switchPaseDetailTab('default')">Default</button>
+                                    <button class="pase-detail-tab" onclick="switchPaseDetailTab('custom')">Custom</button>
+                                </div>
+                                <div id="paseDetailUserInfo" class="pase-info-grid"></div>
+                            </div>
+
+                            <!-- Sección de Ofertas Disponibles -->
+                            <div class="pase-detail-section">
+                                <h3>🎁 Available Offers</h3>
+                                <table class="offers-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Cost</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="paseDetailOffers">
+                                        <tr>
+                                            <td colspan="2">No Offers</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Sección de Acciones -->
+                            <div class="pase-detail-section">
+                                <h3>⭐ Actions</h3>
+                                <table class="actions-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Puntos</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="paseDetailActions">
+                                        <tr>
+                                            <td colspan="3">No hay acciones registradas</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Tarjeta Digital -->
+                        <div class="pase-digital-card">
+                            <div class="pase-card-header" id="paseCardHeader">
+                                <div class="pase-card-pattern" id="paseCardPattern"></div>
+                                <div class="pase-card-title" id="paseCardTitle">ESTAMPILLAS</div>
+                            </div>
+                            <div class="pase-card-body">
+                                <div class="pase-card-member">
+                                    🍔 VIP Member:
+                                </div>
+                                <div class="pase-card-name" id="paseCardName">Usuario</div>
+                                <div class="pase-card-qr">
+                                    <div id="paseCardQR"></div>
+                                </div>
+                                <div class="pase-card-id" id="paseCardId">0000 0000 0000 0</div>
+                                <div class="pase-card-info-icon">ⓘ</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1797,14 +2206,9 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
                     </h3>
                     <div class="tipo">${clase.tipo.toUpperCase()}</div>
                     <div class="class-id">${clase.id}</div>
-                    <div class="clase-actions">
-                        <button class="btn-edit-clase" onclick="editarClasePorIndice(${index})">
-                            ✏️ Editar
-                        </button>
-                        <button class="btn-delete-clase" onclick="eliminarClasePorIndice(${index})">
-                            🗑️ Eliminar
-                        </button>
-                    </div>
+                    <button class="btn-edit-clase" onclick="editarClasePorIndice(${index})">
+                        ✏️ Editar
+                    </button>
                 </div>
             `).join('');
         }
@@ -1906,91 +2310,188 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
         }
 
         function renderPases() {
-            const container = document.getElementById('pasesContainer');
+            const tableContainer = document.getElementById('pasesTableContainer');
+            const tableBody = document.getElementById('pasesTableBody');
             const emptyState = document.getElementById('emptyStatePases');
 
             if (pasesDataFiltered.length === 0) {
-                container.style.display = 'none';
+                tableContainer.style.display = 'none';
                 emptyState.style.display = 'block';
                 return;
             }
 
-            container.style.display = 'grid';
+            tableContainer.style.display = 'block';
             emptyState.style.display = 'none';
 
-            container.innerHTML = pasesDataFiltered.map(pase => {
+            tableBody.innerHTML = pasesDataFiltered.map(pase => {
                 const datos = pase.datos || {};
-                const tipo = pase.tipo || 'generico';
-                const tipoDisplay = {
-                    'loyalty': 'Lealtad',
-                    'offer': 'Cupón',
-                    'eventticket': 'Evento',
-                    'giftcard': 'Tarjeta Regalo',
-                    'transit': 'Transporte',
-                    'generic': 'Genérico'
-                };
+                const fecha = new Date(pase.creado_en);
+                const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                }) + ' ' + fecha.toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
 
-                const walletUrl = `https://pay.google.com/gp/v/save/${pase.objeto_id}`;
+                // Extraer nombre del pase
+                const nombre = datos.accountName || datos.cardTitle || datos.header || 'Sin nombre';
+
+                // Extraer ID corto
+                const idCorto = pase.objeto_id.substring(pase.objeto_id.lastIndexOf('.') + 1, pase.objeto_id.lastIndexOf('.') + 20) + '...';
+
+                // Extraer puntos
+                const puntos = datos.points !== undefined ? datos.points : 0;
 
                 return `
-                    <div class="pase-card">
-                        <div class="pase-header">
-                            <span class="pase-tipo ${tipo}">${tipoDisplay[tipo] || 'Genérico'}</span>
-                            <span style="font-size: 12px; color: #999;">
-                                ${new Date(pase.creado_en).toLocaleDateString('es-ES')}
-                            </span>
-                        </div>
-
-                        <div class="pase-info">
-                            <div class="pase-info-row">
-                                <strong>ID Objeto:</strong>
-                                <span style="font-size: 11px; font-family: monospace;">${pase.objeto_id.substring(pase.objeto_id.lastIndexOf('.') + 1, pase.objeto_id.lastIndexOf('.') + 15)}...</span>
-                            </div>
-                            ${datos.cardTitle ? `
-                            <div class="pase-info-row">
-                                <strong>Título:</strong>
-                                <span>${datos.cardTitle}</span>
-                            </div>
-                            ` : ''}
-                            ${datos.header ? `
-                            <div class="pase-info-row">
-                                <strong>Header:</strong>
-                                <span>${datos.header}</span>
-                            </div>
-                            ` : ''}
-                            ${datos.accountName ? `
-                            <div class="pase-info-row">
-                                <strong>Usuario:</strong>
-                                <span>${datos.accountName}</span>
-                            </div>
-                            ` : ''}
-                            ${datos.points !== undefined ? `
-                            <div class="pase-info-row">
-                                <strong>Puntos:</strong>
-                                <span>${datos.points} pts</span>
-                            </div>
-                            ` : ''}
-                            ${datos.balance ? `
-                            <div class="pase-info-row">
-                                <strong>Balance:</strong>
-                                <span>$${datos.balance}</span>
-                            </div>
-                            ` : ''}
-                        </div>
-
-                        <div class="pase-clase-tag">
-                            📁 ${pase.nombre_clase || pase.class_id}
-                        </div>
-
-                        <div class="pase-actions">
-                            <a href="${walletUrl}" target="_blank" class="btn-wallet" style="text-decoration: none;">
-                                <span>📲</span>
-                                <span>Agregar a Wallet</span>
-                            </a>
-                        </div>
-                    </div>
+                    <tr>
+                        <td>${fechaFormateada}</td>
+                        <td>${nombre}</td>
+                        <td style="font-family: monospace; font-size: 12px;">${idCorto}</td>
+                        <td>📁 ${pase.nombre_clase || pase.class_id}</td>
+                        <td>${puntos}</td>
+                        <td>
+                            <button class="btn-view-details" onclick="viewPaseDetails('${pase.objeto_id}')">
+                                📋 Ver Detalles
+                            </button>
+                        </td>
+                    </tr>
                 `;
             }).join('');
+        }
+
+        function viewPaseDetails(objetoId) {
+            const pase = pasesData.find(p => p.objeto_id === objetoId);
+            if (!pase) return;
+
+            const datos = pase.datos || {};
+
+            // Ocultar vista de listado y mostrar vista de detalle
+            document.getElementById('pases-list-view').style.display = 'none';
+            document.getElementById('pase-detail-view').classList.add('active');
+
+            // Actualizar nombre en header
+            const nombre = datos.accountName || datos.cardTitle || datos.header || 'Sin nombre';
+            document.getElementById('paseDetailName').textContent = nombre;
+
+            // Actualizar información del usuario
+            const userInfoHtml = `
+                <div class="pase-info-item">
+                    <label>Nombre</label>
+                    <value>${datos.accountName || nombre || '-'}</value>
+                </div>
+                <div class="pase-info-item">
+                    <label>Card ID</label>
+                    <value>${pase.objeto_id.substring(pase.objeto_id.lastIndexOf('.') + 1)}</value>
+                </div>
+                <div class="pase-info-item">
+                    <label>Email</label>
+                    <value>${datos.email || '-'}</value>
+                </div>
+                <div class="pase-info-item">
+                    <label>Installed</label>
+                    <value>true</value>
+                </div>
+                <div class="pase-info-item">
+                    <label>Teléfono</label>
+                    <value>${datos.telefono || datos.phone || '-'}</value>
+                </div>
+                <div class="pase-info-item">
+                    <label>Puntos</label>
+                    <value>${datos.points !== undefined ? datos.points : 0}</value>
+                </div>
+                <div class="pase-info-item">
+                    <label>Unido el</label>
+                    <value>${new Date(pase.creado_en).toLocaleDateString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    })} ${new Date(pase.creado_en).toLocaleTimeString('es-ES', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })}</value>
+                </div>
+                <div class="pase-info-item">
+                    <label>Active Offer</label>
+                    <value>None</value>
+                </div>
+            `;
+            document.getElementById('paseDetailUserInfo').innerHTML = userInfoHtml;
+
+            // Actualizar tarjeta digital
+            document.getElementById('paseCardName').textContent = nombre;
+            document.getElementById('paseCardTitle').textContent = datos.cardTitle || datos.header || 'ESTAMPILLAS';
+
+            // Extraer ID para mostrar
+            const cardId = pase.objeto_id.substring(pase.objeto_id.lastIndexOf('.') + 1);
+            document.getElementById('paseCardId').textContent = formatCardId(cardId);
+
+            // Generar QR Code
+            generateQRCode(pase.objeto_id, cardId);
+
+            // Actualizar patrón de la tarjeta (usar emoji relevante)
+            const emoji = datos.emoji || '🍔';
+            let patternHtml = '';
+            for (let i = 0; i < 12; i++) {
+                patternHtml += emoji;
+            }
+            document.getElementById('paseCardPattern').innerHTML = patternHtml;
+
+            // Actualizar acciones (mostrar historial de creación)
+            const actionsHtml = `
+                <tr>
+                    <td>${new Date(pase.creado_en).toLocaleDateString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    })} ${new Date(pase.creado_en).toLocaleTimeString('es-ES', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })}</td>
+                    <td>-</td>
+                    <td>Instalar Pase</td>
+                </tr>
+            `;
+            document.getElementById('paseDetailActions').innerHTML = actionsHtml;
+        }
+
+        function formatCardId(id) {
+            // Formatear ID en grupos de 4 dígitos
+            if (id.length >= 13) {
+                const numericPart = id.replace(/[^0-9]/g, '').substring(0, 13);
+                return numericPart.match(/.{1,4}/g).join(' ');
+            }
+            return id.substring(0, 20);
+        }
+
+        function generateQRCode(objetoId, cardId) {
+            const qrContainer = document.getElementById('paseCardQR');
+            qrContainer.innerHTML = '';
+
+            // Crear QR usando una librería simple o API
+            const qrData = cardId;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
+
+            const img = document.createElement('img');
+            img.src = qrUrl;
+            img.alt = 'QR Code';
+            qrContainer.appendChild(img);
+        }
+
+        function backToPasesList() {
+            document.getElementById('pases-list-view').style.display = 'block';
+            document.getElementById('pase-detail-view').classList.remove('active');
+        }
+
+        function switchPaseDetailTab(tab) {
+            // Actualizar tabs activos
+            const tabs = document.querySelectorAll('.pase-detail-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Aquí podrías mostrar información diferente según el tab
+            // Por ahora solo cambiamos el aspecto visual
         }
 
         // ==========================================
@@ -3230,62 +3731,6 @@ console.log(data.link); // Link para agregar a Google Wallet</div>
             } catch (error) {
                 console.error('Error al editar clase:', error);
                 showError('Error al cargar datos de la clase');
-            }
-        }
-
-        // ==========================================
-        // ELIMINAR CLASE
-        // ==========================================
-
-        async function eliminarClasePorIndice(index) {
-            try {
-                const clase = clasesData[index];
-                if (!clase) {
-                    showError('Clase no encontrada');
-                    return;
-                }
-
-                // Pedir confirmación al usuario
-                const confirmacion = confirm(
-                    `¿Estás seguro de que deseas eliminar la clase "${clase.nombre}"?\n\n` +
-                    `Tipo: ${clase.tipo.toUpperCase()}\n` +
-                    `ID: ${clase.id}\n\n` +
-                    `Esta acción no se puede deshacer.`
-                );
-
-                if (!confirmacion) {
-                    return;
-                }
-
-                const sessionId = localStorage.getItem('sessionId');
-
-                // Mostrar loading (podemos usar el mismo sistema de notificaciones)
-                const response = await fetch(`${API_URL}/cliente/eliminar-clase`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${sessionId}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        class_id: clase.id
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showSuccess('✅ Clase eliminada exitosamente');
-
-                    // Recargar el dashboard después de un breve delay
-                    setTimeout(async () => {
-                        await loadDashboard();
-                    }, 1000);
-                } else {
-                    showError(data.error || 'Error al eliminar clase');
-                }
-            } catch (error) {
-                console.error('Error al eliminar clase:', error);
-                showError('Error de conexión al eliminar clase');
             }
         }
     </script>
