@@ -546,22 +546,23 @@ async function crearObjeto(credentials, tipo, classId, datos) {
       state: 'ACTIVE'
     };
 
-    // Título de la tarjeta
-    if (datos.nombre) {
+    // Título de la tarjeta (soporta nombre y accountName)
+    const nombreUsuario = datos.nombre || datos.accountName || datos.cardTitle;
+    if (nombreUsuario) {
       payload.cardTitle = {
         defaultValue: {
           language: 'es-MX',
-          value: datos.nombre
+          value: nombreUsuario
         }
       };
     }
 
     // Encabezado
-    if (datos.titulo) {
+    if (datos.titulo || datos.header) {
       payload.header = {
         defaultValue: {
           language: 'es-MX',
-          value: datos.titulo
+          value: datos.titulo || datos.header
         }
       };
     }
@@ -591,10 +592,46 @@ async function crearObjeto(credentials, tipo, classId, datos) {
         }
       }
 
-      // Número de cuenta/membresía
-      const accountId = datos.account_id || datos.numero_membresia;
+      // Número de cuenta/membresía (soporta múltiples formatos)
+      const accountId = datos.accountId || datos.account_id || datos.numero_membresia;
       if (accountId && String(accountId).trim()) {
         payload.accountId = String(accountId).trim();
+      }
+
+      // Nombre del titular (accountName)
+      const accountName = datos.accountName || datos.nombre;
+      if (accountName && String(accountName).trim()) {
+        payload.accountName = String(accountName).trim();
+      }
+
+      // Email (opcional pero recomendado)
+      if (datos.email && String(datos.email).trim()) {
+        // Google Wallet no tiene campo directo de email en el objeto,
+        // pero podemos agregarlo en textModulesData si no existe
+        if (!datos.campos_texto || !datos.campos_texto.find(c => c.id === 'email')) {
+          if (!payload.textModulesData) {
+            payload.textModulesData = [];
+          }
+          payload.textModulesData.push({
+            header: 'Email',
+            body: String(datos.email).trim(),
+            id: 'email'
+          });
+        }
+      }
+
+      // Teléfono (opcional)
+      if (datos.telefono && String(datos.telefono).trim()) {
+        if (!datos.campos_texto || !datos.campos_texto.find(c => c.id === 'telefono')) {
+          if (!payload.textModulesData) {
+            payload.textModulesData = [];
+          }
+          payload.textModulesData.push({
+            header: 'Teléfono',
+            body: String(datos.telefono).trim(),
+            id: 'telefono'
+          });
+        }
       }
     }
 
