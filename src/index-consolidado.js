@@ -1211,7 +1211,7 @@ export default {
             c.tipo as tipo_clase
           FROM pases p
           LEFT JOIN clases c ON p.class_id = c.id
-          WHERE p.cliente_id = ?
+          WHERE p.cliente_id = ? AND (p.estado IS NULL OR p.estado = 'ACTIVE')
         `;
 
         const params = [session.data.clienteId];
