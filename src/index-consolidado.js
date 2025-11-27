@@ -1357,8 +1357,18 @@ export default {
         }
 
         const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
-        const issuerIdMatch = credentials.client_email.match(/(\d+)-/);
-        const issuerId = issuerIdMatch ? issuerIdMatch[1] : '3388000000022737801';
+
+        // Usar el ISSUER_ID de las variables de entorno o el valor por defecto
+        // El issuer ID es un número largo que empieza con 3388
+        let issuerId = env.ISSUER_ID || '3388000000022737801';
+
+        // Si no está configurado, intentar extraerlo del email (solo números que empiezan con 3388)
+        if (!env.ISSUER_ID) {
+          const issuerIdMatch = credentials.client_email.match(/(3388\d{12,})/);
+          if (issuerIdMatch) {
+            issuerId = issuerIdMatch[1];
+          }
+        }
 
         // Sanitizar nombre_clase: eliminar espacios y caracteres especiales
         const sanitizedName = nombre_clase
