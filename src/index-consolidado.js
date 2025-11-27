@@ -878,7 +878,8 @@ async function enviarNotificacionClase(credentials, tipo, classId, mensaje) {
       }
     };
 
-    const response = await fetch(
+    // 1. Agregar mensaje a la clase
+    const responseMsg = await fetch(
       `https://walletobjects.googleapis.com/walletobjects/v1/${endpoint}/${classId}/addMessage`,
       {
         method: 'POST',
@@ -890,12 +891,31 @@ async function enviarNotificacionClase(credentials, tipo, classId, mensaje) {
       }
     );
 
-    if (response.ok) {
-      return { success: true, mensaje: 'Notificación masiva enviada' };
-    } else {
-      const error = await response.text();
+    if (!responseMsg.ok) {
+      const error = await responseMsg.text();
       return { success: false, error };
     }
+
+    // 2. Hacer un PATCH a la clase para forzar actualización y notificación push
+    // Esto ayuda a detonar la notificación incluso en cuentas sandbox
+    const updatePayload = {
+      messages: [mensajeObj],
+      version: Date.now().toString() // Cambiar version para forzar actualización
+    };
+
+    await fetch(
+      `https://walletobjects.googleapis.com/walletobjects/v1/${endpoint}/${classId}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatePayload)
+      }
+    );
+
+    return { success: true, mensaje: 'Notificación masiva enviada' };
   } catch (error) {
     return { success: false, error: error.message };
   }
