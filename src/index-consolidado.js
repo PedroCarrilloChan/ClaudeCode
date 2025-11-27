@@ -807,11 +807,22 @@ async function enviarNotificacionPase(credentials, tipo, objetoId, mensaje) {
     const endpoint = TIPOS_PASE[tipo].endpoint_objeto;
     const token = await obtenerTokenGoogle(credentials);
 
+    // Formato correcto para Google Wallet con localización
     const mensajeObj = {
-      header: mensaje.header || 'Actualización',
-      body: mensaje.body || mensaje,
+      messageType: 'TEXT',
       id: `msg_${Date.now()}`,
-      messageType: 'TEXT'
+      localizedHeader: {
+        defaultValue: {
+          language: 'es-MX',
+          value: mensaje.header || 'Actualización'
+        }
+      },
+      localizedBody: {
+        defaultValue: {
+          language: 'es-MX',
+          value: mensaje.body || mensaje
+        }
+      }
     };
 
     const response = await fetch(
@@ -849,11 +860,22 @@ async function enviarNotificacionClase(credentials, tipo, classId, mensaje) {
     const endpoint = TIPOS_PASE[tipo].endpoint_clase;
     const token = await obtenerTokenGoogle(credentials);
 
+    // Formato correcto para Google Wallet con localización
     const mensajeObj = {
-      header: mensaje.header || 'Actualización',
-      body: mensaje.body || mensaje,
+      messageType: 'TEXT',
       id: `msg_${Date.now()}`,
-      messageType: 'TEXT'
+      localizedHeader: {
+        defaultValue: {
+          language: 'es-MX',
+          value: mensaje.header || 'Actualización'
+        }
+      },
+      localizedBody: {
+        defaultValue: {
+          language: 'es-MX',
+          value: mensaje.body || mensaje
+        }
+      }
     };
 
     const response = await fetch(
