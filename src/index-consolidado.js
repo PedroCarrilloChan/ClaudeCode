@@ -1795,10 +1795,45 @@ export default {
           }, corsHeaders, 404);
         }
 
-        const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
-        const resultado = await enviarNotificacionClase(credentials, clase.tipo, class_id, mensaje);
+        // Obtener TODOS los pases activos de esta clase
+        const pases = await env.DB.prepare(
+          'SELECT objeto_id FROM pases WHERE class_id = ? AND (estado IS NULL OR estado = ?) AND cliente_id = ?'
+        ).bind(class_id, 'ACTIVE', cliente.id).all();
 
-        return jsonResponse(resultado, corsHeaders);
+        if (!pases.results || pases.results.length === 0) {
+          return jsonResponse({
+            success: false,
+            error: 'No hay pases activos en esta clase'
+          }, corsHeaders, 404);
+        }
+
+        const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
+
+        // Enviar notificación a CADA pase individual (más confiable para push)
+        let exitosos = 0;
+        let fallidos = 0;
+
+        for (const pase of pases.results) {
+          try {
+            const resultado = await enviarNotificacionPase(credentials, clase.tipo, pase.objeto_id, mensaje);
+            if (resultado.success) {
+              exitosos++;
+            } else {
+              fallidos++;
+            }
+          } catch (error) {
+            console.error(`Error notificando pase ${pase.objeto_id}:`, error);
+            fallidos++;
+          }
+        }
+
+        return jsonResponse({
+          success: true,
+          mensaje: `Notificaciones enviadas: ${exitosos} exitosas, ${fallidos} fallidas`,
+          total: pases.results.length,
+          exitosos,
+          fallidos
+        }, corsHeaders);
       }
 
       // WEBHOOKS - Recibir eventos de Google Wallet y reenviar al webhook del cliente
