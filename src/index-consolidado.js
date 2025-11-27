@@ -807,9 +807,9 @@ async function enviarNotificacionPase(credentials, tipo, objetoId, mensaje) {
     const endpoint = TIPOS_PASE[tipo].endpoint_objeto;
     const token = await obtenerTokenGoogle(credentials);
 
-    // Formato correcto para Google Wallet con localización
+    // Formato correcto para Google Wallet con localización y notificación push
     const mensajeObj = {
-      messageType: 'TEXT',
+      messageType: 'TEXT_AND_NOTIFY',  // Esto detona la notificación push
       id: `msg_${Date.now()}`,
       localizedHeader: {
         defaultValue: {
@@ -860,9 +860,9 @@ async function enviarNotificacionClase(credentials, tipo, classId, mensaje) {
     const endpoint = TIPOS_PASE[tipo].endpoint_clase;
     const token = await obtenerTokenGoogle(credentials);
 
-    // Formato correcto para Google Wallet con localización
+    // Formato correcto para Google Wallet con localización y notificación push
     const mensajeObj = {
-      messageType: 'TEXT',
+      messageType: 'TEXT_AND_NOTIFY',  // Esto detona la notificación push
       id: `msg_${Date.now()}`,
       localizedHeader: {
         defaultValue: {
